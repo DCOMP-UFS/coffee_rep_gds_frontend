@@ -1,44 +1,65 @@
 *{
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
+
 }
 
-html, body { height: 100%; }
+html, body {
+  height: 100%;
+  background: white;
+  box-sizing: border-box;
+}
+
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 form{
   mat-icon{
     margin-top: -10px;
-  }
+}
   label{
     top: 50% !important;
     margin-left: 2px;
-  }
+}
   mat-form-field {
     height: 40px;
     width: 100%;
 
-  }
+}
   mat-form-field .mat-mdc-text-field-wrapper {
     height: 100%;
-  }
+}
   .mat-mdc-text-field-wrapper.mdc-text-field--outlined .mat-mdc-form-field-infix{
     padding-top: 9px;
 
-  }
+}
   mat-form-field .mat-mdc-form-field-infix {
     min-height: 100%;
     display: flex;
     align-items: center;
-  }
+}
   .mat-form-field-infix {
     padding: 0 !important;
-  }
+}
   .mat-input-element {
     text-align: left;
-  }
+}
   .mat-mdc-text-field-wrapper.mdc-text-field--outlined .mdc-notched-outline--upgraded .mdc-floating-label--float-above {
     --mat-mdc-form-field-label-transform: translateY(-27.75px) scale(var(--mat-mdc-form-field-floating-label-scale, 0.75));
-  }
+}
 }
 
+.mat-toolbar{
+  background: white !important;
+}
+ngx-mat-datetime-picker {
+  background-color: white !important;
+  z-index: 1000; /* Para garantir que fique acima de outros elementos */
+}
+ngx-mat-datetime-picker {
+  background-color: white !important;
+  z-index: 1000; /* Para garantir que fique acima de outros elementos */
+}
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

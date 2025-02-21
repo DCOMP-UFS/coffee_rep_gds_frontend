@@ -1,4 +1,20 @@
-<router-outlet></router-outlet>
-<div *ngIf="loader.loader" class="loader-container">
-  <mat-spinner></mat-spinner>
+@if(loader.loader){
+  <div class="loader-container">
+    <mat-spinner></mat-spinner>
+  </div>
+}
+<div class="container-page">
+  @if (!outSystem){
+    <app-side-menu></app-side-menu>
+  }
+  <div [class]="!outSystem ? 'content' : ''">
+    @if (!outSystem){
+      <mat-toolbar>
+        <span>Gerenciamento de Salas - HU</span>
+      </mat-toolbar>
+    }
+    <div class="container-router">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
 </div>

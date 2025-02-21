@@ -1,0 +1,48 @@
+
+.main-side-menu{
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  .side-menu-content {
+    //background: #f8fafc;
+    background: #ffffff;
+    padding: 15px;
+    //border-radius: 8px;
+    height: 100%;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+
+
+    ul{
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+      .selected{
+        background: rgb(0, 48, 90);
+        color: white;
+      }
+      li{
+        list-style: none;
+        border: 1px solid rgb(0, 48, 90);
+        color: rgb(0, 48, 90);
+        border-radius: 4px;
+        padding: 8px;
+      }
+    }
+    .list{
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+
+      height: 100%;
+      div{
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+      }
+    }
+  }
+}

@@ -1,0 +1,111 @@
+<div class="master-home">
+  <div class="container-top-infos">
+    <div class="from-infos">
+      <div class="title">
+        <mat-icon>alarm</mat-icon>
+        <span>Reserva Rápida</span>
+      </div>
+      <form>
+        <div>
+          <mat-form-field>
+            <mat-label>Setor</mat-label>
+            <mat-select>
+              <mat-option>Clear</mat-option>
+              <mat-option value="valid">Valid option</mat-option>
+              <mat-option value="invalid">Invalid option</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Sala</mat-label>
+            <mat-select>
+              <mat-option>Clear</mat-option>
+              <mat-option value="valid">Valid option</mat-option>
+              <mat-option value="invalid">Invalid option</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Data de reserva</mat-label>
+            <input matInput [matDatepicker]="picker">
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Horário</mat-label>
+            <input matInput
+                   #inputField
+                   placeholder="00:00 - 00:00"
+                   (input)="formatTimeRange(inputField)"
+                   maxlength="13">
+          </mat-form-field>
+
+        </div>
+
+
+        <div class="container-button-top">
+          <button class="default-button"> Reservar Agora</button>
+        </div>
+      </form>
+    </div>
+    <div class="container-rooms-with-map">
+      <div class="container-rooms">
+        <div class="container-left-rooms">
+          <div class="container-rooms-space">
+            <div class="title">
+              <mat-icon>meeting_room</mat-icon>
+              <span>Consultórios/Salas</span>
+            </div>
+            <div>
+              <select name="cars" id="cars">
+                <option value="volvo">Ambulatório</option>
+              </select>
+            </div>
+          </div>
+          <div class="container-with-scroll">
+            @for (room of (homeStore.getRooms | async); track room.name) {
+              <div class="container-card-room">
+                <div class="infos-not-actions">
+                  <div class="avatar">
+                    <span>{{ room.name }}</span>
+                  </div>
+                  <div class="infos">
+                    <span>{{ room.type }}</span>
+                    <span>{{ room.section }}</span>
+                  </div>
+                </div>
+                <div class="status">
+
+                </div>
+                <div class="actions">
+                  <button class="default-button">Reservar Agora
+                    <mat-icon> place</mat-icon>
+                  </button>
+                </div>
+              </div>
+            }
+
+
+          </div>
+          <mat-paginator [length]="100"
+                         [pageSize]="10"
+                         aria-label="Select page">
+          </mat-paginator>
+        </div>
+
+      </div>
+      <div class="container-map">
+        <div class="title">
+          <mat-icon> map</mat-icon>
+          <span>Mapa Dos Consultórios</span>
+        </div>
+        <div data-name="zoom" id="slide-produto" [attr.data-src]="'assets/Planta baixa ambulatório-1.png'">
+          <img fetchpriority="high" id="originalImage" on-mousemove="zoom($event)"
+               src="assets/Planta baixa ambulatório-1.png">
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
