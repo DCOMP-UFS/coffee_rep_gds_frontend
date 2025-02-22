@@ -28,4 +28,9 @@ export class HttpService {
       finalize(() => this.loaderService.loader = false)
     );
   }
+
+  getWithoutLoad<T>(url: string, params?: object): Observable<T> {
+    // @ts-ignore
+    return this.http.get<T>(environment.apiUrl + url, { params: params })
+  }
 }

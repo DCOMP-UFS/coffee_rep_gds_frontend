@@ -156,6 +156,10 @@
   padding: 20px;
   border-radius: 5px;
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.06);
+  &:disabled{
+    background: gray;
+    color: #000;
+  }
 }
 
 [data-name="zoom"] {

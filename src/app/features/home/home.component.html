@@ -5,47 +5,50 @@
         <mat-icon>alarm</mat-icon>
         <span>Reserva Rápida</span>
       </div>
-      <form>
+      <form [formGroup]="reservationForm" (ngSubmit)="submitForm()">
         <div>
           <mat-form-field>
             <mat-label>Setor</mat-label>
-            <mat-select>
-              <mat-option>Clear</mat-option>
-              <mat-option value="valid">Valid option</mat-option>
-              <mat-option value="invalid">Invalid option</mat-option>
+            <mat-select (selectionChange)="getRoomsById($event.value)" formControlName="section">
+              @for (section of (homeStore.getSections | async); track section.id) {
+                <mat-option value="{{section.id}}">{{ section.nome }}</mat-option>
+              }
             </mat-select>
           </mat-form-field>
 
           <mat-form-field>
             <mat-label>Sala</mat-label>
-            <mat-select>
-              <mat-option>Clear</mat-option>
-              <mat-option value="valid">Valid option</mat-option>
-              <mat-option value="invalid">Invalid option</mat-option>
+            <mat-select formControlName="room">
+              @for (room of (homeStore.getRoomsByFilter | async); track room.nome) {
+                <mat-option value="{{room.id}}">{{ room.nome }}</mat-option>
+              }
             </mat-select>
           </mat-form-field>
 
           <mat-form-field>
             <mat-label>Data de reserva</mat-label>
-            <input matInput [matDatepicker]="picker">
+            <input matInput [matDatepicker]="picker" formControlName="reservationDate">
             <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
             <mat-datepicker #picker></mat-datepicker>
           </mat-form-field>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Horário</mat-label>
-            <input matInput
-                   #inputField
-                   placeholder="00:00 - 00:00"
-                   (input)="formatTimeRange(inputField)"
-                   maxlength="13">
+          <mat-form-field>
+            <mat-label>Responsável</mat-label>
+            <mat-select formControlName="room">
+              @for (req of (homeStore.getRequesters | async); track req.nome) {
+                <mat-option value="2">{{ req.nome }}</mat-option>
+              }
+            </mat-select>
           </mat-form-field>
 
+          <mat-form-field appearance="outline">
+            <mat-label>Horário</mat-label>
+            <input matInput #inputField placeholder="00:00 - 00:00" (input)="formatTimeRange(inputField)" maxlength="13" formControlName="timeRange">
+          </mat-form-field>
         </div>
 
-
         <div class="container-button-top">
-          <button class="default-button"> Reservar Agora</button>
+          <button class="default-button" type="submit">Reservar Agora</button>
         </div>
       </form>
     </div>
@@ -64,22 +67,22 @@
             </div>
           </div>
           <div class="container-with-scroll">
-            @for (room of (homeStore.getRooms | async); track room.name) {
+            @for (room of (homeStore.getRooms | async); track room.nome) {
               <div class="container-card-room">
                 <div class="infos-not-actions">
                   <div class="avatar">
-                    <span>{{ room.name }}</span>
+                    <span>{{ room.nome }}</span>
                   </div>
                   <div class="infos">
-                    <span>{{ room.type }}</span>
-                    <span>{{ room.section }}</span>
+                    <span>{{ room.tipo }}</span>
+                    <span>{{ room.setor }}</span>
                   </div>
                 </div>
                 <div class="status">
-
+                  <span>{{room.status}}</span>
                 </div>
                 <div class="actions">
-                  <button class="default-button">Reservar Agora
+                  <button [disabled]="room.status === 'Ocupada'" class="default-button">Reservar Agora
                     <mat-icon> place</mat-icon>
                   </button>
                 </div>

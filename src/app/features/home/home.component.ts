@@ -9,6 +9,7 @@ import {MatDatepickerModule} from '@angular/material/datepicker';
 import {MatSelectModule} from '@angular/material/select';
 import {MatButtonModule} from '@angular/material/button';
 import {MatNativeDateModule} from '@angular/material/core';
+import {FormBuilder, FormGroup, ReactiveFormsModule} from '@angular/forms';
 
 
 @Component({
@@ -25,19 +26,33 @@ import {MatNativeDateModule} from '@angular/material/core';
     MatDatepickerModule,
     MatNativeDateModule,
     MatSelectModule,
-    MatButtonModule
+    MatButtonModule,
+    ReactiveFormsModule
   ],
   providers: [HomeComponentStore]
 })
 export class HomeComponent implements OnInit{
 
-  constructor(public homeStore: HomeComponentStore) {
+  reservationForm: FormGroup;
 
+  constructor(public homeStore: HomeComponentStore, private fb: FormBuilder) {
+    this.reservationForm = this.fb.group({
+      section: [''],
+      room: [''],
+      reservationDate: [new Date()],
+      timeRange: ['']
+    });
   }
 
   ngOnInit(): void {
     this.homeStore.getRooms$()
+    this.homeStore.getSections$()
+    this.homeStore.getRequester$()
+  }
 
+  getRoomsById(event: string): void{
+    this.homeStore.setRoomsByFilter([])
+    this.homeStore.getRoomsBySectionId$({sectionId: +event})
   }
 
   public zoom(event: any): boolean {
@@ -60,6 +75,29 @@ export class HomeComponent implements OnInit{
       '%;';
     return true;
   }
+
+  submitForm(): void {
+    if (this.reservationForm.valid) {
+
+      this.homeStore.createReservation$({
+        salaId: +this.reservationForm.value.room,
+        solicitanteId: 1,
+        horaInicio: this.createDate(this.reservationForm.value.reservationDate, this.reservationForm.value.timeRange.split('-')[0]),
+        horaFim: this.createDate(this.reservationForm.value.reservationDate, this.reservationForm.value.timeRange.split('-')[1]),
+        observacoes: ""
+      })
+    }
+  }
+
+  createDate(dateObj: Date, timeString: string): Date {
+    const year = dateObj.getFullYear();
+    const month = dateObj.getMonth();
+    const day = dateObj.getDate();
+    const [hours, minutes] = timeString.split(':').map(Number);
+
+    return new Date(year, month, day, hours, minutes);
+  }
+
 
   formatTimeRange(input: HTMLInputElement) {
     let value = input.value.replace(/\D/g, ""); // Remove tudo que não for número

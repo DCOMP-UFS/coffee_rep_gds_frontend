@@ -3,7 +3,9 @@ export interface RoomResponseModel {
 }
 
 export interface Room{
-  name: string,
-  type: string,
-  section: string
+  id: number,
+  nome: string,
+  status: string,
+  tipo: string,
+  setor: string
 }
