@@ -1,0 +1,32 @@
+.container-reservation-page{
+  display: flex;
+  gap: 10px;
+  flex-direction: column;
+  height: 100vh;
+  .card-reservation{
+    background: white;
+    border-radius: 8px;
+  }
+  form{
+    max-width: 300px;
+    display: flex;
+    gap: 15px;
+  }
+  .card-title{
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 10px;
+    padding: 16px 16px 0 16px;
+  }
+  .table-container{
+    background: white;
+    padding: 10px;
+    border-radius: 8px;
+    table {
+      width: 100%;
+      background: white;
+
+    }
+  }
+}

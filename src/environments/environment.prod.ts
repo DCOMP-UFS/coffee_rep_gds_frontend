@@ -1,4 +1,4 @@
 export const environment = {
-  production: true,
-  tokenName: 'gdsToken'
+	production: true,
+	tokenName: "gdsToken",
 };

@@ -1,36 +1,37 @@
-import { Injectable } from '@angular/core';
-import {HttpClient} from "@angular/common/http";
-import {LoaderService} from "./loader.service";
-import {finalize, Observable} from "rxjs";
-import {environment} from '../../../environments/environment';
+import { HttpClient, HttpParams } from "@angular/common/http";
+import { Injectable } from "@angular/core";
+import { Observable, finalize } from "rxjs";
+import { environment } from "../../../environments/environment";
+import { LoaderService } from "./loader.service";
 
 @Injectable({
-  providedIn: 'root'
+	providedIn: "root",
 })
 export class HttpService {
+	constructor(
+		private readonly http: HttpClient,
+		private readonly loaderService: LoaderService,
+	) {}
 
-  constructor(
-    private readonly http: HttpClient,
-    private readonly loaderService: LoaderService
-  ) { }
+	postWithLoader<T>(url: string, body: object): Observable<T> {
+		this.loaderService.loader = true;
+		return this.http.post<T>(environment.apiUrl + url, body).pipe(
+			finalize(() => {
+				this.loaderService.loader = false;
+			}),
+		);
+	}
 
-  postWithLoader<T>(url: string, body: object): Observable<T> {
-    this.loaderService.loader = true;
-    return this.http.post<T>(environment.apiUrl + url, body).pipe(
-      finalize(() => this.loaderService.loader = false)
-    );
-  }
+	getWithLoader<T>(url: string, params?: HttpParams): Observable<T> {
+		this.loaderService.loader = true;
+		return this.http.get<T>(environment.apiUrl + url, { params: params }).pipe(
+			finalize(() => {
+				this.loaderService.loader = false;
+			}),
+		);
+	}
 
-  getWithLoader<T>(url: string, params?: object): Observable<T> {
-    this.loaderService.loader = true;
-    // @ts-ignore
-    return this.http.get<T>(environment.apiUrl + url, { params: params }).pipe(
-      finalize(() => this.loaderService.loader = false)
-    );
-  }
-
-  getWithoutLoad<T>(url: string, params?: object): Observable<T> {
-    // @ts-ignore
-    return this.http.get<T>(environment.apiUrl + url, { params: params })
-  }
+	getWithoutLoad<T>(url: string, params?: HttpParams): Observable<T> {
+		return this.http.get<T>(environment.apiUrl + url, { params: params });
+	}
 }

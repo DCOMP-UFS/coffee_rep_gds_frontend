@@ -3,22 +3,17 @@
   <div class="side-menu-content">
     <div class="list">
       <div>
-        <img src="assets/logo.png">
+        <img alt="Logo" src="assets/logo.png">
         <ul>
-          @for (m of menu; track m.icon; let i = $index){
-            <li [class]="i == 0 ? 'selected' : ''">
-              <div style="display: flex; flex-direction: row; justify-content: center; align-items: center;width: 100%" [matTooltip]="m.description" matTooltipPosition="right">
+          @for (m of menu; track m.icon){
+            <li (click)="navigate(m.route)" [class]="actualRoutePath == m.route ? 'selected' : ''">
+              <div style="display: flex; flex-direction: row;width: 100%" [matTooltip]="m.description" matTooltipPosition="right">
                 <mat-icon>{{ m.icon }}</mat-icon> <span>{{m.description}}</span>
               </div>
             </li>
           }
         </ul>
       </div>
-
-      <div>
-        <mat-icon>arrow_back</mat-icon>
-      </div>
     </div>
-
   </div>
 </div>

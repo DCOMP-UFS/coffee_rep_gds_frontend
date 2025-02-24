@@ -13,16 +13,17 @@
 
 .container-page {
   display: flex;
-  height: 100vh;
-  div{
-    width: 100%;
-}
-  .content{
-    background: #efefef;
-    .container-router{
 
-      padding: 15px;
+  div {
+    width: 100%;
   }
-}
+
+  .content {
+    background: #efefef;
+
+    .container-router {
+      padding: 15px;
+    }
+  }
 }
 

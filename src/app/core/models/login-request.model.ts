@@ -1,4 +1,4 @@
-export interface LoginRequestModel{
-  cpf: string;
-  password: string
+export interface LoginRequestModel {
+	cpf: string;
+	password: string;
 }

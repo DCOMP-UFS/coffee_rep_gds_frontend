@@ -1,7 +1,7 @@
-export interface ReservationRequestModel{
-  salaId: number
-  solicitanteId: number
-  horaInicio: Date
-  horaFim: Date
-  observacoes: string
+export interface ReservationRequestModel {
+	salaId: number;
+	solicitanteId: number;
+	horaInicio: string;
+	horaFim: string;
+	observacoes: string;
 }

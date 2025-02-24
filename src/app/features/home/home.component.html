@@ -1,114 +1,74 @@
 <div class="master-home">
-  <div class="container-top-infos">
-    <div class="from-infos">
-      <div class="title">
-        <mat-icon>alarm</mat-icon>
-        <span>Reserva Rápida</span>
-      </div>
-      <form [formGroup]="reservationForm" (ngSubmit)="submitForm()">
-        <div>
-          <mat-form-field>
-            <mat-label>Setor</mat-label>
-            <mat-select (selectionChange)="getRoomsById($event.value)" formControlName="section">
-              @for (section of (homeStore.getSections | async); track section.id) {
-                <mat-option value="{{section.id}}">{{ section.nome }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-
-          <mat-form-field>
-            <mat-label>Sala</mat-label>
-            <mat-select formControlName="room">
-              @for (room of (homeStore.getRoomsByFilter | async); track room.nome) {
-                <mat-option value="{{room.id}}">{{ room.nome }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-
-          <mat-form-field>
-            <mat-label>Data de reserva</mat-label>
-            <input matInput [matDatepicker]="picker" formControlName="reservationDate">
-            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-            <mat-datepicker #picker></mat-datepicker>
-          </mat-form-field>
-
-          <mat-form-field>
-            <mat-label>Responsável</mat-label>
-            <mat-select formControlName="room">
-              @for (req of (homeStore.getRequesters | async); track req.nome) {
-                <mat-option value="2">{{ req.nome }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Horário</mat-label>
-            <input matInput #inputField placeholder="00:00 - 00:00" (input)="formatTimeRange(inputField)" maxlength="13" formControlName="timeRange">
-          </mat-form-field>
+  <mat-card>
+    <div class="container-top-infos">
+      <mat-card-title>
+        <div class="card-title">
+          <mat-icon>alarm</mat-icon>
+          <span>Reserva Rápida</span>
         </div>
 
-        <div class="container-button-top">
-          <button class="default-button" type="submit">Reservar Agora</button>
-        </div>
-      </form>
-    </div>
-    <div class="container-rooms-with-map">
-      <div class="container-rooms">
-        <div class="container-left-rooms">
-          <div class="container-rooms-space">
-            <div class="title">
-              <mat-icon>meeting_room</mat-icon>
-              <span>Consultórios/Salas</span>
-            </div>
-            <div>
-              <select name="cars" id="cars">
-                <option value="volvo">Ambulatório</option>
-              </select>
-            </div>
+      </mat-card-title>
+      <mat-card-content>
+        <form [formGroup]="reservationForm" (ngSubmit)="submitForm()">
+          <div>
+            <mat-form-field>
+              <mat-label>Setor</mat-label>
+              <mat-select formControlName="section" (selectionChange)="getRoomsById($event.value)">
+                @for (section of (homeStore.getSections | async); track section.id) {
+                  <mat-option value="{{section.id}}">{{ section.nome }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field>
+              <mat-label>Sala</mat-label>
+              <mat-select formControlName="room">
+                @for (room of (homeStore.getRoomsByFilter | async); track room.id) {
+                  <mat-option value="{{room.id}}">{{ room.nome }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field>
+              <mat-label>Data de reserva</mat-label>
+              <input matInput [matDatepicker]="picker" formControlName="reservationDate">
+              <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field>
+
+            <mat-form-field>
+              <mat-label>Responsável</mat-label>
+              <mat-select formControlName="requester">
+                @for (req of (homeStore.getRequesters | async); track req.nome) {
+                  <mat-option [value]="req.id">{{ req.nome }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Horário</mat-label>
+              <input matInput #inputField placeholder="00:00 - 00:00" (input)="formatTimeRange(inputField)" maxlength="13" formControlName="timeRange">
+            </mat-form-field>
           </div>
-          <div class="container-with-scroll">
-            @for (room of (homeStore.getRooms | async); track room.nome) {
-              <div class="container-card-room">
-                <div class="infos-not-actions">
-                  <div class="avatar">
-                    <span>{{ room.nome }}</span>
-                  </div>
-                  <div class="infos">
-                    <span>{{ room.tipo }}</span>
-                    <span>{{ room.setor }}</span>
-                  </div>
-                </div>
-                <div class="status">
-                  <span>{{room.status}}</span>
-                </div>
-                <div class="actions">
-                  <button [disabled]="room.status === 'Ocupada'" class="default-button">Reservar Agora
-                    <mat-icon> place</mat-icon>
-                  </button>
-                </div>
-              </div>
-            }
 
-
+          <div class="container-button-top">
+            <button class="default-button" type="submit">Reservar Agora</button>
           </div>
-          <mat-paginator [length]="100"
-                         [pageSize]="10"
-                         aria-label="Select page">
-          </mat-paginator>
-        </div>
-
-      </div>
-      <div class="container-map">
-        <div class="title">
-          <mat-icon> map</mat-icon>
-          <span>Mapa Dos Consultórios</span>
-        </div>
-        <div data-name="zoom" id="slide-produto" [attr.data-src]="'assets/Planta baixa ambulatório-1.png'">
-          <img fetchpriority="high" id="originalImage" on-mousemove="zoom($event)"
-               src="assets/Planta baixa ambulatório-1.png">
-        </div>
-      </div>
+        </form>
+      </mat-card-content>
     </div>
-
-  </div>
+  </mat-card>
+  <mat-card>
+    <div class="calendar">
+      <mat-card-title>
+        <div class="card-title">
+          <mat-icon>calendar_today</mat-icon>
+          <span>Calendário do Mês</span>
+        </div>
+      </mat-card-title>
+      <mat-card-content>
+        <app-calendar></app-calendar>
+      </mat-card-content>
+    </div>
+  </mat-card>
 </div>

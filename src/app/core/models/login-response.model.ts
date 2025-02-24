@@ -1,3 +1,3 @@
-export interface LoginResponseModel{
-  accessToken: string
+export interface LoginResponseModel {
+	accessToken: string;
 }

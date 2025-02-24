@@ -1,8 +1,8 @@
 export interface SectionResponseModel {
-  content: Section[]
+	content: Section[];
 }
 
-export interface Section{
-  id: number
-  nome: string,
+export interface Section {
+	id: number;
+	nome: string;
 }

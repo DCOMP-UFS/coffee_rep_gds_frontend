@@ -1,101 +1,92 @@
+import { Injectable } from "@angular/core";
+import { ComponentStore } from "@ngrx/component-store";
+import { EMPTY, Observable, catchError, switchMap, tap } from "rxjs";
+import { Requester } from "../../core/models/requester-response.model";
+import { ReservationRequestModel } from "../../core/models/reservation-request.model";
+import { Room } from "../../core/models/room-response.model";
+import { Section } from "../../core/models/section-response.model";
+import { RequesterService } from "../../core/services/requester.service";
+import { ReservationService } from "../../core/services/reservation.service";
+import { RoomService } from "../../core/services/room.service";
+import { SectionService } from "../../core/services/section.service";
 
-import { Injectable } from '@angular/core';
-import { ComponentStore } from '@ngrx/component-store';
-import {catchError, EMPTY, Observable, switchMap, tap} from "rxjs";
-import {Room} from '../../core/models/room-response.model';
-import {RoomService} from '../../core/services/room.service';
-import {Section} from '../../core/models/section-response.model';
-import {ReservationRequestModel} from '../../core/models/reservation-request.model';
-import {Requester} from '../../core/models/requester-response.model';
-
-interface HomeState{
-  rooms: Room[]
-  section: Section[]
-  roomsForFilter: Room[]
-  requester: Requester[]
+interface HomeState {
+	section: Section[];
+	roomsForFilter: Room[];
+	requester: Requester[];
 }
 
 @Injectable()
 export class HomeComponentStore extends ComponentStore<HomeState> {
+	constructor(
+		private roomService: RoomService,
+		private sectionService: SectionService,
+		private requesterService: RequesterService,
+		private reservationService: ReservationService,
+	) {
+		super({ section: [], roomsForFilter: [], requester: [] });
+	}
 
-  constructor(
-    private roomService: RoomService
-  ) {
-    super({rooms: [], section: [], roomsForFilter: [], requester: []});
-  }
+	readonly getRequester$ = this.effect(() =>
+		this.requesterService.getRequesters().pipe(
+			tap((res) => this.setRequesters(res.content)),
+			catchError(() => {
+				return EMPTY;
+			}),
+		),
+	);
 
-  readonly getRooms$ = this.effect(() =>
-    this.roomService.getRooms().pipe(
-      tap(res => this.setRooms(res.content)),
-      catchError(err => {
-        return EMPTY;
-      })
-    )
-  );
+	readonly getRoomsBySectionId$ = this.effect(
+		(payload$: Observable<{ sectionId: number }>) => {
+			return payload$.pipe(
+				switchMap((req) =>
+					this.roomService.getRoomBySectionId(req.sectionId).pipe(
+						tap((res) => this.setRoomsByFilter(res.content)),
+						catchError(() => EMPTY),
+					),
+				),
+			);
+		},
+	);
 
-  readonly getRequester$ = this.effect(() =>
-    this.roomService.getRequesters().pipe(
-      tap(res => this.setRequesters(res.content)),
-      catchError(err => {
-        return EMPTY;
-      })
-    )
-  );
+	readonly getSections$ = this.effect(() =>
+		this.sectionService.getSections().pipe(
+			tap((res) => this.setSections(res.content)),
+			catchError(() => {
+				return EMPTY;
+			}),
+		),
+	);
 
-  readonly getRoomsBySectionId$ = this.effect((payload$: Observable<{ sectionId: number }>) => {
-      return payload$.pipe(
-        switchMap(
-          req => this.roomService.getRoomBySectionId(req.sectionId).pipe(
-            tap(res => this.setRoomsByFilter(res.content)),
-            catchError(() => EMPTY)
-          )
-        )
-      );
-  });
+	readonly createReservation$ = this.effect(
+		(payload$: Observable<ReservationRequestModel>) => {
+			return payload$.pipe(
+				switchMap((req) =>
+					this.reservationService.reserveRoom(req).pipe(
+						tap(() => location.reload()),
+						catchError(() => EMPTY),
+					),
+				),
+			);
+		},
+	);
 
-  readonly getSections$ = this.effect(() =>
-    this.roomService.getSections().pipe(
-      tap(res => this.setSections(res.content)),
-      catchError(err => {
-        return EMPTY;
-      })
-    )
-  );
+	readonly getRoomsByFilter = this.select((state) => state.roomsForFilter);
+	readonly getSections = this.select((state) => state.section);
+	readonly getRequesters = this.select((state) => state.requester);
 
-  readonly createReservation$ = this.effect((payload$: Observable<ReservationRequestModel>) => {
-    return payload$.pipe(
-      switchMap(
-        req => this.roomService.reserveRoom(req).pipe(
-          tap(() => this.getRooms$()),
-          catchError(() => EMPTY)
-        )
-      )
-    );
-  });
+	readonly setRequesters = this.updater((state, requesters: Requester[]) => ({
+		...state,
+		requester: requesters,
+	}));
 
-  readonly getRooms = this.select((state) => state.rooms)
-  readonly getRoomsByFilter = this.select((state) => state.roomsForFilter)
-  readonly getSections = this.select((state) => state.section)
-  readonly getRequesters = this.select((state) => state.requester)
+	readonly setSections = this.updater((state, sections: Section[]) => ({
+		...state,
+		section: sections,
+	}));
 
-  readonly setRooms = this.updater((state, rooms: Room[]) => ({
-    ...state,
-    rooms: rooms
-  }))
-
-  readonly setRequesters = this.updater((state, requesters: Requester[]) => ({
-    ...state,
-    requester: requesters
-  }))
-
-  readonly setSections = this.updater((state, sections: Section[]) => ({
-    ...state,
-    section: sections
-  }))
-
-  readonly setRoomsByFilter = this.updater((state, rooms: Room[]) => ({
-    ...state,
-    roomsForFilter: rooms
-  }))
-
+	readonly setRoomsByFilter = this.updater((state, rooms: Room[]) => ({
+		...state,
+		roomsForFilter: rooms,
+	}));
 }

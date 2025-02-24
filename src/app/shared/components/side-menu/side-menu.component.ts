@@ -1,28 +1,39 @@
-import { Component } from '@angular/core';
-import {MatIcon, MatIconModule} from '@angular/material/icon';
-import {MatTooltip, MatTooltipModule} from '@angular/material/tooltip';
+import { Component, Input } from "@angular/core";
+import { MatIcon } from "@angular/material/icon";
+import { MatTooltip } from "@angular/material/tooltip";
+import { Router } from "@angular/router";
 
 @Component({
-  selector: 'app-side-menu',
-  templateUrl: './side-menu.component.html',
-  standalone: true,
-  imports: [
-    MatIcon,
-    MatTooltip
-  ],
-  styleUrls: ['./side-menu.component.scss']
+	selector: "app-side-menu",
+	templateUrl: "./side-menu.component.html",
+	standalone: true,
+	imports: [MatIcon, MatTooltip],
+	styleUrls: ["./side-menu.component.scss"],
 })
 export class SideMenuComponent {
+	@Input() actualRoutePath = "";
 
-  menu = [
-    {
-      icon: 'home',
-      description: 'Início'
-    },
-    // {
-    //   icon: 'meeting_room',
-    //   description: 'Salas'
-    // }
-  ]
+	constructor(private router: Router) {}
 
+	navigate(route: string) {
+		this.router.navigate([route]);
+	}
+
+	menu = [
+		{
+			icon: "home",
+			description: "Início",
+			route: "/home",
+		},
+		{
+			icon: "alarm",
+			description: "Reservas",
+			route: "/reservation",
+		},
+		{
+			icon: "meeting_room",
+			description: "Salas",
+			route: "/rooms",
+		},
+	];
 }

@@ -48,6 +48,9 @@ form{
     --mat-mdc-form-field-label-transform: translateY(-27.75px) scale(var(--mat-mdc-form-field-floating-label-scale, 0.75));
 }
 }
+.mat-mdc-paginator-outer-container{
+  background: white !important;
+}
 
 .mat-toolbar{
   background: white !important;
@@ -61,5 +64,27 @@ ngx-mat-datetime-picker {
   z-index: 1000; /* Para garantir que fique acima de outros elementos */
 }
 
-html, body { height: 100%; }
+html, body {   height: 100vh; overflow: hidden; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+.mat-mdc-card-content:last-child{
+  padding-bottom: 0;
+}
+
+.default-button{
+  background: #7faa1b;
+  border: none;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.06);
+  height: 40px;
+  &:disabled{
+    background: gray;
+    color: #000;
+  }
+}

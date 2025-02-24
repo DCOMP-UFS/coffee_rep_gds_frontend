@@ -1,37 +1,29 @@
-import { Injectable } from '@angular/core';
-import {HttpService} from "./http.service";
-import {Observable} from "rxjs";
-import {RoomResponseModel} from "../models/room-response.model";
-import {SectionResponseModel} from '../models/section-response.model';
-import {ReservationRequestModel} from '../models/reservation-request.model';
-import {RequesterResponseModel} from '../models/requester-response.model';
+import { HttpParams } from "@angular/common/http";
+import { Injectable } from "@angular/core";
+import { Observable } from "rxjs";
+import { RoomResponseModel } from "../models/room-response.model";
+import { HttpService } from "./http.service";
 
 @Injectable({
-  providedIn: 'root'
+	providedIn: "root",
 })
 export class RoomService {
+	constructor(private readonly http: HttpService) {}
 
-  constructor(
-    private readonly http: HttpService
-  ) { }
+	getRooms(req: {
+		size?: number;
+		page?: number;
+		section?: number;
+	}): Observable<RoomResponseModel> {
+		const params = new HttpParams().set("size", req.size).set("page", req.page);
 
-  getRooms(): Observable<RoomResponseModel>{
-    return this.http.getWithLoader<RoomResponseModel>('room')
-  }
+		return this.http.getWithLoader<RoomResponseModel>(
+			`room${req.section ? `/section/${req.section}` : ""}`,
+			params,
+		);
+	}
 
-  getRequesters(): Observable<RequesterResponseModel>{
-    return this.http.getWithLoader<RequesterResponseModel>('requester')
-  }
-
-  getSections(): Observable<SectionResponseModel>{
-    return this.http.getWithoutLoad<SectionResponseModel>('section')
-  }
-
-  getRoomBySectionId(id: number): Observable<RoomResponseModel>{
-    return this.http.getWithLoader<RoomResponseModel>('room/section/' + id)
-  }
-
-  reserveRoom(req: ReservationRequestModel): Observable<void>{
-    return this.http.postWithLoader('reservation', req)
-  }
+	getRoomBySectionId(id: number): Observable<RoomResponseModel> {
+		return this.http.getWithLoader<RoomResponseModel>(`room/section/${id}`);
+	}
 }

@@ -1,9 +1,10 @@
-export interface RequesterResponseModel{
-  content: []
+export interface RequesterResponseModel {
+	content: [];
 }
 
-export interface Requester{
-  nome: string,
-  tipo: string,
-  cargo: string
+export interface Requester {
+	id: number;
+	nome: string;
+	tipo: string;
+	cargo: string;
 }

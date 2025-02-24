@@ -1,0 +1,78 @@
+<div class="container-reservation-page">
+  <mat-card>
+    <div class="card-reservation">
+      <mat-card-title>
+        <div class="card-title">
+          <mat-icon>alarm</mat-icon>
+          <span>Reservas</span>
+        </div>
+      </mat-card-title>
+      <mat-card-content>
+        <form>
+          <div>
+            <mat-form-field>
+              <mat-label>Selecione um Período</mat-label>
+              <mat-date-range-input [formGroup]="range" [rangePicker]="picker">
+                <input matStartDate formControlName="start" placeholder="Start date">
+                <input matEndDate formControlName="end" placeholder="End date">
+              </mat-date-range-input>
+              <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-date-range-picker #picker></mat-date-range-picker>
+            </mat-form-field>
+          </div>
+          <button class="default-button" (click)="submit()">Buscar</button>
+          <button class="default-button" (click)="openDialog()">Nova Reserva</button>
+        </form>
+      </mat-card-content>
+    </div>
+
+  </mat-card>
+  <mat-card>
+    <div class="table-container">
+      <table mat-table [dataSource]="dataSource">
+
+        <ng-container matColumnDef="sala">
+          <th mat-header-cell *matHeaderCellDef> Sala </th>
+          <td mat-cell *matCellDef="let element"> {{element.sala}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="solicitante">
+          <th mat-header-cell *matHeaderCellDef> Solicitante da Reserva </th>
+          <td mat-cell *matCellDef="let element"> {{element.solicitante}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="setor">
+          <th mat-header-cell *matHeaderCellDef> Setor </th>
+          <td mat-cell *matCellDef="let element"> {{element.setor}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="horaInicio">
+          <th mat-header-cell *matHeaderCellDef> Início </th>
+          <td mat-cell *matCellDef="let element"> {{element.horaInicio | date : 'dd/MM/yyyy HH:mm'}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="horaFim">
+          <th mat-header-cell *matHeaderCellDef> Fim </th>
+          <td mat-cell *matCellDef="let element"> {{element.horaFim | date : 'dd/MM/yyyy HH:mm'}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="cancel">
+          <th mat-header-cell *matHeaderCellDef> Cancelar </th>
+          <td mat-cell *matCellDef="let element"> <mat-icon>cancel</mat-icon> </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+
+      <mat-paginator [pageSizeOptions]="[5, 10, 20]"
+                     [length]="(store.getReservations | async)?.page?.totalElements"
+                     [pageSize]="(store.getReservations | async)?.page?.size"
+                     [pageIndex]="(store.getReservations | async)?.page?.number"
+                     showFirstLastButtons
+                     (page)="handlePageEvent($event)"
+                     aria-label="Select page of periodic elements">
+      </mat-paginator>
+    </div>
+  </mat-card>
+</div>

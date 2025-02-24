@@ -1,181 +1,38 @@
 .master-home{
-  .title{
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    margin-bottom: 10px;
-    font-size: 16px;
-  }
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  height: 100vh;
+  .calendar,
   .container-top-infos{
-
-    .from-infos{
+    .card-title{
+      padding: 0 16px 6px 16px;
       display: flex;
-      flex-direction: column;
-      justify-content: center;
-      gap: 7px;
-      font-size: 22px;
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-
-      form {
-        display: flex;
-        flex-direction: row;
-        gap: 20px;
-        justify-content: space-between;
-        flex-wrap: wrap;
-        div{
-          display: flex;
-          gap: 10px;
-          flex-wrap: wrap;
-        }
-        mat-form-field{
-          width: 300px;
-        }
-        .container-button-top{
-          button{
-            height: 30px;
-
-          }
-        }
-      }
-    }
-
-    .container-with-scroll{
-      height: 421px;
-      overflow: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 7px;
-      padding: 10px;
-    }
-    .container-rooms-with-map{
-      display: flex;
-      justify-content: space-between;
-      gap: 20px;
-      .container-map{
-        margin-top: 22px;
-        display: flex;
-        flex-direction: column;
-        background: white;
-        padding: 15px;
-        border-radius: 8px;
-      }
-      img{
-        width: 700px;
-        display: block;
-      }
-      .container-rooms{
-        margin-top: 20px;
-        width: 100%;
-        .container-left-rooms{
-          .container-rooms-space{
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            select{
-              background: transparent;
-              border: none;
-            }
-          }
-          display: flex;
-          flex-direction: column;
-          background: white;
-          padding: 15px;
-          border-radius: 8px;
-          gap: 10px;
-          position: relative;
-        }
-      }
-
-    }
-
-  }
-}
-
-.container-card-room{
-  display: flex;
-  padding: 10px;
-  border-radius: 8px;
-  justify-content: space-between;
-  background: white;
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.10);
-  .infos-not-actions{
-    display: flex;
-    .avatar{
-      background: rgb(0, 48, 90);
-      display: flex;
-      flex-direction: column;
       align-items: center;
-      justify-content: center;
-      padding: 10px;
-      border-radius: 100%;
-      width: 70px;
-      height: 70px;
-      color: white;
+      gap: 5px;
     }
-    .infos{
+    padding-top: 16px;
+    background: white;
+    border-radius: 8px;
+    form {
       display: flex;
-      flex-direction: column;
-      justify-content: center;
-      margin-left: 10px;
-      span{
-        color: gray;
-        &:first-child{
-          font-weight: bold;
-          font-size: 20px;
-          color: black;
+      flex-direction: row;
+      gap: 20px;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      div{
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      mat-form-field{
+        width: 300px;
+      }
+      .container-button-top{
+        button{
+          height: 30px;
         }
       }
-    }
-  }
-  .status{
-    display: flex;
-    align-items: center;
-    mat-chip{
-      background: #ae2323;
-      span{
-        color: white !important;
-      }
-    }
-  }
-  .actions{
-    display: flex;
-
-  }
-}
-
-.default-button{
-  background: #7faa1b;
-  border: none;
-  color: white;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  padding: 20px;
-  border-radius: 5px;
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.06);
-  &:disabled{
-    background: gray;
-    color: #000;
-  }
-}
-
-[data-name="zoom"] {
-  background-position: 50% 50%;
-  overflow: hidden;
-  cursor: zoom-in;
-  background-size: 2500px !important;
-  transition: 0s !important;
-
-  img {
-    transition: opacity 0.1s;
-    display: block;
-    width: 100%;
-
-    &:hover {
-      opacity: 0;
     }
   }
 }

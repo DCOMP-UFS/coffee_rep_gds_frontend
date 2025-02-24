@@ -6,14 +6,9 @@
   align-items: center;
   flex-direction: column;
   .side-menu-content {
-    //background: #f8fafc;
-    background: #ffffff;
-    padding: 15px;
-    //border-radius: 8px;
     height: 100%;
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
-
-
+    width: 100%;
+    padding: 20px;
     ul{
       display: flex;
       flex-direction: column;
@@ -29,6 +24,7 @@
         color: rgb(0, 48, 90);
         border-radius: 4px;
         padding: 8px;
+        cursor: pointer;
       }
     }
     .list{

@@ -1,0 +1,47 @@
+<h2 mat-dialog-title>Cadastro de Reserva</h2>
+<mat-dialog-content class="mat-typography">
+  <form [formGroup]="reservationForm" (ngSubmit)="submitForm()">
+    <mat-form-field>
+      <mat-label>Setor</mat-label>
+      <mat-select formControlName="section" (selectionChange)="getRoomsById($event.value)">
+        @for (section of (reservationDialogComponentStore.getSections | async); track section.id) {
+          <mat-option value="{{section.id}}">{{ section.nome }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Sala</mat-label>
+      <mat-select formControlName="room">
+        @for (room of (reservationDialogComponentStore.getRoomsByFilter | async); track room.id) {
+          <mat-option value="{{room.id}}">{{ room.nome }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Data de reserva</mat-label>
+      <input matInput [matDatepicker]="picker" formControlName="reservationDate">
+      <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Responsável</mat-label>
+      <mat-select formControlName="requester">
+        @for (req of (reservationDialogComponentStore.getRequesters | async); track req.nome) {
+          <mat-option [value]="req.id">{{ req.nome }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Horário</mat-label>
+      <input matInput #inputField placeholder="00:00 - 00:00" (input)="formatTimeRange(inputField)" maxlength="13" formControlName="timeRange">
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancelar</button>
+  <button mat-button cdkFocusInitial (click)="submitForm()">Salvar</button>
+</mat-dialog-actions>

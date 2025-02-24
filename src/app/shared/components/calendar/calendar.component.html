@@ -1,0 +1,8 @@
+@if(this.events.length > 0){
+  <full-calendar [options]='calendarOptions()'>
+    <ng-template let-arg>
+      <b>{{ arg.timeText }}</b>
+      <i>{{ arg.event.title }}</i>
+    </ng-template>
+  </full-calendar>
+}
