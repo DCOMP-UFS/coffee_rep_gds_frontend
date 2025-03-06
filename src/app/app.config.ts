@@ -8,6 +8,7 @@ import {
 	MatDateFormats,
 	provideNativeDateAdapter,
 } from "@angular/material/core";
+import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from "@angular/material/form-field";
 import { provideAnimationsAsync } from "@angular/platform-browser/animations/async";
 import { provideStore } from "@ngrx/store";
@@ -41,6 +42,8 @@ export const appConfig: ApplicationConfig = {
 		),
 		{ provide: MAT_DATE_LOCALE, useValue: "pt-BR" },
 		{ provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS },
+		{ provide: MAT_DIALOG_DATA, useValue: {} },
+		{ provide: MatDialogRef, useValue: {} },
 		{
 			provide: MAT_FORM_FIELD_DEFAULT_OPTIONS,
 			useValue: { appearance: "outline" },

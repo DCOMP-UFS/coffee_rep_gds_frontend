@@ -25,7 +25,7 @@ export class LoginSignUpStore extends ComponentStore<object> {
 					this.loginService.login(payload).pipe(
 						tap((res) => {
 							this.cookieService.set(environment.tokenName, res.accessToken);
-							this.router.navigate(["/home"]);
+							this.router.navigate(["/rooms"]);
 						}),
 						catchError(() => {
 							return EMPTY;

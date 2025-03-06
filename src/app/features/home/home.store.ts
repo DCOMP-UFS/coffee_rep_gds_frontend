@@ -28,8 +28,8 @@ export class HomeComponentStore extends ComponentStore<HomeState> {
 	}
 
 	readonly getRequester$ = this.effect(() =>
-		this.requesterService.getRequesters().pipe(
-			tap((res) => this.setRequesters(res.content)),
+		this.requesterService.getRequesterUnpaged().pipe(
+			tap((res) => this.setRequesters(res)),
 			catchError(() => {
 				return EMPTY;
 			}),
@@ -40,8 +40,8 @@ export class HomeComponentStore extends ComponentStore<HomeState> {
 		(payload$: Observable<{ sectionId: number }>) => {
 			return payload$.pipe(
 				switchMap((req) =>
-					this.roomService.getRoomBySectionId(req.sectionId).pipe(
-						tap((res) => this.setRoomsByFilter(res.content)),
+					this.roomService.getRoomBySectionId(req.sectionId, "Livre").pipe(
+						tap((res) => this.setRoomsByFilter(res)),
 						catchError(() => EMPTY),
 					),
 				),

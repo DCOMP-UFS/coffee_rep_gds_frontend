@@ -30,6 +30,28 @@ export class ReservationsComponentStore extends ComponentStore<ReservationState>
 		},
 	);
 
+	readonly cancelReservation$ = this.effect(
+		(payload$: Observable<{ reservationId: number }>) => {
+			return payload$.pipe(
+				switchMap((req) =>
+					this.reservationService.cancelReservation(req.reservationId).pipe(
+						tap(() =>
+							this.getReservations$({
+								start: new Date(new Date().setDate(new Date().getDate() - 15)),
+								end: new Date(new Date().setDate(new Date().getDate() + 15)),
+								size: 5,
+								page: 0,
+							}),
+						),
+						catchError(() => {
+							return EMPTY;
+						}),
+					),
+				),
+			);
+		},
+	);
+
 	readonly getReservations = this.select((state) => state.reservation);
 
 	readonly setReservations = this.updater(

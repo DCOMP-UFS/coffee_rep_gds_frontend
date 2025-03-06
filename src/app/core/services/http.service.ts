@@ -22,6 +22,15 @@ export class HttpService {
 		);
 	}
 
+	putWithLoader<T>(url: string, body: object): Observable<T> {
+		this.loaderService.loader = true;
+		return this.http.put<T>(environment.apiUrl + url, body).pipe(
+			finalize(() => {
+				this.loaderService.loader = false;
+			}),
+		);
+	}
+
 	getWithLoader<T>(url: string, params?: HttpParams): Observable<T> {
 		this.loaderService.loader = true;
 		return this.http.get<T>(environment.apiUrl + url, { params: params }).pipe(
@@ -33,5 +42,25 @@ export class HttpService {
 
 	getWithoutLoad<T>(url: string, params?: HttpParams): Observable<T> {
 		return this.http.get<T>(environment.apiUrl + url, { params: params });
+	}
+
+	deleteWithLoader<T>(url: string, params?: HttpParams): Observable<T> {
+		this.loaderService.loader = true;
+		return this.http
+			.delete<T>(environment.apiUrl + url, { params: params })
+			.pipe(
+				finalize(() => {
+					this.loaderService.loader = false;
+				}),
+			);
+	}
+
+	patchWithLoad<T>(url: string, body: object): Observable<T> {
+		this.loaderService.loader = true;
+		return this.http.patch<T>(environment.apiUrl + url, body).pipe(
+			finalize(() => {
+				this.loaderService.loader = false;
+			}),
+		);
 	}
 }

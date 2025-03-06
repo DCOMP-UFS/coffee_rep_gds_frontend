@@ -23,14 +23,29 @@ export class RoomsComponentStore extends ComponentStore<RoomsState> {
 	readonly getRooms$ = this.effect(
 		(payload$: Observable<RoomRequestParamsModel>) => {
 			return payload$.pipe(
-				switchMap((req) =>
-					this.roomService.getRooms(req).pipe(
+				switchMap((req) => {
+					return this.roomService.getRooms(req).pipe(
 						tap((res) => this.setRooms(res)),
 						catchError(() => {
 							return EMPTY;
 						}),
-					),
-				),
+					);
+				}),
+			);
+		},
+	);
+
+	readonly deleteRoom$ = this.effect(
+		(payload$: Observable<{ roomId: number }>) => {
+			return payload$.pipe(
+				switchMap((req) => {
+					return this.roomService.deleteRoom(req.roomId).pipe(
+						tap(() => window.location.reload()),
+						catchError(() => {
+							return EMPTY;
+						}),
+					);
+				}),
 			);
 		},
 	);

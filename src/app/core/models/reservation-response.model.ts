@@ -13,4 +13,5 @@ export interface Reservation {
 	solicitante: string;
 	salaId: number;
 	solicitanteId: number;
+	reservationId: number;
 }

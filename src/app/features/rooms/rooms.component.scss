@@ -11,6 +11,10 @@
     max-width: 300px;
     display: flex;
     gap: 15px;
+    div{
+      display: flex;
+      gap: 10px;
+    }
   }
   .card-title{
     display: flex;
@@ -29,4 +33,20 @@
 
     }
   }
+}
+
+.room-reserved,
+.room-not-reserved{
+  background: red;
+  width: 75px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  padding: 5px;
+  border-radius: 8px;
+}
+
+.room-not-reserved{
+  background: #7faa1b;
 }

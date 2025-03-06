@@ -15,12 +15,12 @@ export class CalendarComponentStore extends ComponentStore<CalendarState> {
 	}
 
 	readonly getReservations$ = this.effect(() =>
-    this.reservationService.getReservationCurrentMonth().pipe(
-      tap((res) => this.setReservations(res)),
-      catchError(() => {
-        return EMPTY;
-      }),
-    ),
+		this.reservationService.getReservationCurrentMonth().pipe(
+			tap((res) => this.setReservations(res)),
+			catchError(() => {
+				return EMPTY;
+			}),
+		),
 	);
 
 	readonly getReservations = this.select((state) => state.reservation);

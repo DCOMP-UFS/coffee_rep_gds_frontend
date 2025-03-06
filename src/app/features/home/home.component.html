@@ -40,7 +40,7 @@
               <mat-label>Responsável</mat-label>
               <mat-select formControlName="requester">
                 @for (req of (homeStore.getRequesters | async); track req.nome) {
-                  <mat-option [value]="req.id">{{ req.nome }}</mat-option>
+                  <mat-option [value]="req.id">{{ req.nome + ' - ' + req.especialidade }}</mat-option>
                 }
               </mat-select>
             </mat-form-field>

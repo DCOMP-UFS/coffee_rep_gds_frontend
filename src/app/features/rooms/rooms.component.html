@@ -13,14 +13,26 @@
             <mat-form-field>
               <mat-label>Setor</mat-label>
               <mat-select formControlName="section">
+                <mat-option [value]="0">Todas</mat-option>
                 @for (section of (store.getSections | async); track section.id) {
                   <mat-option value="{{section.id}}">{{ section.nome }}</mat-option>
                 }
               </mat-select>
             </mat-form-field>
+
+            <mat-form-field>
+              <mat-label>Status</mat-label>
+              <mat-select formControlName="status">
+                @for (status of ['Todas','Ocupada', 'Livre']; track status) {
+                  <mat-option value="{{status}}">{{status }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
           </div>
           <button class="default-button" (click)="submit()">Buscar</button>
-          <button class="default-button" (click)="openDialog()">Nova Sala</button>
+          @if(store.getSections | async; as sections){
+            <button class="default-button" (click)="openDialog(sections)">Nova Sala</button>
+          }
         </form>
       </mat-card-content>
     </div>
@@ -35,11 +47,6 @@
           <td mat-cell *matCellDef="let element"> {{element.nome}} </td>
         </ng-container>
 
-        <ng-container matColumnDef="tipo">
-          <th mat-header-cell *matHeaderCellDef> Tipo </th>
-          <td mat-cell *matCellDef="let element"> {{element.tipo}} </td>
-        </ng-container>
-
         <ng-container matColumnDef="setor">
           <th mat-header-cell *matHeaderCellDef> Setor </th>
           <td mat-cell *matCellDef="let element"> {{element.setor}} </td>
@@ -47,16 +54,34 @@
 
         <ng-container matColumnDef="status">
           <th mat-header-cell *matHeaderCellDef> Status Atual </th>
-          <td mat-cell *matCellDef="let element"> {{element.status}} </td>
+          <td mat-cell *matCellDef="let element">
+            <div [class]="element.ocupada ? 'room-reserved' : 'room-not-reserved'">
+              {{element.ocupada ? 'Ocupada' : 'Livre' }}
+            </div>
+          </td>
         </ng-container>
 
+        <ng-container matColumnDef="update">
+          <th mat-header-cell *matHeaderCellDef> Atualizar </th>
+          <td mat-cell *matCellDef="let element">
 
+            @if(store.getSections | async; as sections){
+              <mat-icon (click)="openDialogUpdate(sections, element)">edit</mat-icon>
+            }
+
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="delete">
+          <th mat-header-cell *matHeaderCellDef> Excluir Sala </th>
+          <td mat-cell *matCellDef="let element"> <mat-icon [style.cursor]="'pointer'" (click)="deleteRoom(element)">cancel</mat-icon> </td>
+        </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
       </table>
 
-      <mat-paginator [pageSizeOptions]="[5, 10, 20]"
+      <mat-paginator [pageSizeOptions]="[5, 10]"
                      [length]="(store.getRooms | async)?.page?.totalElements"
                      [pageSize]="(store.getRooms | async)?.page?.size"
                      [pageIndex]="(store.getRooms | async)?.page?.number"

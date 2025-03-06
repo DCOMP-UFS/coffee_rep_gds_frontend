@@ -3,7 +3,10 @@ import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { ReservationRequestParamsModel } from "../models/reservation-request-params.model";
 import { ReservationRequestModel } from "../models/reservation-request.model";
-import {Reservation, ReservationResponseModel} from "../models/reservation-response.model";
+import {
+	Reservation,
+	ReservationResponseModel,
+} from "../models/reservation-response.model";
 import { HttpService } from "./http.service";
 
 @Injectable({
@@ -27,12 +30,14 @@ export class ReservationService {
 	}
 
 	getReservationCurrentMonth(): Observable<Reservation[]> {
-		return this.http.getWithLoader<Reservation[]>(
-			"reservation/current-month",
-		);
+		return this.http.getWithLoader<Reservation[]>("reservation/current-month");
 	}
 
 	reserveRoom(req: ReservationRequestModel): Observable<void> {
 		return this.http.postWithLoader("reservation", req);
+	}
+
+	cancelReservation(reservationId: number): Observable<void> {
+		return this.http.patchWithLoad(`reservation/${reservationId}`, null);
 	}
 }

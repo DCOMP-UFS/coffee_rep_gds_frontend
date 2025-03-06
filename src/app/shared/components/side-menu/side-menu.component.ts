@@ -21,9 +21,9 @@ export class SideMenuComponent {
 
 	menu = [
 		{
-			icon: "home",
-			description: "Início",
-			route: "/home",
+			icon: "calendar_today",
+			description: "Calendário",
+			route: "/calendar",
 		},
 		{
 			icon: "alarm",
@@ -34,6 +34,11 @@ export class SideMenuComponent {
 			icon: "meeting_room",
 			description: "Salas",
 			route: "/rooms",
+		},
+		{
+			icon: "person",
+			description: "Solicitante",
+			route: "/requester",
 		},
 	];
 }

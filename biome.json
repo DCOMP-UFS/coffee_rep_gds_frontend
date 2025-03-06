@@ -19,18 +19,21 @@
 	"linter": {
 		"enabled": true,
 		"rules": {
-      "style": {
-        "useImportType": "off"
-      },
+			"style": {
+				"useImportType": "off"
+			},
 			"recommended": true,
-      "correctness": {
-        "noUnusedImports": "error"
-      }
+			"correctness": {
+				"noUnusedImports": "error"
+			}
 		}
 	},
 	"javascript": {
 		"formatter": {
 			"quoteStyle": "double"
+		},
+		"parser": {
+			"unsafeParameterDecoratorsEnabled": true
 		}
 	}
 }

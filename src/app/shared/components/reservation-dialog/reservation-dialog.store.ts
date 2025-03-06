@@ -31,8 +31,8 @@ export class ReservationDialogComponentStore extends ComponentStore<ReservationD
 	}
 
 	readonly getRequesterModal$ = this.effect(() =>
-		this.requesterService.getRequesters().pipe(
-			tap((res) => this.setRequesters(res.content)),
+		this.requesterService.getRequesterUnpaged().pipe(
+			tap((res) => this.setRequesters(res)),
 			catchError(() => {
 				return EMPTY;
 			}),
@@ -52,8 +52,8 @@ export class ReservationDialogComponentStore extends ComponentStore<ReservationD
 		(payload$: Observable<{ sectionId: number }>) => {
 			return payload$.pipe(
 				switchMap((req) =>
-					this.roomService.getRoomBySectionId(req.sectionId).pipe(
-						tap((res) => this.setRoomsByFilter(res.content)),
+					this.roomService.getRoomBySectionId(req.sectionId, "Todas").pipe(
+						tap((res) => this.setRoomsByFilter(res)),
 						catchError(() => EMPTY),
 					),
 				),

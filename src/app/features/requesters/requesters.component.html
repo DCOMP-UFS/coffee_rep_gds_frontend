@@ -1,1 +1,66 @@
-<p>requesters works!</p>
+<div class="container-requester-page">
+  <mat-card>
+    <div class="card-requester">
+      <mat-card-title>
+        <div class="card-title">
+          <mat-icon>person</mat-icon>
+          <span>Solicitantes</span>
+        </div>
+      </mat-card-title>
+      <mat-card-content>
+        <button class="default-button" (click)="openDialog()" >Novo Solicitante</button>
+      </mat-card-content>
+    </div>
+
+  </mat-card>
+  <mat-card>
+    <div class="table-container">
+      <table mat-table [dataSource]="dataSource">
+
+        <ng-container matColumnDef="nome">
+          <th mat-header-cell *matHeaderCellDef> Nome </th>
+          <td mat-cell *matCellDef="let element"> {{element.nome}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="telefone">
+          <th mat-header-cell *matHeaderCellDef> Telefone </th>
+          <td mat-cell *matCellDef="let element"> {{element.contato}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="cpf">
+          <th mat-header-cell *matHeaderCellDef> CPF </th>
+          <td mat-cell *matCellDef="let element"> {{element.cpf}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="especialidade">
+          <th mat-header-cell *matHeaderCellDef> Tipo </th>
+          <td mat-cell *matCellDef="let element"> {{element.especialidade}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="update">
+          <th mat-header-cell *matHeaderCellDef> Atualizar </th>
+          <td mat-cell *matCellDef="let element">
+            <mat-icon [style.cursor]="'pointer'" (click)="openDialogUpdate(element)">edit</mat-icon>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="delete">
+          <th mat-header-cell *matHeaderCellDef> Excluir Soliciante </th>
+          <td mat-cell *matCellDef="let element"> <mat-icon [style.cursor]="'pointer'" (click)="deleteRequester(element)">cancel</mat-icon> </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+
+      <mat-paginator [pageSizeOptions]="[5, 10]"
+                     [length]="(store.getRequesters | async)?.page?.totalElements"
+                     [pageSize]="(store.getRequesters | async)?.page?.size"
+                     [pageIndex]="(store.getRequesters | async)?.page?.number"
+                     (page)="handlePageEvent($event)"
+                     showFirstLastButtons
+                     aria-label="Select page of periodic elements">
+      </mat-paginator>
+    </div>
+  </mat-card>
+</div>
