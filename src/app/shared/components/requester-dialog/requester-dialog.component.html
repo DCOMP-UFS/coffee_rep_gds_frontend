@@ -1,0 +1,31 @@
+<h2 mat-dialog-title>Cadastro de Solicitante</h2>
+<mat-dialog-content class="mat-typography">
+  <form [formGroup]="requesterForm">
+
+    <mat-form-field>
+      <mat-label>Nome</mat-label>
+      <input formControlName="name" matInput type="name" placeholder="Nome">
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>CPF</mat-label>
+      <input formControlName="cpf" matInput type="text" placeholder="CPF">
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Telefone</mat-label>
+      <input formControlName="phone" matInput type="name" placeholder="Telefone">
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Tipo</mat-label>
+      <input formControlName="type" matInput type="name" placeholder="Tipo">
+    </mat-form-field>
+
+
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancelar</button>
+  <button mat-button cdkFocusInitial (click)="submit()" >Salvar</button>
+</mat-dialog-actions>
