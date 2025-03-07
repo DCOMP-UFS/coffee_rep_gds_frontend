@@ -35,21 +35,10 @@ jobs:
         shell: bash
 
       - name: Set Permissions for SSH Key
-        run: chmod 600 ~/.ssh/id_rsa
+        run: chmod 600 /tmp/ssh_key
         shell: bash
 
       - name: Deploy to EC2
         run: |
           ssh -o StrictHostKeyChecking=no -i /tmp/ssh_key ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
-          sudo docker stop clinic_room_frontend || true
-          sudo docker rm clinic_room_frontend || true
-
-          sudo docker rmi jogajuntoufs/clinic_room_frontend:latest || true
-
-          sudo docker pull jogajuntoufs/clinic_room_frontend:latest
-
-          sudo docker run -d --name clinic_room_frontend -p 80:80 jogajuntoufs/clinic_room_frontend:latest
-
-          sudo docker update --restart unless-stopped clinic_room_frontend
-          EOF
-        shell: bash
+          sudo docker stop
