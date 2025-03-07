@@ -1,6 +1,6 @@
 import { Routes } from "@angular/router";
 import { AuthGuard } from "./core/guards/auth.guard";
-import { HomeComponent } from "./features/home/home.component";
+import { CurrentMonthComponent } from "./features/current-month/current-month.component";
 import { LoginSignUpComponent } from "./features/login-sign-up/login-sign-up.component";
 import { RequestersComponent } from "./features/requesters/requesters.component";
 import { ReservationsComponent } from "./features/reservations/reservations.component";
@@ -10,7 +10,7 @@ export const routes: Routes = [
 	{ path: "login", component: LoginSignUpComponent, pathMatch: "full" },
 	{
 		path: "calendar",
-		component: HomeComponent,
+		component: CurrentMonthComponent,
 		pathMatch: "full",
 		canActivate: [AuthGuard],
 	},

@@ -17,12 +17,12 @@ import { MatPaginatorModule } from "@angular/material/paginator";
 import { MatSelectModule } from "@angular/material/select";
 import { createDate, formatTimeRange } from "../../core/utils/utils";
 import { CalendarComponent } from "../../shared/components/calendar/calendar.component";
-import { HomeComponentStore } from "./home.store";
+import { CurrentMonthComponentStore } from "./current-month.store";
 
 @Component({
 	selector: "app-home",
-	templateUrl: "./home.component.html",
-	styleUrls: ["./home.component.scss"],
+	templateUrl: "./current-month.component.html",
+	styleUrls: ["./current-month.component.scss"],
 	standalone: true,
 	imports: [
 		AsyncPipe,
@@ -38,13 +38,13 @@ import { HomeComponentStore } from "./home.store";
 		CalendarComponent,
 		MatCardModule,
 	],
-	providers: [HomeComponentStore],
+	providers: [CurrentMonthComponentStore],
 })
-export class HomeComponent {
+export class CurrentMonthComponent {
 	reservationForm: FormGroup;
 
 	constructor(
-		public homeStore: HomeComponentStore,
+		public store: CurrentMonthComponentStore,
 		private fb: FormBuilder,
 	) {
 		this.reservationForm = this.fb.group({
@@ -57,13 +57,13 @@ export class HomeComponent {
 	}
 
 	getRoomsById(event: string): void {
-		this.homeStore.setRoomsByFilter([]);
-		this.homeStore.getRoomsBySectionId$({ sectionId: +event });
+		this.store.setRoomsByFilter([]);
+		this.store.getRoomsBySectionId$({ sectionId: +event });
 	}
 
 	submitForm(): void {
 		if (this.reservationForm.valid) {
-			this.homeStore.createReservation$({
+			this.store.createReservation$({
 				salaId: +this.reservationForm.value.room,
 				solicitanteId: +this.reservationForm.value.requester,
 				horaInicio: createDate(

@@ -10,14 +10,14 @@ import { ReservationService } from "../../core/services/reservation.service";
 import { RoomService } from "../../core/services/room.service";
 import { SectionService } from "../../core/services/section.service";
 
-interface HomeState {
+interface CurrentMonthState {
 	section: Section[];
 	roomsForFilter: Room[];
 	requester: Requester[];
 }
 
 @Injectable()
-export class HomeComponentStore extends ComponentStore<HomeState> {
+export class CurrentMonthComponentStore extends ComponentStore<CurrentMonthState> {
 	constructor(
 		private roomService: RoomService,
 		private sectionService: SectionService,

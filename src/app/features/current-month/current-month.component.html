@@ -14,7 +14,7 @@
             <mat-form-field>
               <mat-label>Setor</mat-label>
               <mat-select formControlName="section" (selectionChange)="getRoomsById($event.value)">
-                @for (section of (homeStore.getSections | async); track section.id) {
+                @for (section of (store.getSections | async); track section.id) {
                   <mat-option value="{{section.id}}">{{ section.nome }}</mat-option>
                 }
               </mat-select>
@@ -23,7 +23,7 @@
             <mat-form-field>
               <mat-label>Sala</mat-label>
               <mat-select formControlName="room">
-                @for (room of (homeStore.getRoomsByFilter | async); track room.id) {
+                @for (room of (store.getRoomsByFilter | async); track room.id) {
                   <mat-option value="{{room.id}}">{{ room.nome }}</mat-option>
                 }
               </mat-select>
@@ -39,7 +39,7 @@
             <mat-form-field>
               <mat-label>Responsável</mat-label>
               <mat-select formControlName="requester">
-                @for (req of (homeStore.getRequesters | async); track req.nome) {
+                @for (req of (store.getRequesters | async); track req.nome) {
                   <mat-option [value]="req.id">{{ req.nome + ' - ' + req.especialidade }}</mat-option>
                 }
               </mat-select>
