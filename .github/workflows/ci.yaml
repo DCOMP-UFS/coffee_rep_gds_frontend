@@ -39,14 +39,14 @@ jobs:
 
       - name: Tag Docker image
         run: |
-          docker tag clinic_room_frontend:latest jogajuntoufs/clinic_room_frontend:latest
+          docker tag clinic_room_frontend:latest clinicroom/clinic_room_frontend:latest
 
       - name: Docker Login
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
       - name: Push Docker image
         run: |
-          docker push jogajuntoufs/clinic_room_frontend:latest
+          docker push clinicroom/clinic_room_frontend:latest
 
       - name: Install sshpass
         run: sudo apt-get install -y sshpass
@@ -57,9 +57,9 @@ jobs:
           set -e
           sudo docker stop clinic_room_frontend
           sudo docker rm clinic_room_frontend
-          sudo docker rmi jogajuntoufs/clinic_room_frontend:latest
-          sudo docker pull jogajuntoufs/clinic_room_frontend:latest
-          sudo docker run -d --name clinic_room_frontend -p 80:80 jogajuntoufs/clinic_room_frontend:latest
+          sudo docker rmi clinicroom/clinic_room_frontend:latest
+          sudo docker pull clinicroom/clinic_room_frontend:latest
+          sudo docker run -d --name clinic_room_frontend -p 80:80 clinicroom/clinic_room_frontend:latest
           sudo docker update --restart unless-stopped clinic_room_frontend
           EOF
         shell: bash
