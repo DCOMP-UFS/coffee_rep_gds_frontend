@@ -35,7 +35,7 @@ jobs:
         shell: bash
 
       - name: Set Permissions for SSH Key
-        run: chmod 600 /tmp/ssh_key
+        run: chmod 600 ~/.ssh/id_rsa
         shell: bash
 
       - name: Deploy to EC2
