@@ -35,16 +35,13 @@ jobs:
 
       - name: Deploy to Hetzner
         run: |
-          sshpass -p "${{ secrets.HETZNER_PASSWORD }}" ssh -o StrictHostKeyChecking=no root@${{ secrets.HETZNER_HOST }} << EOF
-          sudo docker stop clinic_room_frontend || true
-          sudo docker rm clinic_room_frontend || true
-
-          sudo docker rmi jogajuntoufs/clinic_room_frontend:latest || true
-
+          sshpass -p "${{ secrets.HETZNER_PASSWORD }}" ssh -o StrictHostKeyChecking=no root@${{ secrets.HETZNER_HOST }} << 'EOF'
+          set -e
+          sudo docker stop clinic_room_frontend
+          sudo docker rm clinic_room_frontend
+          sudo docker rmi jogajuntoufs/clinic_room_frontend:latest
           sudo docker pull jogajuntoufs/clinic_room_frontend:latest
-
           sudo docker run -d --name clinic_room_frontend -p 80:80 jogajuntoufs/clinic_room_frontend:latest
-
           sudo docker update --restart unless-stopped clinic_room_frontend
           EOF
         shell: bash
