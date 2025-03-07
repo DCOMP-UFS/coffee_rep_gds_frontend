@@ -8,6 +8,7 @@
 		"biome": "npx @biomejs/biome check --write ./src",
 		"build": "ng build",
 		"watch": "ng build --watch --configuration development",
+    "build:prod": "ng build --configuration production",
 		"test": "ng test"
 	},
 	"private": true,
