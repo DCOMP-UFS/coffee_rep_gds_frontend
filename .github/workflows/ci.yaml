@@ -37,5 +37,4 @@ jobs:
         run: |
           sshpass -p "${{ secrets.HETZNER_PASSWORD }}" ssh -o StrictHostKeyChecking=no root@${{ secrets.HETZNER_HOST }} << EOF
             sudo docker stop
-            # Adicione outros comandos de deploy aqui
           EOF
