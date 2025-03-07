@@ -21,14 +21,14 @@ jobs:
 
       - name: Tag Docker image
         run: |
-          docker tag clinic_room_frontend:latest clincroom/clinic_room_frontend:latest
+          docker tag clinic_room_frontend:latest jogajuntoufs/clinic_room_frontend:latest
 
       - name: Docker Login
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
       - name: Push Docker image
         run: |
-          docker push clincroom/clinic_room_frontend:latest
+          docker push jogajuntoufs/clinic_room_frontend:latest
 
       - name: Save SSH Key
         run: echo "${{ secrets.EC2_SSH_KEY }}" > /tmp/ssh_key
@@ -44,11 +44,11 @@ jobs:
           sudo docker stop clinic_room_frontend || true
           sudo docker rm clinic_room_frontend || true
 
-          sudo docker rmi clincroom/clinic_room_frontend:latest || true
+          sudo docker rmi jogajuntoufs/clinic_room_frontend:latest || true
 
-          sudo docker pull clincroom/clinic_room_frontend:latest
+          sudo docker pull jogajuntoufs/clinic_room_frontend:latest
 
-          sudo docker run -d --name clinic_room_frontend -p 80:80 clincroom/clinic_room_frontend:latest
+          sudo docker run -d --name clinic_room_frontend -p 80:80 jogajuntoufs/clinic_room_frontend:latest
 
           sudo docker update --restart unless-stopped clinic_room_frontend
           EOF
