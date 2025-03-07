@@ -43,7 +43,7 @@ export class CalendarComponent implements OnInit {
 			i.map((c, index) => {
 				this.events.push({
 					id: index,
-					title: `${c.sala} / ${this.getHourInterval(c.horaInicio, c.horaFim)}`,
+					title: `${c.sala} - ${c.setor} / ${this.getHourInterval(c.horaInicio, c.horaFim)}`,
 					start: this.getStrDay(c.horaInicio),
 					end: this.getStrDay(c.horaFim),
 				});
