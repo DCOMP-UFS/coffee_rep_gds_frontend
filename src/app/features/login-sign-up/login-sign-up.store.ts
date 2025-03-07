@@ -40,9 +40,7 @@ export class LoginSignUpStore extends ComponentStore<object> {
 			payload$.pipe(
 				switchMap((payload) =>
 					this.loginService.signUp(payload).pipe(
-						tap((res) => {
-							this.cookieService.set("JJToken", res.accessToken);
-						}),
+						tap(() => window.location.reload()),
 						catchError(() => {
 							return EMPTY;
 						}),

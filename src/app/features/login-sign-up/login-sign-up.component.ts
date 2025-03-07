@@ -10,6 +10,7 @@ import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
+import { CookieService } from "ngx-cookie-service";
 import { LoginSignUpStore } from "./login-sign-up.store";
 
 @Component({
@@ -34,9 +35,13 @@ export class LoginSignUpComponent {
 	loginForm: FormGroup;
 	signUpForm: FormGroup;
 
-	constructor(private loginStore: LoginSignUpStore) {
+	constructor(
+		private loginStore: LoginSignUpStore,
+		private cookieService: CookieService,
+	) {
 		this.loginForm = this.createLoginForm();
 		this.signUpForm = this.createSignUpForm();
+		this.cookieService.deleteAll();
 	}
 
 	createSignUpForm(): FormGroup {

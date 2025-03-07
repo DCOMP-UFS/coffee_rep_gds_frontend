@@ -12,7 +12,8 @@ export const credentialsInterceptor: HttpInterceptorFn = (req, next) => {
 		catchError((error: HttpErrorResponse) => {
 			if (error.status === 401) {
 				snackBar.open(
-					"Credenciais expiradas, por favor, realize o login novamente.",
+					error?.error?.message ||
+						"Credenciais expiradas, por favor, realize o login novamente.",
 					undefined,
 					{
 						horizontalPosition: "right",

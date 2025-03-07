@@ -2,6 +2,7 @@ import { Component, Input } from "@angular/core";
 import { MatIcon } from "@angular/material/icon";
 import { MatTooltip } from "@angular/material/tooltip";
 import { Router } from "@angular/router";
+import { CookieService } from "ngx-cookie-service";
 
 @Component({
 	selector: "app-side-menu",
@@ -13,9 +14,15 @@ import { Router } from "@angular/router";
 export class SideMenuComponent {
 	@Input() actualRoutePath = "";
 
-	constructor(private router: Router) {}
+	constructor(
+		private router: Router,
+		private cookieService: CookieService,
+	) {}
 
 	navigate(route: string) {
+		if (route === "/login") {
+			this.cookieService.deleteAll();
+		}
 		this.router.navigate([route]);
 	}
 
@@ -39,6 +46,11 @@ export class SideMenuComponent {
 			icon: "person",
 			description: "Solicitante",
 			route: "/requester",
+		},
+		{
+			icon: "logout",
+			description: "Sair",
+			route: "/login",
 		},
 	];
 }
