@@ -38,22 +38,22 @@ export class RequesterDialogComponent {
 	) {
 		this.requesterForm = this.fb.group({
 			name: [
-				this.data.element.nome ? this.data.element.nome : "",
+				this.data?.element?.nome ? this.data.element.nome : "",
 				Validators.required,
 			],
 			cpf: [
 				{
-					value: this.data.element.cpf ? this.data.element.cpf : "",
-					disabled: !!this.data.element.cpf,
+					value: this.data?.element?.cpf ? this.data.element.cpf : "",
+					disabled: !!this.data?.element?.cpf,
 				},
 				Validators.required,
 			],
 			phone: [
-				this.data.element.contato ? this.data.element.contato : "",
+				this.data?.element?.contato ? this.data.element.contato : "",
 				Validators.required,
 			],
 			type: [
-				this.data.element.especialidade ? this.data.element.especialidade : "",
+				this.data?.element?.especialidade ? this.data.element.especialidade : "",
 				Validators.required,
 			],
 		});
