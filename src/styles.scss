@@ -7,7 +7,7 @@
 
 html, body {
   height: 100%;
-  background: white;
+  background: #efefef;
   box-sizing: border-box;
 }
 
@@ -64,7 +64,7 @@ ngx-mat-datetime-picker {
   z-index: 1000; /* Para garantir que fique acima de outros elementos */
 }
 
-html, body {   height: 100vh; overflow: hidden; }
+html, body {   height: 100vh }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 .mat-mdc-card-content:last-child{
