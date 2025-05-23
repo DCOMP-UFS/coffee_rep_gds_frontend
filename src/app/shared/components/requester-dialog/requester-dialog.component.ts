@@ -60,7 +60,7 @@ export class RequesterDialogComponent {
 	}
 
 	submit() {
-		if (this.requesterForm.valid && !this.data.element) {
+		if (this.requesterForm.valid && !this.data?.element) {
 			this.store.createRequester$({
 				nome: this.requesterForm.value.name,
 				cpf: this.requesterForm.value.cpf,
@@ -68,9 +68,9 @@ export class RequesterDialogComponent {
 				especialidade: this.requesterForm.value.type,
 			});
 		}
-		if (this.requesterForm.valid && this.data.element) {
+		if (this.requesterForm.valid && this.data?.element) {
 			this.store.updateRequester$({
-				id: this.data.element.id,
+				id: this.data?.element.id,
 				nome: this.requesterForm.value.name,
 				cpf: this.requesterForm.value.cpf,
 				telefone: this.requesterForm.value.phone,
