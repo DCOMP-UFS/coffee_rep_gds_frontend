@@ -11,7 +11,9 @@ export interface Reservation {
 	sala: string;
 	setor: string;
 	solicitante: string;
+  criador: string;
 	salaId: number;
 	solicitanteId: number;
 	reservationId: number;
+  recorrenciaId?: number
 }

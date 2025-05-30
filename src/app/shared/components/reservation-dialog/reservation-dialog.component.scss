@@ -4,3 +4,9 @@ form{
   gap: 20px;
   margin-top: 7px !important;
 }
+::ng-deep .mdc-evolution-chip-set__chips {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding: 8px 0;
+}

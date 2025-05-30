@@ -51,9 +51,19 @@
           <td mat-cell *matCellDef="let element"> {{element.horaInicio | date : 'dd/MM/yyyy HH:mm'}} </td>
         </ng-container>
 
+        <ng-container matColumnDef="criador">
+          <th mat-header-cell *matHeaderCellDef> Criado Por </th>
+          <td mat-cell *matCellDef="let element"> {{element.criador}} </td>
+        </ng-container>
+
         <ng-container matColumnDef="horaFim">
           <th mat-header-cell *matHeaderCellDef> Fim </th>
           <td mat-cell *matCellDef="let element"> {{element.horaFim | date : 'dd/MM/yyyy HH:mm'}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="recorrencia">
+          <th mat-header-cell *matHeaderCellDef> Fixa  </th>
+          <td mat-cell *matCellDef="let element"> {{element.recorrenciaId ? 'Recorrente' : 'Fixa'}} </td>
         </ng-container>
 
         <ng-container matColumnDef="cancel">

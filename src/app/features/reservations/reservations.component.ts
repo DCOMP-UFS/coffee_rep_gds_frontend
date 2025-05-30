@@ -50,8 +50,10 @@ export class ReservationsComponent implements OnInit {
 		"sala",
 		"solicitante",
 		"setor",
+    "criador",
 		"horaInicio",
 		"horaFim",
+    "recorrencia",
 		"cancel",
 	];
 	dataSource = new MatTableDataSource<Reservation>();
@@ -101,7 +103,7 @@ export class ReservationsComponent implements OnInit {
 	openDialog() {
 		this.dialog.open(ReservationDialogComponent, {
 			width: "375px",
-			height: "475px",
+			height: "670px",
 		});
 	}
 

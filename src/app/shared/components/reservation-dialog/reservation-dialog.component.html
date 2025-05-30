@@ -20,13 +20,6 @@
     </mat-form-field>
 
     <mat-form-field>
-      <mat-label>Data de reserva</mat-label>
-      <input matInput [matDatepicker]="picker" formControlName="reservationDate">
-      <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-      <mat-datepicker #picker></mat-datepicker>
-    </mat-form-field>
-
-    <mat-form-field>
       <mat-label>Responsável</mat-label>
       <mat-select formControlName="requester">
         @for (req of (reservationDialogComponentStore.getRequesters | async); track req.nome) {
@@ -35,10 +28,47 @@
       </mat-select>
     </mat-form-field>
 
+    <div class="form-field">
+      <label>Fixo: </label>
+      <mat-slide-toggle (change)="changeForm($event.checked)"></mat-slide-toggle>
+    </div>
+
+
+    @if (!this.isRecurrentForm){
+      <mat-form-field >
+        <mat-label>Data ínicio</mat-label>
+        <input matInput [matDatepicker]="picker1" formControlName="reservationDate">
+        <mat-datepicker-toggle matIconSuffix [for]="picker1"></mat-datepicker-toggle>
+        <mat-datepicker #picker1></mat-datepicker>
+      </mat-form-field>
+      <mat-form-field >
+        <mat-label>Data Fim</mat-label>
+        <input matInput [matDatepicker]="picker2" formControlName="reservationDateFim">
+        <mat-datepicker-toggle matIconSuffix [for]="picker2"></mat-datepicker-toggle>
+        <mat-datepicker #picker2></mat-datepicker>
+      </mat-form-field>
+    } @else{
+      <mat-form-field >
+        <mat-label>Data de reserva</mat-label>
+        <input matInput [matDatepicker]="picker" formControlName="reservationDate">
+        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-form-field>
+    }
+
     <mat-form-field appearance="outline">
       <mat-label>Horário</mat-label>
       <input matInput #inputField placeholder="00:00 - 00:00" (input)="formatTimeRange(inputField)" maxlength="13" formControlName="timeRange">
     </mat-form-field>
+
+    @if (!isRecurrentForm){
+      <mat-chip-listbox multiple aria-label="Dias da semana" class="chip-grid">
+        @for (day of daysOfWeek; track day) {
+          <mat-chip-option (click)="saveReservation(day.value)">{{ day.day }}</mat-chip-option>
+        }
+      </mat-chip-listbox>
+    }
+
   </form>
 </mat-dialog-content>
 <mat-dialog-actions align="end">

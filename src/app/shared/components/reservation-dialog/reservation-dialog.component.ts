@@ -17,58 +17,87 @@ import { MatPaginatorModule } from "@angular/material/paginator";
 import { MatSelectModule } from "@angular/material/select";
 import { createDate, formatTimeRange } from "../../../core/utils/utils";
 import { ReservationDialogComponentStore } from "./reservation-dialog.store";
+import {MatSlideToggle} from '@angular/material/slide-toggle';
+import {MatChipListbox, MatChipOption} from '@angular/material/chips';
 
 @Component({
 	selector: "app-reservation-dialog",
 	standalone: true,
 	providers: [ReservationDialogComponentStore],
-	imports: [
-		AsyncPipe,
-		MatIconModule,
-		MatInputModule,
-		MatPaginatorModule,
-		MatFormFieldModule,
-		MatDatepickerModule,
-		MatNativeDateModule,
-		MatSelectModule,
-		MatButtonModule,
-		ReactiveFormsModule,
-		MatDialogModule,
-	],
+  imports: [
+    AsyncPipe,
+    MatIconModule,
+    MatInputModule,
+    MatPaginatorModule,
+    MatFormFieldModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatSelectModule,
+    MatButtonModule,
+    ReactiveFormsModule,
+    MatDialogModule,
+    MatSlideToggle,
+    MatChipListbox,
+    MatChipOption,
+  ],
 	templateUrl: "./reservation-dialog.component.html",
 	styleUrl: "./reservation-dialog.component.scss",
 })
 export class ReservationDialogComponent {
 	reservationForm: FormGroup;
+  readonly daysOfWeek: { day: string; value: number }[] = [{ day: 'Segunda', value: 1 }, { day: 'Terça', value: 2 }, { day: 'Quarta', value: 3 }, { day: 'Quinta', value: 4 }, { day: 'Sexta', value: 5 }, { day: 'Sábado', value: 6 },];
+  isRecurrentForm: boolean = true;
+  daysPayload: number[] = [];
 
-	constructor(
+  changeForm(event: boolean){
+    this.isRecurrentForm = !this.isRecurrentForm
+    this.daysPayload = []
+    if(!event){
+      this.reservationForm.removeControl('reservationDateFim');
+    }else{
+      this.reservationForm.addControl('reservationDateFim', this.fb.control('',  Validators.required));
+    }
+  }
+
+  saveReservation(dayNumber: number) {
+    const index = this.daysPayload.indexOf(dayNumber);
+    if (index !== -1) {
+      this.daysPayload.splice(index, 1);
+    } else this.daysPayload.push(dayNumber);
+  }
+
+  constructor(
 		public reservationDialogComponentStore: ReservationDialogComponentStore,
 		private fb: FormBuilder,
 	) {
-		this.reservationForm = this.fb.group({
-			section: ["", Validators.required],
-			room: ["", Validators.required],
-			reservationDate: ["", Validators.required],
-			timeRange: ["", Validators.required],
-			requester: ["", Validators.required],
-		});
-	}
+    this.reservationForm = this.fb.group({
+      section: ["", Validators.required],
+      room: ["", Validators.required],
+      reservationDate: ["", Validators.required],
+      timeRange: ["", Validators.required],
+      requester: ["", Validators.required],
+    });
+  }
 
 	submitForm(): void {
 		if (this.reservationForm.valid) {
-			this.reservationDialogComponentStore.createReservation$({
-				salaId: +this.reservationForm.value.room,
-				solicitanteId: +this.reservationForm.value.requester,
-				horaInicio: createDate(
-					this.reservationForm.value.reservationDate,
-					this.reservationForm.value.timeRange.split("-")[0],
-				),
-				horaFim: createDate(
-					this.reservationForm.value.reservationDate,
-					this.reservationForm.value.timeRange.split("-")[1],
-				),
-				observacoes: "",
-			});
+      const request = {
+        salaId: +this.reservationForm.value.room,
+        solicitanteId: +this.reservationForm.value.requester,
+        horaInicio: createDate(
+          this.reservationForm.value.reservationDate,
+          this.reservationForm.value.timeRange.split("-")[0],
+        ),
+        horaFim: createDate(
+          this.isRecurrentForm ? this.reservationForm.value.reservationDate : this.reservationForm.value.reservationDateFim,
+          this.reservationForm.value.timeRange.split("-")[1],
+        ),
+        fixo: !this.isRecurrentForm,
+        observacoes: "",
+        dias: this.daysPayload
+      }
+      if(this.isRecurrentForm) delete request.dias
+			this.reservationDialogComponentStore.createReservation$(request);
 		}
 	}
 
