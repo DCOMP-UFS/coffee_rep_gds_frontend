@@ -4,5 +4,5 @@ export interface ReservationRequestModel {
 	horaInicio: string;
 	horaFim: string;
 	observacoes: string;
-  dias?: number[]
+	dias?: number[];
 }

@@ -1,8 +1,10 @@
 import { CommonModule } from "@angular/common";
 import { Component, OnInit, signal } from "@angular/core";
+import { MatDialog } from "@angular/material/dialog";
 import { FullCalendarModule } from "@fullcalendar/angular";
-import { CalendarOptions } from "@fullcalendar/core";
+import { CalendarOptions, EventClickArg } from "@fullcalendar/core";
 import dayGridPlugin from "@fullcalendar/daygrid";
+import { CalendarDialogInfosComponent } from "../calendar-dialog-infos/calendar-dialog-infos.component";
 import { CalendarComponentStore } from "./calendar.store";
 
 @Component({
@@ -18,6 +20,7 @@ export class CalendarComponent implements OnInit {
 	calendarOptions = signal<CalendarOptions>({
 		plugins: [dayGridPlugin],
 		initialView: "dayGridMonth",
+		eventClick: this.onEventClick.bind(this),
 		initialEvents: this.events,
 		locale: "pt-br",
 		dayMaxEvents: true,
@@ -25,7 +28,18 @@ export class CalendarComponent implements OnInit {
 		selectMirror: true,
 	});
 
-	constructor(private calendarStore: CalendarComponentStore) {}
+	constructor(
+		private calendarStore: CalendarComponentStore,
+		private dialog: MatDialog,
+	) {}
+
+	onEventClick(info: EventClickArg) {
+		this.dialog.open(CalendarDialogInfosComponent, {
+			data: this.events[
+				this.events.findIndex((i) => i.id.toString() === info.event.id)
+			],
+		});
+	}
 
 	getStrDay(date: Date): string {
 		return `${date.toString().replace(/T.*$/, "")}T${date.toString().split("T")[1].slice(0, 8)}`;
@@ -40,14 +54,23 @@ export class CalendarComponent implements OnInit {
 	ngOnInit(): void {
 		this.calendarStore.getReservations$();
 		this.calendarStore.getReservations.subscribe((i) => {
-			i.map((c, index) => {
+			i.map((c) => {
 				this.events.push({
-					id: index,
-					title: `${c.sala} - ${c.setor} / ${this.getHourInterval(c.horaInicio, c.horaFim)}`,
+					id: c.reservationId,
+					requester: c.solicitante,
+					createdBy: c.criador,
+					recorrenciaId: c.recorrenciaId,
+					completeTitle: `${c.sala} - ${c.setor}`,
+					title: `${c.sala} - ${this.getSectionName(c.setor)} / ${this.getHourInterval(c.horaInicio, c.horaFim)}`,
 					start: this.getStrDay(c.horaInicio),
 					end: this.getStrDay(c.horaFim),
 				});
 			});
 		});
+	}
+
+	getSectionName(section: string): string {
+		if (section.length <= 8) return section;
+		return `${section.slice(0, 9)}...`;
 	}
 }

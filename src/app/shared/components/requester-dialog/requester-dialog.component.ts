@@ -53,7 +53,9 @@ export class RequesterDialogComponent {
 				Validators.required,
 			],
 			type: [
-				this.data?.element?.especialidade ? this.data.element.especialidade : "",
+				this.data?.element?.especialidade
+					? this.data.element.especialidade
+					: "",
 				Validators.required,
 			],
 		});

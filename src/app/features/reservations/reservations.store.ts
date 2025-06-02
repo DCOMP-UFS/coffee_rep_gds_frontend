@@ -30,6 +30,30 @@ export class ReservationsComponentStore extends ComponentStore<ReservationState>
 		},
 	);
 
+	readonly cancelReservationRecurrent$ = this.effect(
+		(payload$: Observable<{ recurrentId: number }>) => {
+			return payload$.pipe(
+				switchMap((req) =>
+					this.reservationService
+						.cancelReservationRecurrent(req.recurrentId)
+						.pipe(
+							tap(() =>
+								this.getReservations$({
+									start: new Date(new Date().setDate(new Date().getDate())),
+									end: new Date(new Date().setDate(new Date().getDate() + 30)),
+									size: 5,
+									page: 0,
+								}),
+							),
+							catchError(() => {
+								return EMPTY;
+							}),
+						),
+				),
+			);
+		},
+	);
+
 	readonly cancelReservation$ = this.effect(
 		(payload$: Observable<{ reservationId: number }>) => {
 			return payload$.pipe(
@@ -37,8 +61,8 @@ export class ReservationsComponentStore extends ComponentStore<ReservationState>
 					this.reservationService.cancelReservation(req.reservationId).pipe(
 						tap(() =>
 							this.getReservations$({
-								start: new Date(new Date().setDate(new Date().getDate() - 15)),
-								end: new Date(new Date().setDate(new Date().getDate() + 15)),
+								start: new Date(new Date().setDate(new Date().getDate())),
+								end: new Date(new Date().setDate(new Date().getDate() + 30)),
 								size: 5,
 								page: 0,
 							}),

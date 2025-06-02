@@ -22,6 +22,7 @@ import {
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { Reservation } from "../../core/models/reservation-response.model";
 import { ConfirmationDialogComponent } from "../../shared/components/confirmation-dialog/confirmation-dialog.component";
+import { DeleteReservationComponent } from "../../shared/components/delete-reservation/delete-reservation.component";
 import { ReservationDialogComponent } from "../../shared/components/reservation-dialog/reservation-dialog.component";
 import { ReservationsComponentStore } from "./reservations.store";
 
@@ -50,10 +51,10 @@ export class ReservationsComponent implements OnInit {
 		"sala",
 		"solicitante",
 		"setor",
-    "criador",
+		"criador",
 		"horaInicio",
 		"horaFim",
-    "recorrencia",
+		"recorrencia",
 		"cancel",
 	];
 	dataSource = new MatTableDataSource<Reservation>();
@@ -101,9 +102,18 @@ export class ReservationsComponent implements OnInit {
 	}
 
 	openDialog() {
-		this.dialog.open(ReservationDialogComponent, {
+		const dialog = this.dialog.open(ReservationDialogComponent, {
 			width: "375px",
 			height: "670px",
+		});
+
+		dialog.afterClosed().subscribe(() => {
+			this.store.getReservations$({
+				start: this.reservationForm.value.start,
+				end: this.reservationForm.value.end,
+				size: 5,
+				page: 0,
+			});
 		});
 	}
 
@@ -117,13 +127,29 @@ export class ReservationsComponent implements OnInit {
 	}
 
 	cancelReservation(element: Reservation) {
-		const dialog = this.dialog.open(ConfirmationDialogComponent);
-		dialog.afterClosed().subscribe(
-			(i) =>
-				i.action &&
-				this.store.cancelReservation$({
-					reservationId: element.reservationId,
-				}),
-		);
+		if (!element.recorrenciaId) {
+			const dialog = this.dialog.open(ConfirmationDialogComponent);
+			dialog.afterClosed().subscribe(
+				(i) =>
+					i.action &&
+					this.store.cancelReservation$({
+						reservationId: element.reservationId,
+					}),
+			);
+		} else {
+			const dialog = this.dialog.open(DeleteReservationComponent);
+			dialog.afterClosed().subscribe((i) => {
+				if (i?.type === "pontual") {
+					this.store.cancelReservation$({
+						reservationId: element.reservationId,
+					});
+				}
+				if (i?.type === "todas") {
+					this.store.cancelReservationRecurrent$({
+						recurrentId: element.recorrenciaId,
+					});
+				}
+			});
+		}
 	}
 }

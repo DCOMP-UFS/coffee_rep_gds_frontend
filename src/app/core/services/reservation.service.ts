@@ -40,4 +40,11 @@ export class ReservationService {
 	cancelReservation(reservationId: number): Observable<void> {
 		return this.http.patchWithLoad(`reservation/${reservationId}`, null);
 	}
+
+	cancelReservationRecurrent(recurrentId: number): Observable<void> {
+		return this.http.deleteWithLoader(
+			`reservation/recurrent/${recurrentId}`,
+			null,
+		);
+	}
 }
