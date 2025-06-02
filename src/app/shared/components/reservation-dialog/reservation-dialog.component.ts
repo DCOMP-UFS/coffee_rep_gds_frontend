@@ -45,6 +45,7 @@ import { ReservationDialogComponentStore } from "./reservation-dialog.store";
 })
 export class ReservationDialogComponent {
 	reservationForm: FormGroup;
+  protected readonly formatTimeRange = formatTimeRange;
 	readonly daysOfWeek: { day: string; value: number }[] = [
 		{ day: "Segunda", value: 1 },
 		{ day: "Terça", value: 2 },
@@ -120,5 +121,4 @@ export class ReservationDialogComponent {
 		});
 	}
 
-	protected readonly formatTimeRange = formatTimeRange;
 }

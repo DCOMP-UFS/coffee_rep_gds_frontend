@@ -43,7 +43,7 @@
       </mat-form-field>
       <mat-form-field >
         <mat-label>Data Fim</mat-label>
-        <input matInput [matDatepicker]="picker2" formControlName="reservationDateFim">
+        <input matInput [min]="this.reservationForm.value.reservationDate" [matDatepicker]="picker2" formControlName="reservationDateFim">
         <mat-datepicker-toggle matIconSuffix [for]="picker2"></mat-datepicker-toggle>
         <mat-datepicker #picker2></mat-datepicker>
       </mat-form-field>
@@ -73,5 +73,5 @@
 </mat-dialog-content>
 <mat-dialog-actions align="end">
   <button mat-button mat-dialog-close>Cancelar</button>
-  <button mat-button cdkFocusInitial (click)="submitForm()">Salvar</button>
+  <button mat-button (click)="submitForm()">Salvar</button>
 </mat-dialog-actions>
