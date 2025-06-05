@@ -28,9 +28,10 @@
       </mat-select>
     </mat-form-field>
 
-    <div class="form-field">
-      <label>Fixo: </label>
+    <div class="form-field container-type-reservation">
+      <span>Pontual</span>
       <mat-slide-toggle (change)="changeForm($event.checked)"></mat-slide-toggle>
+      <span [style.margin-left]="'-4px'">Recorrente</span>
     </div>
 
 

@@ -64,6 +64,7 @@ export class CalendarComponent implements OnInit {
 					title: `${c.sala} - ${this.getSectionName(c.setor)} / ${this.getHourInterval(c.horaInicio, c.horaFim)}`,
 					start: this.getStrDay(c.horaInicio),
 					end: this.getStrDay(c.horaFim),
+          color: c.recorrenciaId ? '#4caf50' : '#2196f3'
 				});
 			});
 		});

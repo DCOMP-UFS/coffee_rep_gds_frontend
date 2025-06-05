@@ -2,6 +2,11 @@
   display: flex;
   gap: 10px;
   flex-direction: column;
+  .container-type-table{
+    display: flex;
+    gap: 5px;
+    align-items: center;
+  }
   .card-reservation{
     background: white;
     border-radius: 8px;

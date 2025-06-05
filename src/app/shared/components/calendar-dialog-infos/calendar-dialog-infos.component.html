@@ -4,7 +4,7 @@
   <p><strong>Título: </strong> {{ data.completeTitle }}</p>
   <p><strong>Solicitante: </strong> {{ data.requester }}</p>
   <p><strong>Criado por: </strong> {{ data.createdBy }}</p>
-  <p><strong>Tipo: </strong> {{ data.recorrenciaId ? "Recorrente" : "Fixa" }}</p>
+  <p><strong>Tipo: </strong> {{ data.recorrenciaId ? "Recorrente" : "Pontual" }}</p>
   <p><strong>Início: </strong> {{ data.start | date:'dd/MM/yyyy HH:mm' }}</p>
   <p><strong>Fim: </strong> {{ data.end | date:'dd/MM/yyyy HH:mm' }}</p>
 </mat-dialog-content>
