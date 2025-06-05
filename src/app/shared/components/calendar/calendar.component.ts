@@ -71,7 +71,7 @@ export class CalendarComponent implements OnInit {
 	}
 
 	getSectionName(section: string): string {
-		if (section.length <= 8) return section;
-		return `${section.slice(0, 9)}...`;
+		if (section.length > 9) return `${section.slice(0, 9)}...`;
+		else return section;
 	}
 }
