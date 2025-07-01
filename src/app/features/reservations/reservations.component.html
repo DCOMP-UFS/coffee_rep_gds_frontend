@@ -65,7 +65,7 @@
           <th mat-header-cell *matHeaderCellDef> Tipo </th>
           <td mat-cell *matCellDef="let element">
             <div class="container-type-table">
-              <div [class]="element.recorrenciaId ? 'dot': 'dot-b' "></div> {{element.recorrenciaId ? 'Recorrente' : 'Pontual'}}
+              <div [class]="element.recorrenciaId ? 'dot-b': 'dot' "></div> {{element.recorrenciaId ? 'Recorrente' : 'Pontual'}}
             </div>
           </td>
         </ng-container>
