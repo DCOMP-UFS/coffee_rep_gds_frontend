@@ -1,59 +1,34 @@
-# GdsFrontend
+# Coffee Rep GDS Frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.1.7.
+Frontend Angular do sistema Coffee Rep GDS.
 
-## Development server
+## Requisitos
 
-To start a local development server, run:
+- Node.js 22+
+- npm 10+
+- Backend em execucao local na porta `8080`
 
-```bash
-ng serve
-```
+## Rodando localmente
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+No diretorio do frontend:
 
 ```bash
-ng generate component component-name
+npm ci
+npm run start
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Aplicacao disponivel em:
 
-```bash
-ng generate --help
-```
+- `http://localhost:4200`
 
-## Building
+## Scripts uteis
 
-To build the project run:
+- `npm run start`: sobe o servidor de desenvolvimento
+- `npm run build`: gera build de producao
+- `npm run build:prod`: gera build otimizado
+- `npm run test`: executa testes unitarios
 
-```bash
-ng build
-```
+## Observacoes
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+- O frontend nao sobe via Docker no fluxo local.
+- O backend deve estar ativo para as chamadas de API funcionarem.
