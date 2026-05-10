@@ -5,7 +5,7 @@ Frontend Angular do sistema Coffee Rep GDS.
 ## Requisitos
 
 - Node.js 22+
-- npm 10+
+- [pnpm](https://pnpm.io/) (recomendado: `corepack enable` e usar a versão em `package.json` → `packageManager`)
 - Backend em execucao local na porta `8080`
 
 ## Rodando localmente
@@ -13,8 +13,8 @@ Frontend Angular do sistema Coffee Rep GDS.
 No diretorio do frontend:
 
 ```bash
-npm ci
-npm run start
+pnpm install
+pnpm run start
 ```
 
 Aplicacao disponivel em:
@@ -23,10 +23,10 @@ Aplicacao disponivel em:
 
 ## Scripts uteis
 
-- `npm run start`: sobe o servidor de desenvolvimento
-- `npm run build`: gera build de producao
-- `npm run build:prod`: gera build otimizado
-- `npm run test`: executa testes unitarios
+- `pnpm run start`: sobe o servidor de desenvolvimento
+- `pnpm run build`: gera build de producao
+- `pnpm run build:prod`: gera build otimizado
+- `pnpm run test`: executa testes unitarios
 
 ## Observacoes
 
