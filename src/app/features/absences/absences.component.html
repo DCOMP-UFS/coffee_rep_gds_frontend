@@ -1,0 +1,59 @@
+<mat-card class="absences-page">
+  <div class="absences-header">
+    <h2>
+      <mat-icon aria-hidden="true">event_busy</mat-icon>
+      Ausências e férias
+    </h2>
+    <button mat-flat-button color="primary" type="button" (click)="openDialog()">
+      Nova ausência
+    </button>
+  </div>
+
+  <div class="absences-body">
+    @if (loading) {
+      <app-table-skeleton [rows]="4" [columns]="4"></app-table-skeleton>
+    } @else if (error) {
+      <app-error-state [message]="error" (retry)="loadAbsences()"></app-error-state>
+    } @else if (!dataSource.data.length) {
+      <app-empty-state
+        icon="event_busy"
+        title="Nenhuma ausência cadastrada"
+        description="Registre férias para que o calendário mostre a sala como livre nesse período."
+        actionLabel="Nova ausência"
+        (action)="openDialog()"
+      />
+    } @else {
+      <table mat-table [dataSource]="dataSource">
+        <ng-container matColumnDef="profissional">
+          <th mat-header-cell *matHeaderCellDef> Profissional </th>
+          <td mat-cell *matCellDef="let e"> {{ e.solicitanteNome }} </td>
+        </ng-container>
+        <ng-container matColumnDef="inicio">
+          <th mat-header-cell *matHeaderCellDef> Início </th>
+          <td mat-cell *matCellDef="let e"> {{ fmt(e.dataInicio) }} </td>
+        </ng-container>
+        <ng-container matColumnDef="fim">
+          <th mat-header-cell *matHeaderCellDef> Fim </th>
+          <td mat-cell *matCellDef="let e"> {{ fmt(e.dataFim) }} </td>
+        </ng-container>
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef> Ações </th>
+          <td mat-cell *matCellDef="let e">
+            <button type="button" mat-icon-button
+                    aria-label="Editar ausência"
+                    (click)="openDialog(e)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button type="button" mat-icon-button
+                    aria-label="Excluir ausência"
+                    (click)="delete(e)">
+              <mat-icon>delete_outline</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+    }
+  </div>
+</mat-card>

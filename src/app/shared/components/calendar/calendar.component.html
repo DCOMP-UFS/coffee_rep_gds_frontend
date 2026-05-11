@@ -1,16 +1,12 @@
-@if(this.events.length > 0){
-  <full-calendar [options]='calendarOptions()'>
-    <ng-template let-arg>
-      <b>{{ arg.timeText }}</b>
-      <i>{{ arg.event.title }}</i>
-    </ng-template>
-  </full-calendar>
-  <div class="container-legend">
-    <div class="container-dots">
-      <div class="dot"></div> Pontual
-    </div>
-    <div class="container-dots">
-      <div class="dot-b"></div> Recorrente
-    </div>
+<full-calendar [options]="calendarOptions()"></full-calendar>
+<div class="container-legend">
+  <div class="container-dots">
+    <div class="dot dot--yellow"></div> Pontual
   </div>
-}
+  <div class="container-dots">
+    <div class="dot dot--red"></div> Recorrente
+  </div>
+  <div class="container-dots">
+    <div class="dot dot--green"></div> Livre (férias / ausência)
+  </div>
+</div>

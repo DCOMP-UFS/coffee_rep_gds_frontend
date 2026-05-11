@@ -16,4 +16,6 @@ export interface Reservation {
 	solicitanteId: number;
 	reservationId: number;
 	recorrenciaId?: number;
+	/** True quando o profissional está em ausência/férias no dia da ocorrência (sala livre na UI). */
+	profissionalAusente?: boolean;
 }

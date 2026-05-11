@@ -1,0 +1,10 @@
+.absence-dialog {
+	min-width: min(92vw, 400px);
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.full {
+	width: 100%;
+}
