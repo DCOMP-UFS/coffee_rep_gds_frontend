@@ -1,0 +1,9 @@
+@if (loader.slowLoading$ | async) {
+  <div class="cold-banner" role="status">
+    <mat-icon aria-hidden="true">schedule</mat-icon>
+    <span>
+      O servidor pode estar iniciando — isso pode levar alguns segundos na primeira
+      requisição.
+    </span>
+  </div>
+}

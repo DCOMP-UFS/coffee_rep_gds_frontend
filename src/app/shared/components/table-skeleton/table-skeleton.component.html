@@ -1,0 +1,9 @@
+<div class="table-skeleton" aria-busy="true" aria-label="Carregando">
+  @for (r of rowIndexes; track r) {
+    <div class="table-skeleton__row">
+      @for (c of colIndexes; track c) {
+        <div class="table-skeleton__cell shimmer"></div>
+      }
+    </div>
+  }
+</div>
