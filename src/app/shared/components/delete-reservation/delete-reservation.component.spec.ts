@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-
+import { provideDialogTest } from "../../../testing/test-providers";
 import { DeleteReservationComponent } from "./delete-reservation.component";
 
 describe("DeleteReservationComponent", () => {
@@ -9,6 +9,7 @@ describe("DeleteReservationComponent", () => {
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
 			imports: [DeleteReservationComponent],
+			providers: [...provideDialogTest()],
 		}).compileComponents();
 
 		fixture = TestBed.createComponent(DeleteReservationComponent);

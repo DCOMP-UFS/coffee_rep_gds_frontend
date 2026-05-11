@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-
+import { provideComponentHttp } from "../../../testing/test-providers";
 import { RoomDialogComponent } from "./room-dialog.component";
 
 describe("RoomDialogComponent", () => {
@@ -9,6 +9,7 @@ describe("RoomDialogComponent", () => {
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
 			imports: [RoomDialogComponent],
+			providers: [...provideComponentHttp()],
 		}).compileComponents();
 
 		fixture = TestBed.createComponent(RoomDialogComponent);
