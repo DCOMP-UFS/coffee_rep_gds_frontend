@@ -7,7 +7,9 @@ import {
 	ReactiveFormsModule,
 	Validators,
 } from "@angular/forms";
+import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
+import { MatChipSet, MatChip } from "@angular/material/chips";
 import { MatNativeDateModule, MatOption } from "@angular/material/core";
 import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatDialog, MatDialogModule } from "@angular/material/dialog";
@@ -20,11 +22,14 @@ import {
 } from "@angular/material/paginator";
 import { MatSelect } from "@angular/material/select";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
-import { tap } from "rxjs";
+import { tap, take } from "rxjs";
 import { Room } from "../../core/models/room-response.model";
 import { Section } from "../../core/models/section-response.model";
 import { ConfirmationDialogComponent } from "../../shared/components/confirmation-dialog/confirmation-dialog.component";
+import { EmptyStateComponent } from "../../shared/components/empty-state/empty-state.component";
+import { ErrorStateComponent } from "../../shared/components/error-state/error-state.component";
 import { RoomDialogComponent } from "../../shared/components/room-dialog/room-dialog.component";
+import { TableSkeletonComponent } from "../../shared/components/table-skeleton/table-skeleton.component";
 import { RoomsComponentStore } from "./rooms.store";
 
 @Component({
@@ -43,6 +48,12 @@ import { RoomsComponentStore } from "./rooms.store";
 		MatOption,
 		MatSelect,
 		MatDialogModule,
+		MatButtonModule,
+		MatChipSet,
+		MatChip,
+		EmptyStateComponent,
+		ErrorStateComponent,
+		TableSkeletonComponent,
 	],
 	providers: [RoomsComponentStore],
 	standalone: true,
@@ -67,6 +78,7 @@ export class RoomsComponent implements OnInit {
 	}
 
 	ngOnInit(): void {
+		this.store.getSections$();
 		this.store.getRooms$({
 			size: 5,
 			page: 0,
@@ -75,14 +87,14 @@ export class RoomsComponent implements OnInit {
 			unpaged: false,
 		});
 		this.store.getRooms.subscribe((i) => {
-			this.dataSource.data = i.content;
+			this.dataSource.data = i.content ?? [];
 		});
 	}
 
 	submit() {
 		if (this.roomsForm.valid) {
 			this.store.getRooms$({
-				size: 5,
+				size: this.paginator?.pageSize ?? 5,
 				page: 0,
 				section: this.roomsForm.value.section,
 				ocupada: this.roomsForm.value.status,
@@ -91,10 +103,27 @@ export class RoomsComponent implements OnInit {
 		}
 	}
 
+	reloadRooms(): void {
+		this.store.getRooms$({
+			size: this.paginator?.pageSize ?? 5,
+			page: this.paginator?.pageIndex ?? 0,
+			section: this.roomsForm.value.section,
+			ocupada: this.roomsForm.value.status,
+			unpaged: false,
+		});
+	}
+
+	openDialogFromEmpty(): void {
+		this.store.getSections.pipe(take(1)).subscribe((sections) => {
+			this.openDialog(sections);
+		});
+	}
+
 	openDialog(sections: Section[]) {
 		const dialog = this.dialog.open(RoomDialogComponent, {
-			width: "375px",
-			height: "400px",
+			width: "min(95vw, 480px)",
+			maxHeight: "90vh",
+			autoFocus: true,
 			data: { sections },
 		});
 
@@ -103,8 +132,8 @@ export class RoomsComponent implements OnInit {
 			.pipe(
 				tap(() =>
 					this.store.getRooms$({
-						size: 5,
-						page: 0,
+						size: this.paginator?.pageSize ?? 5,
+						page: this.paginator?.pageIndex ?? 0,
 						section: this.roomsForm.value.section,
 						ocupada: this.roomsForm.value.status,
 						unpaged: false,
@@ -116,8 +145,8 @@ export class RoomsComponent implements OnInit {
 
 	openDialogUpdate(sections: Section[], element: Room) {
 		const dialog = this.dialog.open(RoomDialogComponent, {
-			width: "375px",
-			height: "400px",
+			width: "min(95vw, 480px)",
+			maxHeight: "90vh",
 			data: { sections, element },
 		});
 
@@ -126,8 +155,8 @@ export class RoomsComponent implements OnInit {
 			.pipe(
 				tap(() =>
 					this.store.getRooms$({
-						size: 5,
-						page: 0,
+						size: this.paginator?.pageSize ?? 5,
+						page: this.paginator?.pageIndex ?? 0,
 						section: this.roomsForm.value.section,
 						ocupada: this.roomsForm.value.status,
 						unpaged: false,

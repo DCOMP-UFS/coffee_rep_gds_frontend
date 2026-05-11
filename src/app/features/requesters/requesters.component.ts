@@ -10,7 +10,6 @@ import {
 } from "@angular/material/paginator";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { Requester } from "../../core/models/requester-response.model";
-import { Room } from "../../core/models/room-response.model";
 import { ConfirmationDialogComponent } from "../../shared/components/confirmation-dialog/confirmation-dialog.component";
 import { RequesterDialogComponent } from "../../shared/components/requester-dialog/requester-dialog.component";
 import { RequestersComponentStore } from "./requesters.store";
@@ -54,7 +53,7 @@ export class RequestersComponent implements OnInit {
 			unpaged: false,
 		});
 		this.store.getRequesters.subscribe((i) => {
-			this.dataSource.data = i.content;
+			this.dataSource.data = i.content ?? [];
 		});
 	}
 
@@ -64,7 +63,9 @@ export class RequestersComponent implements OnInit {
 			height: "500px",
 		});
 
-		dialog.afterClosed().subscribe(() => location.reload());
+		dialog.afterClosed().subscribe((saved) => {
+			if (saved) this.store.refetch();
+		});
 	}
 
 	openDialogUpdate(element: Requester): void {
@@ -74,10 +75,12 @@ export class RequestersComponent implements OnInit {
 			data: { element },
 		});
 
-		dialog.afterClosed().subscribe(() => location.reload());
+		dialog.afterClosed().subscribe((saved) => {
+			if (saved) this.store.refetch();
+		});
 	}
 
-	deleteRequester(element: Room) {
+	deleteRequester(element: Requester) {
 		const dialog = this.dialog.open(ConfirmationDialogComponent);
 		dialog
 			.afterClosed()

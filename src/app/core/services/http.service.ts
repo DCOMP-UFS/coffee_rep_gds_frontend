@@ -14,28 +14,28 @@ export class HttpService {
 	) {}
 
 	postWithLoader<T>(url: string, body: object): Observable<T> {
-		this.loaderService.loader = true;
+		this.loaderService.start();
 		return this.http.post<T>(environment.apiUrl + url, body).pipe(
 			finalize(() => {
-				this.loaderService.loader = false;
+				this.loaderService.stop();
 			}),
 		);
 	}
 
 	putWithLoader<T>(url: string, body: object): Observable<T> {
-		this.loaderService.loader = true;
+		this.loaderService.start();
 		return this.http.put<T>(environment.apiUrl + url, body).pipe(
 			finalize(() => {
-				this.loaderService.loader = false;
+				this.loaderService.stop();
 			}),
 		);
 	}
 
 	getWithLoader<T>(url: string, params?: HttpParams): Observable<T> {
-		this.loaderService.loader = true;
+		this.loaderService.start();
 		return this.http.get<T>(environment.apiUrl + url, { params: params }).pipe(
 			finalize(() => {
-				this.loaderService.loader = false;
+				this.loaderService.stop();
 			}),
 		);
 	}
@@ -45,21 +45,21 @@ export class HttpService {
 	}
 
 	deleteWithLoader<T>(url: string, params?: HttpParams): Observable<T> {
-		this.loaderService.loader = true;
+		this.loaderService.start();
 		return this.http
 			.delete<T>(environment.apiUrl + url, { params: params })
 			.pipe(
 				finalize(() => {
-					this.loaderService.loader = false;
+					this.loaderService.stop();
 				}),
 			);
 	}
 
 	patchWithLoad<T>(url: string, body: object): Observable<T> {
-		this.loaderService.loader = true;
+		this.loaderService.start();
 		return this.http.patch<T>(environment.apiUrl + url, body).pipe(
 			finalize(() => {
-				this.loaderService.loader = false;
+				this.loaderService.stop();
 			}),
 		);
 	}

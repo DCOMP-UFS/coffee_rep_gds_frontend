@@ -1,0 +1,21 @@
+<h2 mat-dialog-title>{{ data.element ? 'Editar setor' : 'Novo setor' }}</h2>
+<mat-dialog-content class="section-dialog">
+  <form [formGroup]="form">
+    <mat-form-field appearance="outline" class="full">
+      <mat-label>Nome do setor</mat-label>
+      <input matInput formControlName="nome" autocomplete="off">
+      @if (form.controls['nome'].invalid && form.controls['nome'].touched) {
+        <mat-error>Informe o nome.</mat-error>
+      }
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="full">
+      <mat-label>Observação</mat-label>
+      <textarea matInput formControlName="observacao" rows="2"></textarea>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close type="button">Cancelar</button>
+  <button mat-flat-button color="primary" type="button"
+          [disabled]="form.invalid" (click)="save()">Salvar</button>
+</mat-dialog-actions>

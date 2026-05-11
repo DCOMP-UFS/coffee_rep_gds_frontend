@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-
+import { provideComponentHttp } from "../../../testing/test-providers";
 import { RequesterDialogComponent } from "./requester-dialog.component";
 
 describe("RequesterDialogComponent", () => {
@@ -9,6 +9,7 @@ describe("RequesterDialogComponent", () => {
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
 			imports: [RequesterDialogComponent],
+			providers: [...provideComponentHttp()],
 		}).compileComponents();
 
 		fixture = TestBed.createComponent(RequesterDialogComponent);

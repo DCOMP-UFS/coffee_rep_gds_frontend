@@ -1,0 +1,21 @@
+.cold-banner {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.5rem;
+	padding: 0.65rem 1rem;
+	margin: 0 0 0.75rem;
+	background: #e3f2fd;
+	border: 1px solid #90caf9;
+	border-radius: 8px;
+	font-size: 0.875rem;
+	line-height: 1.35;
+	color: #1565c0;
+
+	mat-icon {
+		flex-shrink: 0;
+		font-size: 20px;
+		width: 20px;
+		height: 20px;
+		margin-top: 2px;
+	}
+}

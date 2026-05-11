@@ -1,51 +1,55 @@
-.container-rooms-page{
-  display: flex;
-  gap: 10px;
-  flex-direction: column;
-  .card-rooms{
-    background: white;
-    border-radius: 8px;
-  }
-  form{
-    max-width: 300px;
-    display: flex;
-    gap: 15px;
-    div{
-      display: flex;
-      gap: 10px;
-    }
-  }
-  .card-title{
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    margin-bottom: 10px;
-    padding: 16px 16px 0 16px;
-  }
-  .table-container{
-    background: white;
-    padding: 10px;
-    border-radius: 8px;
-    table {
-      width: 100%;
-      background: white;
-
-    }
-  }
+.container-rooms-page {
+	display: flex;
+	gap: 1rem;
+	flex-direction: column;
 }
 
-.room-reserved,
-.room-not-reserved{
-  background: red;
-  width: 75px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: white;
-  padding: 5px;
-  border-radius: 8px;
+.card-rooms {
+	background: white;
+	border-radius: 8px;
 }
 
-.room-not-reserved{
-  background: #7faa1b;
+.rooms-toolbar {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+	gap: 1rem;
+	align-items: start;
+	padding: 0 8px 8px;
+	max-width: 960px;
+}
+
+.rooms-toolbar__field {
+	width: 100%;
+}
+
+.rooms-toolbar__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.75rem;
+	align-items: center;
+	grid-column: 1 / -1;
+
+	@media (min-width: 720px) {
+		grid-column: auto;
+		justify-self: end;
+	}
+}
+
+.card-title {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-bottom: 10px;
+	padding: 16px 16px 0 16px;
+}
+
+.table-container {
+	background: white;
+	padding: 10px;
+	border-radius: 8px;
+
+	table {
+		width: 100%;
+		background: white;
+	}
 }

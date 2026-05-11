@@ -5,25 +5,31 @@
     <img alt="Logo" src="assets/logo.png">
     @if(typeForm === 'login'){
       <form [formGroup]="loginForm" (submit)="submitLogin()">
-        <mat-form-field>
+        <mat-form-field appearance="outline">
           <mat-label>CPF</mat-label>
-          <input formControlName="cpf" matInput placeholder="Apenas números">
+          <input formControlName="cpf" matInput mask="000.000.000-00" placeholder="000.000.000-00">
           <mat-icon matSuffix>perm_identity</mat-icon>
+          @if (loginForm.controls['cpf'].invalid && loginForm.controls['cpf'].touched) {
+            <mat-error>Informe um CPF válido (11 dígitos).</mat-error>
+          }
         </mat-form-field>
-        <mat-form-field>
+        <mat-form-field appearance="outline">
           <mat-label>Senha</mat-label>
           <input formControlName="password" matInput placeholder="Senha" [type]="typeInput">
           <mat-icon [style.cursor]="'pointer'" (click)="tradeTypeInput()" matSuffix>lock_open</mat-icon>
+          @if (loginForm.controls['password'].invalid && loginForm.controls['password'].touched) {
+            <mat-error>Informe a senha.</mat-error>
+          }
         </mat-form-field>
 
         <div class="container-buttons">
-          <button [disabled]="!loginForm.valid" type="submit" mat-stroked-button>Entrar</button>
+          <button [disabled]="!loginForm.valid" type="submit" mat-flat-button color="primary">Entrar</button>
         </div>
         <button (click)="tradeTypeForm()"  type="button" class="signup-option">Ainda não possui acesso? <strong>Clique aqui.</strong>
         </button>
       </form>
     } @else {
-      <button (click)="tradeTypeForm()" class="container-back-to-login">
+      <button (click)="tradeTypeForm()" class="container-back-to-login" type="button">
         <mat-icon>keyboard_arrow_left</mat-icon>
         <span>Voltar</span>
       </button>
@@ -31,32 +37,50 @@
         <mat-form-field appearance="outline">
           <mat-label>Nome</mat-label>
           <input formControlName="name" matInput placeholder="Nome">
+          @if (signUpForm.controls['name'].invalid && signUpForm.controls['name'].touched) {
+            <mat-error>Informe o nome.</mat-error>
+          }
         </mat-form-field>
         <mat-form-field appearance="outline">
           <mat-label>Telefone</mat-label>
           <input formControlName="phone" (input)="filterNumbers('phone')" type="tel" matInput
-                 placeholder="Apenas números">
+                 mask="(00) 00000-0000" placeholder="(00) 00000-0000">
+          @if (signUpForm.controls['phone'].invalid && signUpForm.controls['phone'].touched) {
+            <mat-error>Informe o telefone.</mat-error>
+          }
         </mat-form-field>
         <mat-form-field appearance="outline">
           <mat-label>E-mail</mat-label>
           <input formControlName="email" matInput placeholder="Seu melhor e-mail">
+          @if (signUpForm.controls['email'].invalid && signUpForm.controls['email'].touched) {
+            <mat-error>E-mail inválido.</mat-error>
+          }
         </mat-form-field>
         <mat-form-field appearance="outline">
           <mat-label>CPF</mat-label>
-          <input (input)="filterNumbers('cpf')" formControlName="cpf" matInput placeholder="Apenas números">
+          <input formControlName="cpf" matInput mask="000.000.000-00" placeholder="000.000.000-00">
+          @if (signUpForm.controls['cpf'].invalid && signUpForm.controls['cpf'].touched) {
+            <mat-error>Informe um CPF válido (11 dígitos).</mat-error>
+          }
         </mat-form-field>
 
-        <mat-form-field>
+        <mat-form-field appearance="outline">
           <mat-label>Data de nascimento</mat-label>
           <input [max]="maxDate" formControlName="birthDate" matInput [matDatepicker]="picker">
           <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
           <mat-datepicker #picker></mat-datepicker>
+          @if (signUpForm.controls['birthDate'].invalid && signUpForm.controls['birthDate'].touched) {
+            <mat-error>Informe a data.</mat-error>
+          }
         </mat-form-field>
         <mat-form-field appearance="outline">
           <mat-label>Senha</mat-label>
           <input formControlName="password" matInput type="password" placeholder="Senha">
+          @if (signUpForm.controls['password'].invalid && signUpForm.controls['password'].touched) {
+            <mat-error>Informe a senha.</mat-error>
+          }
         </mat-form-field>
-        <button [disabled]="!signUpForm.valid" type="submit" mat-stroked-button>Cadastre-se</button>
+        <button [disabled]="!signUpForm.valid" type="submit" mat-flat-button color="primary">Cadastre-se</button>
       </form>
     }
   </div>

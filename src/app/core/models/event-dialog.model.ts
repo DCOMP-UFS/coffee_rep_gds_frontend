@@ -7,4 +7,5 @@ export interface EventDialogModel {
 	title: string;
 	start: Date;
 	end: Date;
+	profissionalAusente?: boolean;
 }

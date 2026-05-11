@@ -30,3 +30,6 @@ jobs:
 
       - name: Biome (check, sem --write)
         run: pnpm exec biome check ./src
+
+      - name: Unit tests (Karma headless)
+        run: pnpm run test:ci

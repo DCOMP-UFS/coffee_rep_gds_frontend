@@ -7,6 +7,7 @@ import { environment } from "../../../environments/environment";
 import { LoginRequestModel } from "../../core/models/login-request.model";
 import { SignUpRequestModel } from "../../core/models/sign-up-request.model";
 import { LoginService } from "../../core/services/login.service";
+import { SnackBarService } from "../../core/services/snack-bar.service";
 
 @Injectable()
 export class LoginSignUpStore extends ComponentStore<object> {
@@ -14,6 +15,7 @@ export class LoginSignUpStore extends ComponentStore<object> {
 		private loginService: LoginService,
 		private cookieService: CookieService,
 		private router: Router,
+		private snackBar: SnackBarService,
 	) {
 		super();
 	}
@@ -28,6 +30,9 @@ export class LoginSignUpStore extends ComponentStore<object> {
 							this.router.navigate(["/rooms"]);
 						}),
 						catchError(() => {
+							this.snackBar.openSnackBar(
+								"CPF ou senha incorretos. Tente novamente.",
+							);
 							return EMPTY;
 						}),
 					),
@@ -40,8 +45,18 @@ export class LoginSignUpStore extends ComponentStore<object> {
 			payload$.pipe(
 				switchMap((payload) =>
 					this.loginService.signUp(payload).pipe(
-						tap(() => window.location.reload()),
+						tap(() => {
+							this.snackBar.openSnackBar(
+								"Cadastro realizado. Faça login com seu CPF e senha.",
+							);
+							this.router.navigate(["/login"], {
+								queryParams: { registered: "1" },
+							});
+						}),
 						catchError(() => {
+							this.snackBar.openSnackBar(
+								"Não foi possível concluir o cadastro. Verifique os dados.",
+							);
 							return EMPTY;
 						}),
 					),
