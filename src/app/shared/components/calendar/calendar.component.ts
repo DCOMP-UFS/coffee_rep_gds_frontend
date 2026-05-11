@@ -64,7 +64,7 @@ export class CalendarComponent implements OnInit {
 					title: `${c.sala} - ${this.getSectionName(c.setor)} / ${this.getHourInterval(c.horaInicio, c.horaFim)}`,
 					start: this.getStrDay(c.horaInicio),
 					end: this.getStrDay(c.horaFim),
-          color: c.recorrenciaId ? 'red' : 'yellow'
+					color: c.recorrenciaId ? "red" : "yellow",
 				});
 			});
 		});
@@ -72,6 +72,6 @@ export class CalendarComponent implements OnInit {
 
 	getSectionName(section: string): string {
 		if (section.length > 9) return `${section.slice(0, 9)}...`;
-		else return section;
+		return section;
 	}
 }
