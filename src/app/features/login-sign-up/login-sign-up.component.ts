@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import {
 	FormControl,
 	FormGroup,
@@ -10,7 +10,10 @@ import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
+import { ActivatedRoute } from "@angular/router";
+import { NgxMaskDirective } from "ngx-mask";
 import { CookieService } from "ngx-cookie-service";
+import { cpfDigitsValidator } from "../../core/validators/cpf.validators";
 import { LoginSignUpStore } from "./login-sign-up.store";
 
 @Component({
@@ -25,10 +28,11 @@ import { LoginSignUpStore } from "./login-sign-up.store";
 		MatInputModule,
 		MatDatepickerModule,
 		MatButtonModule,
+		NgxMaskDirective,
 	],
 	providers: [LoginSignUpStore],
 })
-export class LoginSignUpComponent {
+export class LoginSignUpComponent implements OnInit {
 	typeInput = "password";
 	typeForm = "login";
 	maxDate: Date = new Date();
@@ -38,10 +42,19 @@ export class LoginSignUpComponent {
 	constructor(
 		private loginStore: LoginSignUpStore,
 		private cookieService: CookieService,
+		private route: ActivatedRoute,
 	) {
 		this.loginForm = this.createLoginForm();
 		this.signUpForm = this.createSignUpForm();
 		this.cookieService.deleteAll();
+	}
+
+	ngOnInit(): void {
+		this.route.queryParams.subscribe((p) => {
+			if (p["registered"] === "1") {
+				this.typeForm = "login";
+			}
+		});
 	}
 
 	createSignUpForm(): FormGroup {
@@ -50,14 +63,17 @@ export class LoginSignUpComponent {
 			phone: new FormControl("", [Validators.required]),
 			password: new FormControl("", [Validators.required]),
 			email: new FormControl("", [Validators.required, Validators.email]),
-			cpf: new FormControl("", [Validators.required, Validators.minLength(11)]),
+			cpf: new FormControl("", [
+				Validators.required,
+				cpfDigitsValidator(),
+			]),
 			birthDate: new FormControl("", [Validators.required]),
 		});
 	}
 
 	createLoginForm(): FormGroup {
 		return new FormGroup({
-			cpf: new FormControl("", [Validators.required]),
+			cpf: new FormControl("", [Validators.required, cpfDigitsValidator()]),
 			password: new FormControl("", [Validators.required]),
 		});
 	}
@@ -78,10 +94,23 @@ export class LoginSignUpComponent {
 	}
 
 	submitLogin(): void {
-		this.loginStore.sendLoginRequest$(this.loginForm.value);
+		this.loginForm.markAllAsTouched();
+		if (!this.loginForm.valid) return;
+		const v = this.loginForm.value;
+		this.loginStore.sendLoginRequest$({
+			cpf: String(v.cpf).replace(/\D/g, ""),
+			password: v.password,
+		});
 	}
 
 	submitSignUp(): void {
-		this.loginStore.sendSignUpRequest$(this.signUpForm.value);
+		this.signUpForm.markAllAsTouched();
+		if (!this.signUpForm.valid) return;
+		const v = this.signUpForm.value;
+		this.loginStore.sendSignUpRequest$({
+			...v,
+			cpf: String(v.cpf).replace(/\D/g, ""),
+			phone: String(v.phone).replace(/\D/g, ""),
+		});
 	}
 }
