@@ -3,36 +3,37 @@
     <div class="card-rooms">
       <mat-card-title>
         <div class="card-title">
-          <mat-icon>meeting_room</mat-icon>
+          <mat-icon aria-hidden="true">meeting_room</mat-icon>
           <span>Salas</span>
         </div>
       </mat-card-title>
       <mat-card-content>
-        <form [formGroup]="roomsForm">
-          <div>
-            <mat-form-field>
-              <mat-label>Setor</mat-label>
-              <mat-select formControlName="section">
-                <mat-option [value]="0">Todas</mat-option>
-                @for (section of (store.getSections | async); track section.id) {
-                  <mat-option value="{{section.id}}">{{ section.nome }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
+        <form [formGroup]="roomsForm" class="rooms-toolbar">
+          <mat-form-field class="rooms-toolbar__field">
+            <mat-label>Setor</mat-label>
+            <mat-select formControlName="section">
+              <mat-option [value]="0">Todas</mat-option>
+              @for (section of (store.getSections | async); track section.id) {
+                <mat-option [value]="section.id">{{ section.nome }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
 
-            <mat-form-field>
-              <mat-label>Status</mat-label>
-              <mat-select formControlName="status">
-                @for (status of ['Todas','Ocupada', 'Livre']; track status) {
-                  <mat-option value="{{status}}">{{status }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
+          <mat-form-field class="rooms-toolbar__field">
+            <mat-label>Status</mat-label>
+            <mat-select formControlName="status">
+              @for (status of ['Todas','Ocupada', 'Livre']; track status) {
+                <mat-option [value]="status">{{status }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <div class="rooms-toolbar__actions">
+            <button mat-flat-button color="primary" type="button" (click)="submit()">Buscar</button>
+            @if(store.getSections | async; as sections){
+              <button mat-stroked-button color="primary" type="button" (click)="openDialog(sections)">Nova sala</button>
+            }
           </div>
-          <button class="default-button" (click)="submit()">Buscar</button>
-          @if(store.getSections | async; as sections){
-            <button class="default-button" (click)="openDialog(sections)">Nova Sala</button>
-          }
         </form>
       </mat-card-content>
     </div>
@@ -40,6 +41,20 @@
   </mat-card>
   <mat-card>
     <div class="table-container">
+      @if (store.roomsLoading | async) {
+        <app-table-skeleton [rows]="6" [columns]="6"></app-table-skeleton>
+      } @else {
+        @if (store.roomsError | async; as err) {
+        <app-error-state [message]="err" (retry)="reloadRooms()"></app-error-state>
+        } @else if (!(store.getRooms | async)?.content?.length) {
+        <app-empty-state
+          icon="meeting_room"
+          title="Nenhuma sala cadastrada"
+          description="Cadastre salas por setor ou ajuste os filtros acima."
+          actionLabel="Nova sala"
+          (action)="openDialogFromEmpty()"
+        />
+      } @else {
       <table mat-table [dataSource]="dataSource">
 
         <ng-container matColumnDef="nome">
@@ -53,11 +68,13 @@
         </ng-container>
 
         <ng-container matColumnDef="status">
-          <th mat-header-cell *matHeaderCellDef> Status Atual </th>
+          <th mat-header-cell *matHeaderCellDef> Status atual </th>
           <td mat-cell *matCellDef="let element">
-            <div [class]="element.ocupada ? 'room-reserved' : 'room-not-reserved'">
-              {{element.ocupada ? 'Ocupada' : 'Livre' }}
-            </div>
+            <mat-chip-set>
+              <mat-chip [highlighted]="element.ocupada" [color]="element.ocupada ? 'warn' : 'primary'">
+                {{element.ocupada ? 'Ocupada' : 'Livre' }}
+              </mat-chip>
+            </mat-chip-set>
           </td>
         </ng-container>
 
@@ -66,15 +83,25 @@
           <td mat-cell *matCellDef="let element">
 
             @if(store.getSections | async; as sections){
-              <mat-icon (click)="openDialogUpdate(sections, element)">edit</mat-icon>
+              <button type="button" mat-icon-button
+                      [attr.aria-label]="'Editar sala ' + element.nome"
+                      (click)="openDialogUpdate(sections, element)">
+                <mat-icon>edit</mat-icon>
+              </button>
             }
 
           </td>
         </ng-container>
 
         <ng-container matColumnDef="delete">
-          <th mat-header-cell *matHeaderCellDef> Excluir Sala </th>
-          <td mat-cell *matCellDef="let element"> <mat-icon [style.cursor]="'pointer'" (click)="deleteRoom(element)">cancel</mat-icon> </td>
+          <th mat-header-cell *matHeaderCellDef> Excluir </th>
+          <td mat-cell *matCellDef="let element">
+            <button type="button" mat-icon-button
+                    [attr.aria-label]="'Excluir sala ' + element.nome"
+                    (click)="deleteRoom(element)">
+              <mat-icon>delete_outline</mat-icon>
+            </button>
+          </td>
         </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
@@ -82,13 +109,15 @@
       </table>
 
       <mat-paginator [pageSizeOptions]="[5, 10]"
-                     [length]="(store.getRooms | async)?.page?.totalElements"
-                     [pageSize]="(store.getRooms | async)?.page?.size"
-                     [pageIndex]="(store.getRooms | async)?.page?.number"
+                     [length]="(store.getRooms | async)?.page?.totalElements ?? 0"
+                     [pageSize]="(store.getRooms | async)?.page?.size ?? 5"
+                     [pageIndex]="(store.getRooms | async)?.page?.number ?? 0"
                      showFirstLastButtons
                      (page)="handlePageEvent($event)"
-                     aria-label="Select page of periodic elements">
+                     aria-label="Paginação de salas">
       </mat-paginator>
+      }
+      }
     </div>
   </mat-card>
 </div>

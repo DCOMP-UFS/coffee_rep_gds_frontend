@@ -20,7 +20,7 @@ export class RequesterDialogComponentStore extends ComponentStore<object> {
 			return payload$.pipe(
 				switchMap((req) =>
 					this.requesterService.createRequester(req).pipe(
-						tap(() => this.dialogRef.close()),
+						tap(() => this.dialogRef.close(true)),
 						catchError(() => {
 							return EMPTY;
 						}),
@@ -35,7 +35,7 @@ export class RequesterDialogComponentStore extends ComponentStore<object> {
 			return payload$.pipe(
 				switchMap((req) =>
 					this.requesterService.updateRequester(req).pipe(
-						tap(() => this.dialogRef.close()),
+						tap(() => this.dialogRef.close(true)),
 						catchError(() => {
 							return EMPTY;
 						}),

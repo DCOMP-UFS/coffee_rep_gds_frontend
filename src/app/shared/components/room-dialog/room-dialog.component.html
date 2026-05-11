@@ -1,24 +1,45 @@
-<h2 mat-dialog-title>Cadastro de Sala</h2>
-<mat-dialog-content class="mat-typography">
+<h2 mat-dialog-title>{{ data.element ? 'Editar sala' : 'Cadastro de sala' }}</h2>
+<mat-dialog-content class="mat-typography room-dialog-content">
+  @if (!data.sections?.length) {
+    <div class="room-dialog-alert" role="alert">
+      <p>Nenhum setor cadastrado. Cadastre um setor antes de criar salas.</p>
+      <a mat-flat-button color="primary" routerLink="/sections">Ir para setores</a>
+    </div>
+  }
+
   <form [formGroup]="roomForm">
 
-    <mat-form-field>
+    <mat-form-field class="room-dialog-field">
       <mat-label>Nome da sala</mat-label>
-      <input formControlName="name" matInput type="name" placeholder="Nome da sala">
+      <input formControlName="name" matInput type="text" placeholder="Ex.: Consultório 12" autocomplete="off">
+      @if (roomForm.controls['name'].invalid && roomForm.controls['name'].touched) {
+        <mat-error>Informe o nome da sala.</mat-error>
+      }
     </mat-form-field>
 
-    <mat-form-field>
+    <mat-form-field class="room-dialog-field">
       <mat-label>Setor</mat-label>
       <mat-select formControlName="section">
         @for (section of data.sections; track section.id) {
-          <mat-option value="{{section.id}}">{{ section.nome }}</mat-option>
+          <mat-option [value]="section.id.toString()">{{ section.nome }}</mat-option>
         }
       </mat-select>
+      @if (roomForm.controls['section'].invalid && roomForm.controls['section'].touched) {
+        <mat-error>Selecione um setor.</mat-error>
+      }
     </mat-form-field>
 
   </form>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
-  <button mat-button mat-dialog-close>Cancelar</button>
-  <button mat-button cdkFocusInitial (click)="submit()" >Salvar</button>
+  <button mat-button mat-dialog-close type="button">Cancelar</button>
+  <button mat-flat-button color="primary" type="button" cdkFocusInitial
+          [disabled]="!data.sections?.length || roomForm.invalid || (roomDialogComponentStore.saving$ | async)"
+          (click)="submit()">
+    @if (roomDialogComponentStore.saving$ | async) {
+      Salvando…
+    } @else {
+      Salvar
+    }
+  </button>
 </mat-dialog-actions>
