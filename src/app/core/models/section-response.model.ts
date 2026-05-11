@@ -5,4 +5,5 @@ export interface SectionResponseModel {
 export interface Section {
 	id: number;
 	nome: string;
+	observacoes?: string | null;
 }

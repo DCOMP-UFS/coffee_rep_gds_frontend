@@ -1,0 +1,49 @@
+<mat-card class="sections-page">
+  <div class="sections-header">
+    <h2>
+      <mat-icon aria-hidden="true">domain</mat-icon>
+      Setores
+    </h2>
+    <button mat-flat-button color="primary" type="button" (click)="openDialog()">
+      Novo setor
+    </button>
+  </div>
+
+  @if (loading) {
+    <app-table-skeleton [rows]="5" [columns]="3"></app-table-skeleton>
+  } @else if (error) {
+    <app-error-state [message]="error" (retry)="reload()"></app-error-state>
+  } @else if (!dataSource.data.length) {
+    <app-empty-state
+      icon="domain"
+      title="Nenhum setor cadastrado"
+      description="Os setores são usados ao cadastrar salas e filtros."
+      actionLabel="Novo setor"
+      (action)="openDialog()"
+    />
+  } @else {
+    <table mat-table [dataSource]="dataSource">
+      <ng-container matColumnDef="nome">
+        <th mat-header-cell *matHeaderCellDef> Nome </th>
+        <td mat-cell *matCellDef="let e"> {{ e.nome }} </td>
+      </ng-container>
+      <ng-container matColumnDef="observacoes">
+        <th mat-header-cell *matHeaderCellDef> Observação </th>
+        <td mat-cell *matCellDef="let e"> {{ e.observacoes || '—' }} </td>
+      </ng-container>
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef> Ações </th>
+        <td mat-cell *matCellDef="let e">
+          <button type="button" mat-icon-button aria-label="Editar setor" (click)="openDialog(e)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button type="button" mat-icon-button aria-label="Excluir setor" (click)="delete(e)">
+            <mat-icon>delete_outline</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+  }
+</mat-card>

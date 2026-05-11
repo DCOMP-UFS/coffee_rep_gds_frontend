@@ -43,6 +43,16 @@ export class SideMenuComponent {
 			route: "/rooms",
 		},
 		{
+			icon: "domain",
+			description: "Setores",
+			route: "/sections",
+		},
+		{
+			icon: "event_busy",
+			description: "Ausências",
+			route: "/absences",
+		},
+		{
 			icon: "person",
 			description: "Solicitante",
 			route: "/requester",
