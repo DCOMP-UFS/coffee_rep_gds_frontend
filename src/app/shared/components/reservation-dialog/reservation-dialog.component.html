@@ -1,55 +1,62 @@
 <h2 mat-dialog-title>Cadastro de Reserva</h2>
-<mat-dialog-content class="mat-typography">
-  <form [formGroup]="reservationForm" (ngSubmit)="submitForm()">
-    <mat-form-field>
-      <mat-label>Setor</mat-label>
-      <mat-select formControlName="section" (selectionChange)="getRoomsById($event.value)">
-        @for (section of (reservationDialogComponentStore.getSections | async); track section.id) {
-          <mat-option value="{{section.id}}">{{ section.nome }}</mat-option>
-        }
-      </mat-select>
-    </mat-form-field>
+<mat-dialog-content class="dialog-form-content reservation-dialog">
+  <form class="form-stack" [formGroup]="reservationForm" (ngSubmit)="submitForm()">
+    @if (reservationDialogComponentStore.getSections | async; as sections) {
+      <app-searchable-select-field
+        label="Setor"
+        preset="section"
+        formControlName="section"
+        [options]="mapSectionOptions(sections)"
+        (selectionChange)="getRoomsById($event)"
+      />
+    }
 
-    <mat-form-field>
-      <mat-label>Sala</mat-label>
-      <mat-select formControlName="room">
-        @for (room of (reservationDialogComponentStore.getRoomsByFilter | async); track room.id) {
-          <mat-option value="{{room.id}}">{{ room.nome }}</mat-option>
-        }
-      </mat-select>
-    </mat-form-field>
+    @if (reservationDialogComponentStore.getRoomsByFilter | async; as rooms) {
+      <app-searchable-select-field
+        label="Sala"
+        preset="room"
+        formControlName="room"
+        [options]="mapRoomOptions(rooms)"
+        [dependencyBlocked]="!reservationForm.get('section')?.value"
+        [disabled]="!reservationForm.get('section')?.value"
+      />
+    }
 
-    <mat-form-field>
-      <mat-label>Responsável</mat-label>
-      <mat-select formControlName="requester">
-        @for (req of (reservationDialogComponentStore.getRequesters | async); track req.nome) {
-          <mat-option [value]="req.id">{{ req.nome + ' - ' + req.especialidade }}</mat-option>
-        }
-      </mat-select>
-    </mat-form-field>
+    @if (reservationDialogComponentStore.getRequesters | async; as requesters) {
+      <app-searchable-select-field
+        label="Responsável"
+        preset="requester"
+        formControlName="requester"
+        [options]="mapRequesterOptions(requesters)"
+      />
+    }
 
-    <div class="form-field container-type-reservation">
+    <div class="form-field container-type-reservation" role="group" aria-label="Tipo de reserva">
       <span>Pontual</span>
-      <mat-slide-toggle (change)="changeForm($event.checked)"></mat-slide-toggle>
-      <span [style.margin-left]="'-4px'">Recorrente</span>
+      <mat-slide-toggle
+        [checked]="isRecurrentForm"
+        (change)="changeForm($event.checked)">
+      </mat-slide-toggle>
+      <span>Recorrente</span>
     </div>
 
-
-    @if (!this.isRecurrentForm){
-      <mat-form-field >
-        <mat-label>Data ínicio</mat-label>
-        <input matInput [matDatepicker]="picker1" formControlName="reservationDate">
-        <mat-datepicker-toggle matIconSuffix [for]="picker1"></mat-datepicker-toggle>
-        <mat-datepicker #picker1></mat-datepicker>
-      </mat-form-field>
-      <mat-form-field >
-        <mat-label>Data Fim</mat-label>
-        <input matInput [min]="this.reservationForm.value.reservationDate" [matDatepicker]="picker2" formControlName="reservationDateFim">
-        <mat-datepicker-toggle matIconSuffix [for]="picker2"></mat-datepicker-toggle>
-        <mat-datepicker #picker2></mat-datepicker>
-      </mat-form-field>
-    } @else{
-      <mat-form-field >
+    @if (isRecurrentForm) {
+      <div class="reservation-dialog__date-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Data início</mat-label>
+          <input matInput [matDatepicker]="picker1" formControlName="reservationDate">
+          <mat-datepicker-toggle matIconSuffix [for]="picker1"></mat-datepicker-toggle>
+          <mat-datepicker #picker1></mat-datepicker>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Data fim</mat-label>
+          <input matInput [min]="reservationForm.value.reservationDate" [matDatepicker]="picker2" formControlName="reservationDateFim">
+          <mat-datepicker-toggle matIconSuffix [for]="picker2"></mat-datepicker-toggle>
+          <mat-datepicker #picker2></mat-datepicker>
+        </mat-form-field>
+      </div>
+    } @else {
+      <mat-form-field appearance="outline">
         <mat-label>Data de reserva</mat-label>
         <input matInput [matDatepicker]="picker" formControlName="reservationDate">
         <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
@@ -57,22 +64,18 @@
       </mat-form-field>
     }
 
-    <mat-form-field appearance="outline">
-      <mat-label>Horário</mat-label>
-      <input matInput #inputField placeholder="00:00 - 00:00" (input)="formatTimeRange(inputField)" maxlength="13" formControlName="timeRange">
-    </mat-form-field>
+    <app-time-range-fields />
 
-    @if (!isRecurrentForm){
+    @if (isRecurrentForm) {
       <mat-chip-listbox multiple aria-label="Dias da semana" class="chip-grid">
         @for (day of daysOfWeek; track day) {
           <mat-chip-option (click)="saveReservation(day.value)">{{ day.day }}</mat-chip-option>
         }
       </mat-chip-listbox>
     }
-
   </form>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
-  <button mat-button mat-dialog-close>Cancelar</button>
-  <button mat-button (click)="submitForm()">Salvar</button>
+  <button mat-button mat-dialog-close type="button">Cancelar</button>
+  <button mat-flat-button color="primary" type="button" (click)="submitForm()">Salvar</button>
 </mat-dialog-actions>
