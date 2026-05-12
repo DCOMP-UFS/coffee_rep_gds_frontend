@@ -8,7 +8,9 @@ import { AbsencesComponent } from "./absences.component";
 
 describe("AbsencesComponent", () => {
 	beforeEach(async () => {
-		const absenceApi = jasmine.createSpyObj("RequesterAbsenceHttpService", ["list"]);
+		const absenceApi = jasmine.createSpyObj("RequesterAbsenceHttpService", [
+			"list",
+		]);
 		absenceApi.list.and.returnValue(of([]));
 		const requesterService = jasmine.createSpyObj("RequesterService", [
 			"getRequesterUnpaged",
@@ -20,8 +22,14 @@ describe("AbsencesComponent", () => {
 			providers: [
 				{ provide: RequesterAbsenceHttpService, useValue: absenceApi },
 				{ provide: RequesterService, useValue: requesterService },
-				{ provide: MatDialog, useValue: jasmine.createSpyObj("MatDialog", ["open"]) },
-				{ provide: SnackBarService, useValue: jasmine.createSpyObj("SnackBarService", ["openSnackBar"]) },
+				{
+					provide: MatDialog,
+					useValue: jasmine.createSpyObj("MatDialog", ["open"]),
+				},
+				{
+					provide: SnackBarService,
+					useValue: jasmine.createSpyObj("SnackBarService", ["openSnackBar"]),
+				},
 			],
 		}).compileComponents();
 	});

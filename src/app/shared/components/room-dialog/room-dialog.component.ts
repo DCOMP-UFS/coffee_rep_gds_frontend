@@ -14,10 +14,10 @@ import {
 } from "@angular/material/dialog";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
-import { mapSectionOptions } from "../searchable-select-field/searchable-select-options.util";
-import { SearchableSelectFieldComponent } from "../searchable-select-field/searchable-select-field.component";
 import { Room } from "../../../core/models/room-response.model";
 import { Section } from "../../../core/models/section-response.model";
+import { SearchableSelectFieldComponent } from "../searchable-select-field/searchable-select-field.component";
+import { mapSectionOptions } from "../searchable-select-field/searchable-select-options.util";
 import { RoomDialogComponentStore } from "./room-dialog.store";
 
 @Component({

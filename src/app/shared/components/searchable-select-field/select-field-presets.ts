@@ -1,8 +1,4 @@
-export type SelectFieldPresetKey =
-	| "section"
-	| "room"
-	| "requester"
-	| "status";
+export type SelectFieldPresetKey = "section" | "room" | "requester" | "status";
 
 export interface SelectFieldPreset {
 	emptyMessage: string;
@@ -30,7 +26,8 @@ export const SELECT_FIELD_PRESETS: Record<
 	room: {
 		emptyMessage: "Nenhuma sala cadastrada.",
 		emptyInContextMessage: "Nenhuma sala neste setor.",
-		dependencyMessage: "Selecione o setor acima para listar as salas disponíveis.",
+		dependencyMessage:
+			"Selecione o setor acima para listar as salas disponíveis.",
 		createRoute: "/rooms",
 		createActionLabel: "Cadastrar sala",
 		countLabelSingular: "sala disponível",

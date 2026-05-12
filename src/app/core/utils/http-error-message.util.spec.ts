@@ -42,7 +42,9 @@ describe("http error message utils", () => {
 			status: 400,
 		});
 
-		expect(getSignUpErrorMessage(error)).toBe("Este e-mail já está cadastrado.");
+		expect(getSignUpErrorMessage(error)).toBe(
+			"Este e-mail já está cadastrado.",
+		);
 	});
 
 	it("maps legacy duplicate CPF responses to a clear message", () => {
@@ -63,7 +65,9 @@ describe("http error message utils", () => {
 			status: 409,
 		});
 
-		expect(getSignUpErrorMessage(error)).toBe("Este e-mail já está cadastrado.");
+		expect(getSignUpErrorMessage(error)).toBe(
+			"Este e-mail já está cadastrado.",
+		);
 	});
 
 	it("should hide raw SQL errors from the user", () => {

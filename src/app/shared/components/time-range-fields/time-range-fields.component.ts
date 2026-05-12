@@ -29,7 +29,9 @@ export class TimeRangeFieldsComponent implements OnInit {
 	startControl!: FormControl<string>;
 	endControl!: FormControl<string>;
 
-	constructor(@Optional() private readonly controlContainer: ControlContainer) {}
+	constructor(
+		@Optional() private readonly controlContainer: ControlContainer,
+	) {}
 
 	ngOnInit(): void {
 		const group = this.controlContainer?.control as FormGroup | null;

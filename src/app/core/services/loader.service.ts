@@ -1,9 +1,9 @@
 import { Injectable } from "@angular/core";
 import {
 	BehaviorSubject,
+	Observable,
 	distinctUntilChanged,
 	map,
-	Observable,
 	of,
 	switchMap,
 	timer,
@@ -27,11 +27,7 @@ export class LoaderService {
 
 	/** True ~3s após iniciar loading (cold start / rede lenta) */
 	readonly slowLoading$: Observable<boolean> = this.count$.pipe(
-		switchMap((n) =>
-			n > 0
-				? timer(3000).pipe(map(() => true))
-				: of(false),
-		),
+		switchMap((n) => (n > 0 ? timer(3000).pipe(map(() => true)) : of(false))),
 		distinctUntilChanged(),
 	);
 

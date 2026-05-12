@@ -32,10 +32,7 @@ export class RequesterAbsenceHttpService {
 		return this.http.postWithLoader<void>("requester-absence", body);
 	}
 
-	update(
-		id: number,
-		body: CreateRequesterAbsencePayload,
-	): Observable<void> {
+	update(id: number, body: CreateRequesterAbsencePayload): Observable<void> {
 		return this.http.putWithLoader<void>(`requester-absence/${id}`, body);
 	}
 

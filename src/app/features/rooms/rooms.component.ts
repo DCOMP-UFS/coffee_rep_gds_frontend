@@ -9,7 +9,7 @@ import {
 } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
-import { MatChipSet, MatChip } from "@angular/material/chips";
+import { MatChip, MatChipSet } from "@angular/material/chips";
 import { MatNativeDateModule } from "@angular/material/core";
 import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatDialog, MatDialogModule } from "@angular/material/dialog";
@@ -21,18 +21,18 @@ import {
 	PageEvent,
 } from "@angular/material/paginator";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
-import { tap, take } from "rxjs";
+import { take, tap } from "rxjs";
 import { Room } from "../../core/models/room-response.model";
 import { Section } from "../../core/models/section-response.model";
 import { ConfirmationDialogComponent } from "../../shared/components/confirmation-dialog/confirmation-dialog.component";
 import { EmptyStateComponent } from "../../shared/components/empty-state/empty-state.component";
 import { ErrorStateComponent } from "../../shared/components/error-state/error-state.component";
-import { FORM_DIALOG_CONFIG_NARROW } from "../../shared/constants/dialog-config";
 import { RoomDialogComponent } from "../../shared/components/room-dialog/room-dialog.component";
 import { SearchableSelectOption } from "../../shared/components/searchable-select-field/searchable-select-field.component";
-import { mapSectionOptions } from "../../shared/components/searchable-select-field/searchable-select-options.util";
 import { SearchableSelectFieldComponent } from "../../shared/components/searchable-select-field/searchable-select-field.component";
+import { mapSectionOptions } from "../../shared/components/searchable-select-field/searchable-select-options.util";
 import { TableSkeletonComponent } from "../../shared/components/table-skeleton/table-skeleton.component";
+import { FORM_DIALOG_CONFIG_NARROW } from "../../shared/constants/dialog-config";
 import { RoomsComponentStore } from "./rooms.store";
 
 @Component({

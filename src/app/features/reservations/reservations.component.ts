@@ -24,8 +24,8 @@ import { Reservation } from "../../core/models/reservation-response.model";
 import { ConfirmationDialogComponent } from "../../shared/components/confirmation-dialog/confirmation-dialog.component";
 import { DeleteReservationComponent } from "../../shared/components/delete-reservation/delete-reservation.component";
 import { EmptyStateComponent } from "../../shared/components/empty-state/empty-state.component";
-import { FORM_DIALOG_CONFIG } from "../../shared/constants/dialog-config";
 import { ReservationDialogComponent } from "../../shared/components/reservation-dialog/reservation-dialog.component";
+import { FORM_DIALOG_CONFIG } from "../../shared/constants/dialog-config";
 import { ReservationsComponentStore } from "./reservations.store";
 
 @Component({

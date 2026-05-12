@@ -5,8 +5,8 @@ import { MatDialog } from "@angular/material/dialog";
 import { MatIconModule } from "@angular/material/icon";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { finalize } from "rxjs";
-import { Requester } from "../../core/models/requester-response.model";
 import { RequesterAbsence } from "../../core/models/requester-absence.model";
+import { Requester } from "../../core/models/requester-response.model";
 import { RequesterAbsenceHttpService } from "../../core/services/requester-absence-http.service";
 import { RequesterService } from "../../core/services/requester.service";
 import { SnackBarService } from "../../core/services/snack-bar.service";
@@ -65,7 +65,11 @@ export class AbsencesComponent implements OnInit {
 		this.error = null;
 		this.absenceApi
 			.list()
-			.pipe(finalize(() => (this.loading = false)))
+			.pipe(
+				finalize(() => {
+					this.loading = false;
+				}),
+			)
 			.subscribe({
 				next: (rows) => {
 					this.dataSource.data = rows ?? [];

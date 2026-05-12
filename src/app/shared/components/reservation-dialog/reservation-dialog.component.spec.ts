@@ -26,7 +26,9 @@ describe("ReservationDialogComponent", () => {
 		expect(component.reservationForm.contains("reservationDateFim")).toBeTrue();
 		component.changeForm(false);
 		expect(component.isRecurrentForm).toBeFalse();
-		expect(component.reservationForm.contains("reservationDateFim")).toBeFalse();
+		expect(
+			component.reservationForm.contains("reservationDateFim"),
+		).toBeFalse();
 		component.changeForm(true);
 		expect(component.isRecurrentForm).toBeTrue();
 		expect(component.reservationForm.contains("reservationDateFim")).toBeTrue();

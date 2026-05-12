@@ -7,7 +7,9 @@ import { SectionsComponent } from "./sections.component";
 
 describe("SectionsComponent", () => {
 	beforeEach(async () => {
-		const sectionService = jasmine.createSpyObj("SectionService", ["getSections"]);
+		const sectionService = jasmine.createSpyObj("SectionService", [
+			"getSections",
+		]);
 		sectionService.getSections.and.returnValue(
 			of({ content: [{ id: 1, nome: "Setor", observacoes: "" }] }),
 		);
@@ -16,8 +18,14 @@ describe("SectionsComponent", () => {
 			imports: [SectionsComponent],
 			providers: [
 				{ provide: SectionService, useValue: sectionService },
-				{ provide: MatDialog, useValue: jasmine.createSpyObj("MatDialog", ["open"]) },
-				{ provide: SnackBarService, useValue: jasmine.createSpyObj("SnackBarService", ["openSnackBar"]) },
+				{
+					provide: MatDialog,
+					useValue: jasmine.createSpyObj("MatDialog", ["open"]),
+				},
+				{
+					provide: SnackBarService,
+					useValue: jasmine.createSpyObj("SnackBarService", ["openSnackBar"]),
+				},
 			],
 		}).compileComponents();
 	});
