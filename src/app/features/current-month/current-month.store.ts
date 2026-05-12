@@ -40,7 +40,7 @@ export class CurrentMonthComponentStore extends ComponentStore<CurrentMonthState
 		(payload$: Observable<{ sectionId: number }>) => {
 			return payload$.pipe(
 				switchMap((req) =>
-					this.roomService.getRoomBySectionId(req.sectionId, "Livre").pipe(
+					this.roomService.getRoomBySectionId(req.sectionId, "Todas").pipe(
 						tap((res) => this.setRoomsByFilter(res)),
 						catchError(() => EMPTY),
 					),
