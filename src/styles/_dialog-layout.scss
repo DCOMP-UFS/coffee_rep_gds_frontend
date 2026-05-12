@@ -1,0 +1,15 @@
+.mat-mdc-dialog-container .mat-mdc-dialog-title + .mat-mdc-dialog-content {
+	overflow: visible;
+}
+
+.dialog-form-content {
+	min-width: min(92vw, 480px);
+	box-sizing: border-box;
+	padding-top: 1rem;
+	padding-bottom: 0.25rem;
+
+	> .form-stack {
+		max-height: min(calc(90vh - 10rem), 36rem);
+		scrollbar-gutter: stable;
+	}
+}
