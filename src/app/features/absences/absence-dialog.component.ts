@@ -13,7 +13,8 @@ import {
 } from "@angular/material/dialog";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
-import { MatOption, MatSelectModule } from "@angular/material/select";
+import { mapRequesterOptions } from "../../shared/components/searchable-select-field/searchable-select-options.util";
+import { SearchableSelectFieldComponent } from "../../shared/components/searchable-select-field/searchable-select-field.component";
 import { Requester } from "../../core/models/requester-response.model";
 import {
 	CreateRequesterAbsencePayload,
@@ -30,12 +31,12 @@ import { RequesterAbsenceHttpService } from "../../core/services/requester-absen
 		MatInputModule,
 		MatDialogModule,
 		MatButtonModule,
-		MatSelectModule,
-		MatOption,
+		SearchableSelectFieldComponent,
 	],
 	templateUrl: "./absence-dialog.component.html",
 })
 export class AbsenceDialogComponent {
+	protected readonly mapRequesterOptions = mapRequesterOptions;
 	form: FormGroup;
 	requesters: Requester[] = [];
 
@@ -60,9 +61,6 @@ export class AbsenceDialogComponent {
 			inicio: [data.element?.dataInicio ?? "", Validators.required],
 			fim: [data.element?.dataFim ?? "", Validators.required],
 		});
-		if (!this.requesters.length) {
-			this.form.disable();
-		}
 	}
 
 	save(): void {

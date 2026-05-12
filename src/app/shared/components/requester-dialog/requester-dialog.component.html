@@ -1,6 +1,6 @@
 <h2 mat-dialog-title>Cadastro de Solicitante</h2>
-<mat-dialog-content class="mat-typography">
-  <form [formGroup]="requesterForm">
+<mat-dialog-content class="dialog-form-content">
+  <form class="form-stack" [formGroup]="requesterForm">
 
     <mat-form-field>
       <mat-label>Nome</mat-label>
@@ -9,12 +9,27 @@
 
     <mat-form-field>
       <mat-label>CPF</mat-label>
-      <input formControlName="cpf" matInput type="text" placeholder="CPF">
+      <input
+        formControlName="cpf"
+        matInput
+        mask="000.000.000-00"
+        placeholder="000.000.000-00"
+        autocomplete="off"
+      >
+      @if (requesterForm.controls['cpf'].invalid && requesterForm.controls['cpf'].touched) {
+        <mat-error>Informe um CPF válido (11 dígitos).</mat-error>
+      }
     </mat-form-field>
 
     <mat-form-field>
       <mat-label>Telefone</mat-label>
-      <input formControlName="phone" matInput type="name" placeholder="Telefone">
+      <input
+        formControlName="phone"
+        matInput
+        mask="(00) 00000-0000"
+        placeholder="(00) 00000-0000"
+        autocomplete="tel"
+      >
     </mat-form-field>
 
     <mat-form-field>
@@ -27,5 +42,5 @@
 </mat-dialog-content>
 <mat-dialog-actions align="end">
   <button mat-button mat-dialog-close>Cancelar</button>
-  <button mat-button cdkFocusInitial (click)="submit()" >Salvar</button>
+  <button mat-flat-button color="primary" type="button" (click)="submit()">Salvar</button>
 </mat-dialog-actions>

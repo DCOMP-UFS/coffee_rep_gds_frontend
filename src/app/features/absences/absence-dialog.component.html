@@ -1,20 +1,15 @@
 <h2 mat-dialog-title>
   {{ data.element ? 'Editar ausência / férias' : 'Nova ausência / férias' }}
 </h2>
-<mat-dialog-content class="absence-dialog">
-  @if (!requesters.length) {
-    <p role="alert">Cadastre solicitantes antes de registrar ausências.</p>
-  }
-
-  <form [formGroup]="form">
-    <mat-form-field appearance="outline" class="full">
-      <mat-label>Profissional (solicitante)</mat-label>
-      <mat-select formControlName="solicitanteId">
-        @for (r of requesters; track r.id) {
-          <mat-option [value]="r.id.toString()">{{ r.nome }}</mat-option>
-        }
-      </mat-select>
-    </mat-form-field>
+<mat-dialog-content class="dialog-form-content absence-dialog">
+  <form class="form-stack" [formGroup]="form">
+    <app-searchable-select-field
+      class="full"
+      label="Profissional (solicitante)"
+      preset="requester"
+      formControlName="solicitanteId"
+      [options]="mapRequesterOptions(requesters)"
+    />
 
     <mat-form-field appearance="outline" class="full">
       <mat-label>Data início</mat-label>

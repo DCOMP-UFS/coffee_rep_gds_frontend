@@ -14,6 +14,7 @@ import { ConfirmationDialogComponent } from "../../shared/components/confirmatio
 import { EmptyStateComponent } from "../../shared/components/empty-state/empty-state.component";
 import { ErrorStateComponent } from "../../shared/components/error-state/error-state.component";
 import { TableSkeletonComponent } from "../../shared/components/table-skeleton/table-skeleton.component";
+import { FORM_DIALOG_CONFIG_NARROW } from "../../shared/constants/dialog-config";
 import { AbsenceDialogComponent } from "./absence-dialog.component";
 
 @Component({
@@ -79,7 +80,7 @@ export class AbsencesComponent implements OnInit {
 	openDialog(row?: RequesterAbsence): void {
 		this.dialog
 			.open(AbsenceDialogComponent, {
-				width: "min(95vw, 460px)",
+				...FORM_DIALOG_CONFIG_NARROW,
 				data: { requesters: this.requesters, element: row },
 			})
 			.afterClosed()

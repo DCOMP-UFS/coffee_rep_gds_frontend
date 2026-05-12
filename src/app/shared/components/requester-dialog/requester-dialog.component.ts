@@ -10,7 +10,9 @@ import { MAT_DIALOG_DATA, MatDialogModule } from "@angular/material/dialog";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 import { MatSelectModule } from "@angular/material/select";
+import { NgxMaskDirective } from "ngx-mask";
 import { Requester } from "../../../core/models/requester-response.model";
+import { cpfDigitsValidator } from "../../../core/validators/cpf.validators";
 import { RequesterDialogComponentStore } from "./requester-dialog.store";
 
 @Component({
@@ -22,6 +24,7 @@ import { RequesterDialogComponentStore } from "./requester-dialog.store";
 		MatSelectModule,
 		MatButtonModule,
 		MatInputModule,
+		NgxMaskDirective,
 	],
 	standalone: true,
 	providers: [RequesterDialogComponentStore],
@@ -46,7 +49,7 @@ export class RequesterDialogComponent {
 					value: this.data?.element?.cpf ? this.data.element.cpf : "",
 					disabled: !!this.data?.element?.cpf,
 				},
-				Validators.required,
+				[Validators.required, cpfDigitsValidator()],
 			],
 			phone: [
 				this.data?.element?.contato ? this.data.element.contato : "",
@@ -62,22 +65,27 @@ export class RequesterDialogComponent {
 	}
 
 	submit() {
-		if (this.requesterForm.valid && !this.data?.element) {
-			this.store.createRequester$({
-				nome: this.requesterForm.value.name,
-				cpf: this.requesterForm.value.cpf,
-				telefone: this.requesterForm.value.phone,
-				especialidade: this.requesterForm.value.type,
-			});
+		this.requesterForm.markAllAsTouched();
+		if (!this.requesterForm.valid) {
+			return;
 		}
-		if (this.requesterForm.valid && this.data?.element) {
+
+		const raw = this.requesterForm.getRawValue();
+		const payload = {
+			nome: raw.name,
+			cpf: String(raw.cpf).replace(/\D/g, ""),
+			telefone: String(raw.phone).replace(/\D/g, ""),
+			especialidade: raw.type,
+		};
+
+		if (this.data?.element) {
 			this.store.updateRequester$({
-				id: this.data?.element.id,
-				nome: this.requesterForm.value.name,
-				cpf: this.requesterForm.value.cpf,
-				telefone: this.requesterForm.value.phone,
-				especialidade: this.requesterForm.value.type,
+				id: this.data.element.id,
+				...payload,
 			});
+			return;
 		}
+
+		this.store.createRequester$(payload);
 	}
 }

@@ -7,11 +7,15 @@ import {
 	Validators,
 } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
-import { MAT_DIALOG_DATA, MatDialogModule } from "@angular/material/dialog";
+import {
+	MAT_DIALOG_DATA,
+	MatDialogModule,
+	MatDialogRef,
+} from "@angular/material/dialog";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
-import { MatSelectModule } from "@angular/material/select";
-import { RouterLink } from "@angular/router";
+import { mapSectionOptions } from "../searchable-select-field/searchable-select-options.util";
+import { SearchableSelectFieldComponent } from "../searchable-select-field/searchable-select-field.component";
 import { Room } from "../../../core/models/room-response.model";
 import { Section } from "../../../core/models/section-response.model";
 import { RoomDialogComponentStore } from "./room-dialog.store";
@@ -23,10 +27,9 @@ import { RoomDialogComponentStore } from "./room-dialog.store";
 		ReactiveFormsModule,
 		MatFormFieldModule,
 		MatDialogModule,
-		MatSelectModule,
 		MatButtonModule,
+		SearchableSelectFieldComponent,
 		MatInputModule,
-		RouterLink,
 	],
 	standalone: true,
 	providers: [RoomDialogComponentStore],
@@ -34,11 +37,13 @@ import { RoomDialogComponentStore } from "./room-dialog.store";
 	styleUrl: "./room-dialog.component.scss",
 })
 export class RoomDialogComponent {
+	protected readonly mapSectionOptions = mapSectionOptions;
 	roomForm: FormGroup;
 
 	constructor(
 		public roomDialogComponentStore: RoomDialogComponentStore,
 		private fb: FormBuilder,
+		private dialogRef: MatDialogRef<RoomDialogComponent>,
 		@Inject(MAT_DIALOG_DATA)
 		public data: { sections: Section[]; element?: Room },
 	) {
@@ -50,9 +55,6 @@ export class RoomDialogComponent {
 			],
 			name: [data.element?.nome ? data.element.nome : "", Validators.required],
 		});
-		if (!sections.length) {
-			this.roomForm.disable();
-		}
 	}
 
 	submit() {
