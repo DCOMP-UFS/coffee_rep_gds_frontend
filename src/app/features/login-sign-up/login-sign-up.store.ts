@@ -1,4 +1,5 @@
 import { Injectable } from "@angular/core";
+import { HttpErrorResponse } from "@angular/common/http";
 import { Router } from "@angular/router";
 import { ComponentStore } from "@ngrx/component-store";
 import { CookieService } from "ngx-cookie-service";
@@ -8,6 +9,7 @@ import { LoginRequestModel } from "../../core/models/login-request.model";
 import { SignUpRequestModel } from "../../core/models/sign-up-request.model";
 import { LoginService } from "../../core/services/login.service";
 import { SnackBarService } from "../../core/services/snack-bar.service";
+import { getSignUpErrorMessage } from "../../core/utils/http-error-message.util";
 
 @Injectable()
 export class LoginSignUpStore extends ComponentStore<object> {
@@ -32,6 +34,7 @@ export class LoginSignUpStore extends ComponentStore<object> {
 						catchError(() => {
 							this.snackBar.openSnackBar(
 								"CPF ou senha incorretos. Tente novamente.",
+								"error",
 							);
 							return EMPTY;
 						}),
@@ -53,9 +56,10 @@ export class LoginSignUpStore extends ComponentStore<object> {
 								queryParams: { registered: "1" },
 							});
 						}),
-						catchError(() => {
+						catchError((error: HttpErrorResponse) => {
 							this.snackBar.openSnackBar(
-								"Não foi possível concluir o cadastro. Verifique os dados.",
+								getSignUpErrorMessage(error),
+								"error",
 							);
 							return EMPTY;
 						}),
