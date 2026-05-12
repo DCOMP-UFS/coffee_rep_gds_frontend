@@ -75,11 +75,14 @@ export class LoginSignUpComponent implements OnInit, OnDestroy {
 				this.clearStrayFocus();
 			});
 
-		this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe((p) => {
-			if (p.registered === "1") {
-				this.isSignUp = false;
-			}
-		});
+		this.route.queryParams
+			.pipe(takeUntil(this.destroy$))
+			.subscribe((params) => {
+				const registered = (params as { registered?: string }).registered;
+				if (registered === "1") {
+					this.isSignUp = false;
+				}
+			});
 	}
 
 	ngOnDestroy(): void {

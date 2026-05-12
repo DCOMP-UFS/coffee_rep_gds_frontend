@@ -16,7 +16,7 @@ describe("CurrentMonthComponent", () => {
 
 		fixture = TestBed.createComponent(CurrentMonthComponent);
 		component = fixture.componentInstance;
-		store = TestBed.inject(CurrentMonthComponentStore);
+		store = component.store;
 		fixture.detectChanges();
 	});
 

@@ -6,6 +6,7 @@ import {
 	OnChanges,
 	OnInit,
 	Output,
+	SimpleChange,
 	SimpleChanges,
 	ViewChild,
 	forwardRef,
@@ -95,7 +96,11 @@ export class SearchableSelectFieldComponent
 	}
 
 	ngOnChanges(changes: SimpleChanges): void {
-		if (changes.preset || changes.searchable) {
+		const { preset, searchable } = changes as {
+			preset?: SimpleChange;
+			searchable?: SimpleChange;
+		};
+		if (preset || searchable) {
 			this.applyPreset();
 		}
 	}
