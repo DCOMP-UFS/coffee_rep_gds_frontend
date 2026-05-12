@@ -1,14 +1,7 @@
 import { Injectable } from "@angular/core";
 import { MatDialogRef } from "@angular/material/dialog";
 import { ComponentStore } from "@ngrx/component-store";
-import {
-	EMPTY,
-	Observable,
-	catchError,
-	finalize,
-	switchMap,
-	tap,
-} from "rxjs";
+import { EMPTY, Observable, catchError, finalize, switchMap, tap } from "rxjs";
 import { CreateRoomRequestModel } from "../../../core/models/create-room-request.model";
 import { RoomService } from "../../../core/services/room.service";
 import { SnackBarService } from "../../../core/services/snack-bar.service";

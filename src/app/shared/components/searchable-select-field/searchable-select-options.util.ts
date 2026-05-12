@@ -3,7 +3,9 @@ import { Room } from "../../../core/models/room-response.model";
 import { Section } from "../../../core/models/section-response.model";
 import { SearchableSelectOption } from "./searchable-select-field.component";
 
-export function mapSectionOptions(sections: Section[]): SearchableSelectOption[] {
+export function mapSectionOptions(
+	sections: Section[],
+): SearchableSelectOption[] {
 	return sections.map((section) => ({
 		value: String(section.id),
 		label: section.nome,

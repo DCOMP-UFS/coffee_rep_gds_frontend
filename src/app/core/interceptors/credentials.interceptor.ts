@@ -3,8 +3,8 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { inject } from "@angular/core";
 import { Router } from "@angular/router";
 import { catchError, throwError } from "rxjs";
-import { getHttpErrorMessage } from "../utils/http-error-message.util";
 import { SnackBarService } from "../services/snack-bar.service";
+import { getHttpErrorMessage } from "../utils/http-error-message.util";
 
 export const credentialsInterceptor: HttpInterceptorFn = (req, next) => {
 	const router = inject(Router);
@@ -28,10 +28,7 @@ export const credentialsInterceptor: HttpInterceptorFn = (req, next) => {
 				router.navigate(["/login"]);
 			} else {
 				snackBar.openSnackBar(
-					getHttpErrorMessage(
-						error,
-						"Não foi possível concluir a operação.",
-					),
+					getHttpErrorMessage(error, "Não foi possível concluir a operação."),
 					"error",
 				);
 			}

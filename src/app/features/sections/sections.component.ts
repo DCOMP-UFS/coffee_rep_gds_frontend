@@ -51,14 +51,17 @@ export class SectionsComponent implements OnInit {
 		this.error = null;
 		this.sectionService
 			.getSections()
-			.pipe(finalize(() => (this.loading = false)))
+			.pipe(
+				finalize(() => {
+					this.loading = false;
+				}),
+			)
 			.subscribe({
 				next: (res) => {
 					this.dataSource.data = res.content ?? [];
 				},
 				error: () => {
-					this.error =
-						"Não foi possível carregar os setores. Tente novamente.";
+					this.error = "Não foi possível carregar os setores. Tente novamente.";
 				},
 			});
 	}
@@ -90,9 +93,7 @@ export class SectionsComponent implements OnInit {
 						this.reload();
 					},
 					error: () =>
-						this.snackBar.openSnackBar(
-							"Não foi possível remover o setor.",
-						),
+						this.snackBar.openSnackBar("Não foi possível remover o setor."),
 				});
 			});
 	}

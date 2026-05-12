@@ -64,7 +64,8 @@ describe("SearchableSelectFieldComponent", () => {
 	it("should show dependency message when blocked", () => {
 		component.options = [];
 		component.dependencyBlocked = true;
-		component.dependencyMessage = "Selecione o setor acima para listar as salas disponíveis.";
+		component.dependencyMessage =
+			"Selecione o setor acima para listar as salas disponíveis.";
 		expect(component.emptyPanelMessage).toBe(
 			"Selecione o setor acima para listar as salas disponíveis.",
 		);

@@ -1,7 +1,7 @@
 import { provideHttpClient } from "@angular/common/http";
 import {
-	provideHttpClientTesting,
 	HttpTestingController,
+	provideHttpClientTesting,
 } from "@angular/common/http/testing";
 import { EnvironmentProviders, Provider } from "@angular/core";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
@@ -10,7 +10,11 @@ import { provideRouter } from "@angular/router";
 import { LoaderService } from "../core/services/loader.service";
 
 export function provideHttpTesting(): Array<Provider | EnvironmentProviders> {
-	return [provideHttpClient(), provideHttpClientTesting(), provideNoopAnimations()];
+	return [
+		provideHttpClient(),
+		provideHttpClientTesting(),
+		provideNoopAnimations(),
+	];
 }
 
 export function provideDialogTest(): Provider[] {

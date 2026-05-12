@@ -2,7 +2,7 @@ import { TestBed } from "@angular/core/testing";
 import { ActivatedRoute, Router, provideRouter } from "@angular/router";
 import { CookieService } from "ngx-cookie-service";
 import { provideEnvironmentNgxMask } from "ngx-mask";
-import { Subject, of } from "rxjs";
+import { Subject } from "rxjs";
 import { provideComponentHttp } from "../../testing/test-providers";
 import { LoginSignUpComponent } from "./login-sign-up.component";
 import { LoginSignUpStore } from "./login-sign-up.store";

@@ -9,15 +9,20 @@ import { MatButtonModule } from "@angular/material/button";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
-import { ActivatedRoute, NavigationEnd, Router, RouterLink } from "@angular/router";
-import { NgxMaskDirective } from "ngx-mask";
+import {
+	ActivatedRoute,
+	NavigationEnd,
+	Router,
+	RouterLink,
+} from "@angular/router";
 import { CookieService } from "ngx-cookie-service";
-import { filter, Subject, takeUntil } from "rxjs";
-import { cpfDigitsValidator } from "../../core/validators/cpf.validators";
+import { NgxMaskDirective } from "ngx-mask";
+import { Subject, filter, takeUntil } from "rxjs";
 import {
 	birthDateBrToApi,
 	birthDateMaskValidator,
 } from "../../core/validators/birth-date.validators";
+import { cpfDigitsValidator } from "../../core/validators/cpf.validators";
 import { LoginSignUpStore } from "./login-sign-up.store";
 
 @Component({
@@ -60,7 +65,9 @@ export class LoginSignUpComponent implements OnInit, OnDestroy {
 		this.syncModeFromUrl(this.router.url);
 		this.router.events
 			.pipe(
-				filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+				filter(
+					(event): event is NavigationEnd => event instanceof NavigationEnd,
+				),
 				takeUntil(this.destroy$),
 			)
 			.subscribe((event) => {
@@ -69,7 +76,7 @@ export class LoginSignUpComponent implements OnInit, OnDestroy {
 			});
 
 		this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe((p) => {
-			if (p["registered"] === "1") {
+			if (p.registered === "1") {
 				this.isSignUp = false;
 			}
 		});
@@ -86,10 +93,7 @@ export class LoginSignUpComponent implements OnInit, OnDestroy {
 			phone: new FormControl("", [Validators.required]),
 			password: new FormControl("", [Validators.required]),
 			email: new FormControl("", [Validators.required, Validators.email]),
-			cpf: new FormControl("", [
-				Validators.required,
-				cpfDigitsValidator(),
-			]),
+			cpf: new FormControl("", [Validators.required, cpfDigitsValidator()]),
 			birthDate: new FormControl("", [
 				Validators.required,
 				birthDateMaskValidator(),

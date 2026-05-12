@@ -8,7 +8,6 @@ import {
 	ApplicationConfig,
 	provideZoneChangeDetection,
 } from "@angular/core";
-import { provideRouter } from "@angular/router";
 import {
 	MAT_DATE_FORMATS,
 	MAT_DATE_LOCALE,
@@ -18,15 +17,16 @@ import {
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from "@angular/material/form-field";
 import { MatPaginatorIntl } from "@angular/material/paginator";
 import { provideAnimationsAsync } from "@angular/platform-browser/animations/async";
+import { provideRouter } from "@angular/router";
 import { provideStore } from "@ngrx/store";
-import { provideEnvironmentNgxMask } from "ngx-mask";
 import { CookieService } from "ngx-cookie-service";
+import { provideEnvironmentNgxMask } from "ngx-mask";
 import { catchError, firstValueFrom, of } from "rxjs";
+import { environment } from "../environments/environment";
 import { routes } from "./app.routes";
 import { PtBrMatPaginatorIntl } from "./core/i18n/pt-br-mat-paginator-intl";
 import { authInterceptor } from "./core/interceptors/auth.interceptor";
 import { credentialsInterceptor } from "./core/interceptors/credentials.interceptor";
-import { environment } from "../environments/environment";
 
 const MY_DATE_FORMATS: MatDateFormats = {
 	parse: {
@@ -43,9 +43,7 @@ const MY_DATE_FORMATS: MatDateFormats = {
 export function warmupBackend(http: HttpClient): () => Promise<unknown> {
 	return () =>
 		firstValueFrom(
-			http
-				.get(`${environment.apiUrl}health`)
-				.pipe(catchError(() => of(null))),
+			http.get(`${environment.apiUrl}health`).pipe(catchError(() => of(null))),
 		);
 }
 

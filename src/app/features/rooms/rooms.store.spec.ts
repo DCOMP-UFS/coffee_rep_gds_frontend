@@ -12,8 +12,13 @@ describe("RoomsComponentStore", () => {
 	const params = { size: 5, page: 0, unpaged: false, section: 0 };
 
 	beforeEach(() => {
-		roomService = jasmine.createSpyObj("RoomService", ["getRooms", "deleteRoom"]);
-		const sectionService = jasmine.createSpyObj("SectionService", ["getSections"]);
+		roomService = jasmine.createSpyObj("RoomService", [
+			"getRooms",
+			"deleteRoom",
+		]);
+		const sectionService = jasmine.createSpyObj("SectionService", [
+			"getSections",
+		]);
 		sectionService.getSections.and.returnValue(of({ content: [] }));
 		const snackBar = jasmine.createSpyObj("SnackBarService", ["openSnackBar"]);
 
@@ -31,7 +36,9 @@ describe("RoomsComponentStore", () => {
 	it("stores rooms after successful fetch", (done) => {
 		roomService.getRooms.and.returnValue(
 			of({
-				content: [{ id: 1, nome: "Sala", setor: "A", setorId: 1, ocupada: false }],
+				content: [
+					{ id: 1, nome: "Sala", setor: "A", setorId: 1, ocupada: false },
+				],
 				page: { totalElements: 1, totalPages: 1, size: 5, number: 0 },
 			}),
 		);

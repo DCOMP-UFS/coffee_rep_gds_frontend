@@ -10,12 +10,12 @@ import {
 } from "@fullcalendar/core";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import { combineLatest } from "rxjs";
+import { EventDialogModel } from "../../../core/models/event-dialog.model";
 import { RequesterAbsence } from "../../../core/models/requester-absence.model";
 import { Reservation } from "../../../core/models/reservation-response.model";
-import { EventDialogModel } from "../../../core/models/event-dialog.model";
 import { CALENDAR_EVENT_COLORS } from "../../constants/calendar.constants";
-import { CalendarDialogInfosComponent } from "../calendar-dialog-infos/calendar-dialog-infos.component";
 import { FORM_DIALOG_CONFIG_NARROW } from "../../constants/dialog-config";
+import { CalendarDialogInfosComponent } from "../calendar-dialog-infos/calendar-dialog-infos.component";
 import { toExclusiveEndDate } from "./calendar-absence.util";
 import { CalendarComponentStore } from "./calendar.store";
 
@@ -65,9 +65,7 @@ export class CalendarComponent implements OnInit {
 		}
 
 		const list = this.eventPayloads();
-		const match = list.find(
-			(i) => String(i.reservationId) === eventId,
-		);
+		const match = list.find((i) => String(i.reservationId) === eventId);
 		if (!match) return;
 
 		const dialogData: EventDialogModel = {
@@ -152,7 +150,9 @@ export class CalendarComponent implements OnInit {
 	}
 
 	private openAbsenceDetails(absenceId: number): void {
-		const absence = this.absencePayloads().find((item) => item.id === absenceId);
+		const absence = this.absencePayloads().find(
+			(item) => item.id === absenceId,
+		);
 		if (!absence) return;
 
 		const dialogData: EventDialogModel = {

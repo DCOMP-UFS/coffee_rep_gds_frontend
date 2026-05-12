@@ -95,7 +95,7 @@ export class SearchableSelectFieldComponent
 	}
 
 	ngOnChanges(changes: SimpleChanges): void {
-		if (changes["preset"] || changes["searchable"]) {
+		if (changes.preset || changes.searchable) {
 			this.applyPreset();
 		}
 	}
@@ -327,9 +327,6 @@ export class SearchableSelectFieldComponent
 	}
 
 	private normalize(value: string): string {
-		return value
-			.normalize("NFD")
-			.replace(/\p{M}/gu, "")
-			.toLowerCase();
+		return value.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
 	}
 }

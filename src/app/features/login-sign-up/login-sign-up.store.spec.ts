@@ -1,5 +1,5 @@
-import { TestBed } from "@angular/core/testing";
 import { HttpErrorResponse } from "@angular/common/http";
+import { TestBed } from "@angular/core/testing";
 import { Router } from "@angular/router";
 import { CookieService } from "ngx-cookie-service";
 import { of, throwError } from "rxjs";
@@ -34,7 +34,9 @@ describe("LoginSignUpStore", () => {
 	});
 
 	it("stores token and navigates on successful login", () => {
-		loginService.login.and.returnValue(of({ accessToken: "jwt", expiresIn: 3600 }));
+		loginService.login.and.returnValue(
+			of({ accessToken: "jwt", expiresIn: 3600 }),
+		);
 
 		store.sendLoginRequest$({ cpf: "17055661030", password: "1234" });
 

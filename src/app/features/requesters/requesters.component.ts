@@ -14,8 +14,8 @@ import { Requester } from "../../core/models/requester-response.model";
 import { formatCpfBr, formatPhoneBr } from "../../core/utils/br-format.util";
 import { ConfirmationDialogComponent } from "../../shared/components/confirmation-dialog/confirmation-dialog.component";
 import { EmptyStateComponent } from "../../shared/components/empty-state/empty-state.component";
-import { FORM_DIALOG_CONFIG } from "../../shared/constants/dialog-config";
 import { RequesterDialogComponent } from "../../shared/components/requester-dialog/requester-dialog.component";
+import { FORM_DIALOG_CONFIG } from "../../shared/constants/dialog-config";
 import { RequestersComponentStore } from "./requesters.store";
 
 @Component({

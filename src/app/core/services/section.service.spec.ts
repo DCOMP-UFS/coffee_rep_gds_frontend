@@ -4,9 +4,9 @@ import {
 	HttpTestingController,
 	provideHttpTesting,
 } from "../../testing/test-providers";
-import { SectionService } from "./section.service";
 import { HttpService } from "./http.service";
 import { LoaderService } from "./loader.service";
+import { SectionService } from "./section.service";
 
 describe("SectionService", () => {
 	let service: SectionService;
@@ -14,7 +14,12 @@ describe("SectionService", () => {
 
 	beforeEach(() => {
 		TestBed.configureTestingModule({
-			providers: [SectionService, HttpService, LoaderService, ...provideHttpTesting()],
+			providers: [
+				SectionService,
+				HttpService,
+				LoaderService,
+				...provideHttpTesting(),
+			],
 		});
 		service = TestBed.inject(SectionService);
 		httpMock = TestBed.inject(HttpTestingController);
@@ -29,7 +34,9 @@ describe("SectionService", () => {
 		});
 
 		const req = httpMock.expectOne(
-			(r) => r.url === `${environment.apiUrl}section` && r.params.get("unpaged") === "true",
+			(r) =>
+				r.url === `${environment.apiUrl}section` &&
+				r.params.get("unpaged") === "true",
 		);
 		req.flush([{ id: 1, nome: "Setor A", observacoes: "" }]);
 	});

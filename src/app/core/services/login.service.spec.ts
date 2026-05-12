@@ -4,9 +4,9 @@ import {
 	HttpTestingController,
 	provideHttpTesting,
 } from "../../testing/test-providers";
-import { LoginService } from "./login.service";
 import { HttpService } from "./http.service";
 import { LoaderService } from "./loader.service";
+import { LoginService } from "./login.service";
 
 describe("LoginService", () => {
 	let service: LoginService;
@@ -14,7 +14,12 @@ describe("LoginService", () => {
 
 	beforeEach(() => {
 		TestBed.configureTestingModule({
-			providers: [LoginService, HttpService, LoaderService, ...provideHttpTesting()],
+			providers: [
+				LoginService,
+				HttpService,
+				LoaderService,
+				...provideHttpTesting(),
+			],
 		});
 		service = TestBed.inject(LoginService);
 		httpMock = TestBed.inject(HttpTestingController);

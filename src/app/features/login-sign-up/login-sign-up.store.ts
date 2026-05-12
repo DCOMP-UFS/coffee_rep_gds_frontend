@@ -1,5 +1,5 @@
-import { Injectable } from "@angular/core";
 import { HttpErrorResponse } from "@angular/common/http";
+import { Injectable } from "@angular/core";
 import { Router } from "@angular/router";
 import { ComponentStore } from "@ngrx/component-store";
 import { CookieService } from "ngx-cookie-service";
@@ -57,10 +57,7 @@ export class LoginSignUpStore extends ComponentStore<object> {
 							});
 						}),
 						catchError((error: HttpErrorResponse) => {
-							this.snackBar.openSnackBar(
-								getSignUpErrorMessage(error),
-								"error",
-							);
+							this.snackBar.openSnackBar(getSignUpErrorMessage(error), "error");
 							return EMPTY;
 						}),
 					),

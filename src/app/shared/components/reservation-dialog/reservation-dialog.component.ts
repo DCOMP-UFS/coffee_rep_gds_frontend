@@ -21,12 +21,12 @@ import {
 	endTimeAfterStartValidator,
 	timeFormatValidator,
 } from "../../../core/validators/time.validators";
+import { SearchableSelectFieldComponent } from "../searchable-select-field/searchable-select-field.component";
 import {
 	mapRequesterOptions,
 	mapRoomOptions,
 	mapSectionOptions,
 } from "../searchable-select-field/searchable-select-options.util";
-import { SearchableSelectFieldComponent } from "../searchable-select-field/searchable-select-field.component";
 import { TimeRangeFieldsComponent } from "../time-range-fields/time-range-fields.component";
 import { ReservationDialogComponentStore } from "./reservation-dialog.store";
 

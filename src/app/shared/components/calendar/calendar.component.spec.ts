@@ -22,7 +22,10 @@ describe("CalendarComponent", () => {
 		await TestBed.configureTestingModule({
 			imports: [CalendarComponent],
 			providers: [
-				{ provide: MatDialog, useValue: jasmine.createSpyObj("MatDialog", ["open"]) },
+				{
+					provide: MatDialog,
+					useValue: jasmine.createSpyObj("MatDialog", ["open"]),
+				},
 			],
 		})
 			.overrideComponent(CalendarComponent, {

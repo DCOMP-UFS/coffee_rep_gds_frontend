@@ -15,19 +15,19 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
 import { MatPaginatorModule } from "@angular/material/paginator";
 import { Subscription, distinctUntilChanged } from "rxjs";
+import { createDate } from "../../core/utils/utils";
 import {
 	endTimeAfterStartValidator,
 	timeFormatValidator,
 } from "../../core/validators/time.validators";
-import { createDate } from "../../core/utils/utils";
+import { CalendarComponent } from "../../shared/components/calendar/calendar.component";
+import { SearchableSelectFieldComponent } from "../../shared/components/searchable-select-field/searchable-select-field.component";
 import {
 	mapRequesterOptions,
 	mapRoomOptions,
 	mapSectionOptions,
 } from "../../shared/components/searchable-select-field/searchable-select-options.util";
-import { SearchableSelectFieldComponent } from "../../shared/components/searchable-select-field/searchable-select-field.component";
 import { TimeRangeFieldsComponent } from "../../shared/components/time-range-fields/time-range-fields.component";
-import { CalendarComponent } from "../../shared/components/calendar/calendar.component";
 import { CurrentMonthComponentStore } from "./current-month.store";
 
 @Component({
@@ -125,5 +125,4 @@ export class CurrentMonthComponent implements OnInit, OnDestroy {
 			});
 		}
 	}
-
 }

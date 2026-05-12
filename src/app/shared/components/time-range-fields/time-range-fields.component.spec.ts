@@ -1,11 +1,7 @@
 import { Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { FormBuilder, FormControl, ReactiveFormsModule } from "@angular/forms";
 import { By } from "@angular/platform-browser";
-import {
-	FormBuilder,
-	FormControl,
-	ReactiveFormsModule,
-} from "@angular/forms";
 import { TimeRangeFieldsComponent } from "./time-range-fields.component";
 
 @Component({
