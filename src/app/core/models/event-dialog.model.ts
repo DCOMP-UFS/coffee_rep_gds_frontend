@@ -8,4 +8,5 @@ export interface EventDialogModel {
 	start: Date;
 	end: Date;
 	profissionalAusente?: boolean;
+	kind?: "reservation" | "absence";
 }

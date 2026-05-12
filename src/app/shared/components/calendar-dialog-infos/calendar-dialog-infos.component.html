@@ -1,22 +1,63 @@
-<h2 mat-dialog-title>Detalhes da Reserva</h2>
+<h2 mat-dialog-title>
+  @if (data.kind === 'absence') {
+    Detalhes da ausência
+  } @else {
+    Detalhes da Reserva
+  }
+</h2>
 
-<mat-dialog-content>
-  <p><strong>Título: </strong> {{ data.completeTitle }}</p>
-  <p><strong>Solicitante: </strong> {{ data.requester }}</p>
-  <p><strong>Criado por: </strong> {{ data.createdBy }}</p>
-  <p><strong>Tipo: </strong>
-    @if (data.profissionalAusente) {
-      Livre (profissional em ausência / férias)
-    } @else if (data.recorrenciaId) {
-      Recorrente
-    } @else {
-      Pontual
+<mat-dialog-content class="dialog-form-content reservation-info">
+  <header class="reservation-info__header">
+    <p class="reservation-info__location">{{ data.completeTitle }}</p>
+    <span
+      class="reservation-info__badge"
+      [ngClass]="'reservation-info__badge--' + reservationTypeVariant"
+    >
+      {{ reservationTypeLabel }}
+    </span>
+  </header>
+
+  <div class="reservation-info__details">
+    <div class="reservation-info__row">
+      <mat-icon aria-hidden="true">person</mat-icon>
+      <div>
+        <span class="reservation-info__label">Solicitante</span>
+        <span class="reservation-info__value">{{ data.requester }}</span>
+      </div>
+    </div>
+
+    @if (data.kind !== 'absence') {
+      <div class="reservation-info__row">
+        <mat-icon aria-hidden="true">badge</mat-icon>
+        <div>
+          <span class="reservation-info__label">Criado por</span>
+          <span class="reservation-info__value">{{ data.createdBy }}</span>
+        </div>
+      </div>
     }
-  </p>
-  <p><strong>Início: </strong> {{ data.start | date:'dd/MM/yyyy HH:mm' }}</p>
-  <p><strong>Fim: </strong> {{ data.end | date:'dd/MM/yyyy HH:mm' }}</p>
+
+    <div class="reservation-info__row">
+      <mat-icon aria-hidden="true">schedule</mat-icon>
+      <div>
+        <span class="reservation-info__label">
+          @if (data.kind === 'absence') {
+            Período
+          } @else {
+            Horário
+          }
+        </span>
+        <span class="reservation-info__value">
+          @if (data.kind === 'absence') {
+            {{ data.start | date:'dd/MM/yyyy' }} – {{ data.end | date:'dd/MM/yyyy' }}
+          } @else {
+            {{ data.start | date:'dd/MM/yyyy HH:mm' }} – {{ data.end | date:'dd/MM/yyyy HH:mm' }}
+          }
+        </span>
+      </div>
+    </div>
+  </div>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-  <button mat-button (click)="close()">Fechar</button>
+  <button mat-flat-button color="primary" type="button" (click)="close()">Fechar</button>
 </mat-dialog-actions>
