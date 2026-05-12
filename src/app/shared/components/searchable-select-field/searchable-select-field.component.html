@@ -1,0 +1,111 @@
+<mat-form-field
+  [appearance]="appearance"
+  class="searchable-select-field"
+  [class.searchable-select-field--dependency-blocked]="showDependencyHint"
+>
+  <mat-label>{{ label }}</mat-label>
+  <mat-select
+    [value]="selectValue"
+    [disabled]="disabled"
+    [required]="required"
+    [compareWith]="compareWith"
+    [placeholder]="selectPlaceholder"
+    [attr.aria-describedby]="showDependencyHint ? label + '-dependency-hint' : null"
+    (openedChange)="onOpenedChange($event)"
+    (selectionChange)="onSelectionChange($event.value)"
+    panelClass="searchable-select-field__panel"
+  >
+    @if (showSearchField) {
+      <div class="searchable-select-field__search">
+        <mat-form-field
+          appearance="outline"
+          subscriptSizing="dynamic"
+          class="searchable-select-field__search-field"
+          (click)="$event.stopPropagation()"
+          (keydown)="onSearchKeydown($event)"
+        >
+          <input
+            #searchInput
+            matInput
+            type="search"
+            [attr.aria-label]="'Buscar em ' + label"
+            [placeholder]="searchPlaceholder"
+            [(ngModel)]="searchTerm"
+            (keydown)="onSearchKeydown($event)"
+          />
+        </mat-form-field>
+      </div>
+    }
+
+    @if (showEmptyPanel) {
+      <mat-option
+        class="searchable-select-field__state-option"
+        [value]="panelStateValue"
+        (mousedown)="blockStateSelection($event)"
+        (click)="blockStateSelection($event)"
+        (keydown)="blockStateKeydown($event)"
+      >
+        <div
+          class="searchable-select-field__state-panel"
+          role="status"
+          (click)="$event.stopPropagation()"
+          (keydown)="onSearchKeydown($event)"
+        >
+          <p>{{ emptyPanelMessage }}</p>
+          @if (createRoute && createActionLabel && !dependencyBlocked) {
+            <button
+              mat-button
+              type="button"
+              color="primary"
+              class="searchable-select-field__create-action"
+              (click)="onCreateAction($event)"
+            >
+              {{ createActionLabel }}
+            </button>
+          }
+        </div>
+      </mat-option>
+    } @else if (showNoSearchResults) {
+      <mat-option
+        class="searchable-select-field__state-option"
+        [value]="panelStateValue"
+        (mousedown)="blockStateSelection($event)"
+        (click)="blockStateSelection($event)"
+        (keydown)="blockStateKeydown($event)"
+      >
+        <div
+          class="searchable-select-field__state-panel"
+          role="status"
+          (click)="$event.stopPropagation()"
+          (keydown)="onSearchKeydown($event)"
+        >
+          <p>Nenhum resultado para "{{ searchTerm.trim() }}".</p>
+          <button
+            mat-button
+            type="button"
+            class="searchable-select-field__create-action"
+            (click)="clearSearch($event)"
+          >
+            Limpar busca
+          </button>
+        </div>
+      </mat-option>
+    } @else {
+      @for (option of filteredOptions; track option.value) {
+        <mat-option [value]="option.value">{{ option.label }}</mat-option>
+      }
+    }
+  </mat-select>
+  @if (showDependencyHint) {
+    <mat-hint
+      class="searchable-select-field__hint--guide"
+      [id]="label + '-dependency-hint'"
+    >
+      {{ dependencyMessage }}
+    </mat-hint>
+  } @else if (showAlertHint) {
+    <mat-hint class="searchable-select-field__hint--alert">{{ emptyPanelMessage }}</mat-hint>
+  } @else {
+    <mat-hint>{{ countHint }}</mat-hint>
+  }
+</mat-form-field>
