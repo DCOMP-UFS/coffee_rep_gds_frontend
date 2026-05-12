@@ -1,0 +1,24 @@
+.time-range-fields {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	align-items: start;
+	gap: 1rem;
+	width: 100%;
+}
+
+:host(.time-range-fields--compact) .time-range-fields {
+	width: auto;
+	max-width: 100%;
+	grid-template-columns: repeat(2, minmax(7.5rem, 9.5rem));
+	gap: 0.75rem;
+}
+
+:host(.time-range-fields--compact) .time-range-fields mat-form-field {
+	width: 100%;
+}
+
+@media (max-width: 600px) {
+	.time-range-fields {
+		grid-template-columns: 1fr;
+	}
+}
