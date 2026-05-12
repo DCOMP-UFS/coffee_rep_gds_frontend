@@ -15,14 +15,15 @@ import {
 	MatDateFormats,
 	provideNativeDateAdapter,
 } from "@angular/material/core";
-import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from "@angular/material/form-field";
+import { MatPaginatorIntl } from "@angular/material/paginator";
 import { provideAnimationsAsync } from "@angular/platform-browser/animations/async";
 import { provideStore } from "@ngrx/store";
 import { provideEnvironmentNgxMask } from "ngx-mask";
 import { CookieService } from "ngx-cookie-service";
 import { catchError, firstValueFrom, of } from "rxjs";
 import { routes } from "./app.routes";
+import { PtBrMatPaginatorIntl } from "./core/i18n/pt-br-mat-paginator-intl";
 import { authInterceptor } from "./core/interceptors/auth.interceptor";
 import { credentialsInterceptor } from "./core/interceptors/credentials.interceptor";
 import { environment } from "../environments/environment";
@@ -67,12 +68,11 @@ export const appConfig: ApplicationConfig = {
 		},
 		{ provide: MAT_DATE_LOCALE, useValue: "pt-BR" },
 		{ provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS },
-		{ provide: MAT_DIALOG_DATA, useValue: {} },
-		{ provide: MatDialogRef, useValue: {} },
 		{
 			provide: MAT_FORM_FIELD_DEFAULT_OPTIONS,
-			useValue: { appearance: "outline" },
+			useValue: { appearance: "outline", subscriptSizing: "dynamic" },
 		},
+		{ provide: MatPaginatorIntl, useClass: PtBrMatPaginatorIntl },
 		provideAnimationsAsync(),
 	],
 };

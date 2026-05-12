@@ -1,12 +1,26 @@
-<full-calendar [options]="calendarOptions()"></full-calendar>
-<div class="container-legend">
-  <div class="container-dots">
-    <div class="dot dot--yellow"></div> Pontual
+<div class="calendar-panel">
+  <div class="calendar-panel__legend" aria-label="Legenda de reservas">
+    <div class="calendar-panel__legend-item">
+      <span
+        class="calendar-panel__dot"
+        [style.backgroundColor]="legendColors.pontual"
+      ></span>
+      Pontual
+    </div>
+    <div class="calendar-panel__legend-item">
+      <span
+        class="calendar-panel__dot"
+        [style.backgroundColor]="legendColors.recorrente"
+      ></span>
+      Recorrente
+    </div>
+    <div class="calendar-panel__legend-item">
+      <span
+        class="calendar-panel__dot"
+        [style.backgroundColor]="legendColors.ausencia"
+      ></span>
+      Livre (férias / ausência)
+    </div>
   </div>
-  <div class="container-dots">
-    <div class="dot dot--red"></div> Recorrente
-  </div>
-  <div class="container-dots">
-    <div class="dot dot--green"></div> Livre (férias / ausência)
-  </div>
+  <full-calendar [options]="calendarOptions()"></full-calendar>
 </div>

@@ -24,6 +24,10 @@ export class RequesterAbsenceHttpService {
 		);
 	}
 
+	listForCalendar(): Observable<RequesterAbsence[]> {
+		return this.http.getWithoutLoad<RequesterAbsence[]>("requester-absence");
+	}
+
 	create(body: CreateRequesterAbsencePayload): Observable<void> {
 		return this.http.postWithLoader<void>("requester-absence", body);
 	}

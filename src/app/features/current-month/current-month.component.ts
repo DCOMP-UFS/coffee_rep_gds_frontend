@@ -1,5 +1,5 @@
 import { AsyncPipe } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import {
 	FormBuilder,
 	FormGroup,
@@ -14,8 +14,19 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
 import { MatPaginatorModule } from "@angular/material/paginator";
-import { MatSelectModule } from "@angular/material/select";
-import { createDate, formatTimeRange } from "../../core/utils/utils";
+import { Subscription, distinctUntilChanged } from "rxjs";
+import {
+	endTimeAfterStartValidator,
+	timeFormatValidator,
+} from "../../core/validators/time.validators";
+import { createDate } from "../../core/utils/utils";
+import {
+	mapRequesterOptions,
+	mapRoomOptions,
+	mapSectionOptions,
+} from "../../shared/components/searchable-select-field/searchable-select-options.util";
+import { SearchableSelectFieldComponent } from "../../shared/components/searchable-select-field/searchable-select-field.component";
+import { TimeRangeFieldsComponent } from "../../shared/components/time-range-fields/time-range-fields.component";
 import { CalendarComponent } from "../../shared/components/calendar/calendar.component";
 import { CurrentMonthComponentStore } from "./current-month.store";
 
@@ -32,33 +43,69 @@ import { CurrentMonthComponentStore } from "./current-month.store";
 		MatFormFieldModule,
 		MatDatepickerModule,
 		MatNativeDateModule,
-		MatSelectModule,
 		MatButtonModule,
+		SearchableSelectFieldComponent,
+		TimeRangeFieldsComponent,
 		ReactiveFormsModule,
 		CalendarComponent,
 		MatCardModule,
 	],
 	providers: [CurrentMonthComponentStore],
 })
-export class CurrentMonthComponent {
+export class CurrentMonthComponent implements OnInit, OnDestroy {
 	reservationForm: FormGroup;
+	private sectionChangesSub?: Subscription;
+	protected readonly mapSectionOptions = mapSectionOptions;
+	protected readonly mapRoomOptions = mapRoomOptions;
+	protected readonly mapRequesterOptions = mapRequesterOptions;
 
 	constructor(
 		public store: CurrentMonthComponentStore,
 		private fb: FormBuilder,
 	) {
-		this.reservationForm = this.fb.group({
-			section: ["", Validators.required],
-			room: ["", Validators.required],
-			reservationDate: [new Date(), Validators.required],
-			timeRange: ["", Validators.required],
-			requester: ["", Validators.required],
-		});
+		this.reservationForm = this.fb.group(
+			{
+				section: ["", Validators.required],
+				room: ["", Validators.required],
+				reservationDate: [new Date(), Validators.required],
+				horaInicio: ["", [Validators.required, timeFormatValidator]],
+				horaFim: ["", [Validators.required, timeFormatValidator]],
+				requester: ["", Validators.required],
+			},
+			{ validators: endTimeAfterStartValidator },
+		);
 	}
 
-	getRoomsById(event: string): void {
+	ngOnInit(): void {
+		const sectionControl = this.reservationForm.get("section");
+		if (!sectionControl) {
+			return;
+		}
+
+		this.sectionChangesSub = sectionControl.valueChanges
+			.pipe(distinctUntilChanged())
+			.subscribe((sectionId) => this.loadRoomsForSection(sectionId));
+	}
+
+	ngOnDestroy(): void {
+		this.sectionChangesSub?.unsubscribe();
+	}
+
+	loadRoomsForSection(sectionId: string | number | null | undefined): void {
+		const id = Number(sectionId);
+		if (!Number.isFinite(id) || id <= 0) {
+			this.reservationForm.patchValue({ room: "" }, { emitEvent: false });
+			this.store.setRoomsByFilter([]);
+			return;
+		}
+
+		this.reservationForm.patchValue({ room: "" }, { emitEvent: false });
 		this.store.setRoomsByFilter([]);
-		this.store.getRoomsBySectionId$({ sectionId: +event });
+		this.store.getRoomsBySectionId$({ sectionId: id });
+	}
+
+	getRoomsById(event: string | number): void {
+		this.loadRoomsForSection(event);
 	}
 
 	submitForm(): void {
@@ -68,16 +115,15 @@ export class CurrentMonthComponent {
 				solicitanteId: +this.reservationForm.value.requester,
 				horaInicio: createDate(
 					this.reservationForm.value.reservationDate,
-					this.reservationForm.value.timeRange.split("-")[0],
+					this.reservationForm.value.horaInicio,
 				),
 				horaFim: createDate(
 					this.reservationForm.value.reservationDate,
-					this.reservationForm.value.timeRange.split("-")[1],
+					this.reservationForm.value.horaFim,
 				),
 				observacoes: "",
 			});
 		}
 	}
 
-	protected readonly formatTimeRange = formatTimeRange;
 }

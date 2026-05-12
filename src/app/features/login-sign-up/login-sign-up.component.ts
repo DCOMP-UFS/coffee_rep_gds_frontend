@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import {
 	FormControl,
 	FormGroup,
@@ -6,14 +6,18 @@ import {
 	Validators,
 } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
-import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, NavigationEnd, Router, RouterLink } from "@angular/router";
 import { NgxMaskDirective } from "ngx-mask";
 import { CookieService } from "ngx-cookie-service";
+import { filter, Subject, takeUntil } from "rxjs";
 import { cpfDigitsValidator } from "../../core/validators/cpf.validators";
+import {
+	birthDateBrToApi,
+	birthDateMaskValidator,
+} from "../../core/validators/birth-date.validators";
 import { LoginSignUpStore } from "./login-sign-up.store";
 
 @Component({
@@ -26,23 +30,26 @@ import { LoginSignUpStore } from "./login-sign-up.store";
 		MatIconModule,
 		ReactiveFormsModule,
 		MatInputModule,
-		MatDatepickerModule,
 		MatButtonModule,
 		NgxMaskDirective,
+		RouterLink,
 	],
 	providers: [LoginSignUpStore],
 })
-export class LoginSignUpComponent implements OnInit {
-	typeInput = "password";
-	typeForm = "login";
-	maxDate: Date = new Date();
+export class LoginSignUpComponent implements OnInit, OnDestroy {
+	loginPasswordInputType: "password" | "text" = "password";
+	signUpPasswordInputType: "password" | "text" = "password";
+	isSignUp = false;
 	loginForm: FormGroup;
 	signUpForm: FormGroup;
+
+	private readonly destroy$ = new Subject<void>();
 
 	constructor(
 		private loginStore: LoginSignUpStore,
 		private cookieService: CookieService,
 		private route: ActivatedRoute,
+		private router: Router,
 	) {
 		this.loginForm = this.createLoginForm();
 		this.signUpForm = this.createSignUpForm();
@@ -50,11 +57,27 @@ export class LoginSignUpComponent implements OnInit {
 	}
 
 	ngOnInit(): void {
-		this.route.queryParams.subscribe((p) => {
+		this.syncModeFromUrl(this.router.url);
+		this.router.events
+			.pipe(
+				filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+				takeUntil(this.destroy$),
+			)
+			.subscribe((event) => {
+				this.syncModeFromUrl(event.urlAfterRedirects);
+				this.clearStrayFocus();
+			});
+
+		this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe((p) => {
 			if (p["registered"] === "1") {
-				this.typeForm = "login";
+				this.isSignUp = false;
 			}
 		});
+	}
+
+	ngOnDestroy(): void {
+		this.destroy$.next();
+		this.destroy$.complete();
 	}
 
 	createSignUpForm(): FormGroup {
@@ -67,7 +90,10 @@ export class LoginSignUpComponent implements OnInit {
 				Validators.required,
 				cpfDigitsValidator(),
 			]),
-			birthDate: new FormControl("", [Validators.required]),
+			birthDate: new FormControl("", [
+				Validators.required,
+				birthDateMaskValidator(),
+			]),
 		});
 	}
 
@@ -85,12 +111,14 @@ export class LoginSignUpComponent implements OnInit {
 		);
 	}
 
-	tradeTypeInput(): void {
-		this.typeInput = this.typeInput === "password" ? "text" : "password";
+	toggleLoginPasswordVisibility(): void {
+		this.loginPasswordInputType =
+			this.loginPasswordInputType === "password" ? "text" : "password";
 	}
 
-	tradeTypeForm(): void {
-		this.typeForm = this.typeForm === "login" ? "sign-up" : "login";
+	toggleSignUpPasswordVisibility(): void {
+		this.signUpPasswordInputType =
+			this.signUpPasswordInputType === "password" ? "text" : "password";
 	}
 
 	submitLogin(): void {
@@ -111,6 +139,32 @@ export class LoginSignUpComponent implements OnInit {
 			...v,
 			cpf: String(v.cpf).replace(/\D/g, ""),
 			phone: String(v.phone).replace(/\D/g, ""),
+			birthDate: birthDateBrToApi(String(v.birthDate)),
 		});
+	}
+
+	private syncModeFromUrl(url: string): void {
+		const path = url.split("?")[0].split("#")[0];
+		this.isSignUp = path === "/cadastro";
+	}
+
+	private clearStrayFocus(): void {
+		queueMicrotask(() => {
+			const active = document.activeElement;
+			if (!(active instanceof HTMLElement)) {
+				return;
+			}
+			if (active.tagName === "A" || !this.isAuthField(active)) {
+				active.blur();
+			}
+		});
+	}
+
+	private isAuthField(element: HTMLElement): boolean {
+		const tag = element.tagName;
+		if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") {
+			return true;
+		}
+		return element.closest(".login-page__form") !== null;
 	}
 }

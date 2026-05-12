@@ -1,0 +1,36 @@
+<div class="time-range-fields" role="group" aria-label="Horário da reserva">
+  <mat-form-field appearance="outline">
+    <mat-label>Início</mat-label>
+    <input
+      matInput
+      inputmode="numeric"
+      autocomplete="off"
+      placeholder="00:00"
+      maxlength="5"
+      [formControl]="startControl"
+      (input)="onTimeInput(startControl, $event)"
+    />
+    @if (startControl.hasError("timeFormat") && startControl.touched) {
+      <mat-error>Informe o horário no formato HH:MM.</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Fim</mat-label>
+    <input
+      matInput
+      inputmode="numeric"
+      autocomplete="off"
+      placeholder="00:00"
+      maxlength="5"
+      [formControl]="endControl"
+      (input)="onTimeInput(endControl, $event)"
+    />
+    @if (endControl.hasError("timeFormat") && endControl.touched) {
+      <mat-error>Informe o horário no formato HH:MM.</mat-error>
+    }
+    @if (endControl.parent?.hasError("endBeforeStart") && endControl.touched) {
+      <mat-error>O horário de fim deve ser posterior ao início.</mat-error>
+    }
+  </mat-form-field>
+</div>

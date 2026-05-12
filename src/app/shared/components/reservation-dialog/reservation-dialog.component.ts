@@ -15,9 +15,19 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
 import { MatPaginatorModule } from "@angular/material/paginator";
-import { MatSelectModule } from "@angular/material/select";
 import { MatSlideToggle } from "@angular/material/slide-toggle";
-import { createDate, formatTimeRange } from "../../../core/utils/utils";
+import { createDate } from "../../../core/utils/utils";
+import {
+	endTimeAfterStartValidator,
+	timeFormatValidator,
+} from "../../../core/validators/time.validators";
+import {
+	mapRequesterOptions,
+	mapRoomOptions,
+	mapSectionOptions,
+} from "../searchable-select-field/searchable-select-options.util";
+import { SearchableSelectFieldComponent } from "../searchable-select-field/searchable-select-field.component";
+import { TimeRangeFieldsComponent } from "../time-range-fields/time-range-fields.component";
 import { ReservationDialogComponentStore } from "./reservation-dialog.store";
 
 @Component({
@@ -32,8 +42,9 @@ import { ReservationDialogComponentStore } from "./reservation-dialog.store";
 		MatFormFieldModule,
 		MatDatepickerModule,
 		MatNativeDateModule,
-		MatSelectModule,
 		MatButtonModule,
+		SearchableSelectFieldComponent,
+		TimeRangeFieldsComponent,
 		ReactiveFormsModule,
 		MatDialogModule,
 		MatSlideToggle,
@@ -45,7 +56,9 @@ import { ReservationDialogComponentStore } from "./reservation-dialog.store";
 })
 export class ReservationDialogComponent {
 	reservationForm: FormGroup;
-	protected readonly formatTimeRange = formatTimeRange;
+	protected readonly mapSectionOptions = mapSectionOptions;
+	protected readonly mapRoomOptions = mapRoomOptions;
+	protected readonly mapRequesterOptions = mapRequesterOptions;
 	readonly daysOfWeek: { day: string; value: number }[] = [
 		{ day: "Segunda", value: 1 },
 		{ day: "Terça", value: 2 },
@@ -57,17 +70,17 @@ export class ReservationDialogComponent {
 	isRecurrentForm = true;
 	daysPayload: number[] = [];
 
-	changeForm(event: boolean) {
-		this.isRecurrentForm = !this.isRecurrentForm;
+	changeForm(isRecorrente: boolean) {
+		this.isRecurrentForm = isRecorrente;
 		this.daysPayload = [];
-		if (!event) {
+		if (!isRecorrente) {
 			this.reservationForm.removeControl("reservationDateFim");
-		} else {
-			this.reservationForm.addControl(
-				"reservationDateFim",
-				this.fb.control("", Validators.required),
-			);
+			return;
 		}
+		this.reservationForm.addControl(
+			"reservationDateFim",
+			this.fb.control("", Validators.required),
+		);
 	}
 
 	saveReservation(dayNumber: number) {
@@ -81,13 +94,18 @@ export class ReservationDialogComponent {
 		public reservationDialogComponentStore: ReservationDialogComponentStore,
 		private fb: FormBuilder,
 	) {
-		this.reservationForm = this.fb.group({
-			section: ["", Validators.required],
-			room: ["", Validators.required],
-			reservationDate: ["", Validators.required],
-			timeRange: ["", Validators.required],
-			requester: ["", Validators.required],
-		});
+		this.reservationForm = this.fb.group(
+			{
+				section: ["", Validators.required],
+				room: ["", Validators.required],
+				reservationDate: ["", Validators.required],
+				horaInicio: ["", [Validators.required, timeFormatValidator]],
+				horaFim: ["", [Validators.required, timeFormatValidator]],
+				requester: ["", Validators.required],
+			},
+			{ validators: endTimeAfterStartValidator },
+		);
+		this.changeForm(this.isRecurrentForm);
 	}
 
 	submitForm(): void {
@@ -97,24 +115,25 @@ export class ReservationDialogComponent {
 				solicitanteId: +this.reservationForm.value.requester,
 				horaInicio: createDate(
 					this.reservationForm.value.reservationDate,
-					this.reservationForm.value.timeRange.split("-")[0],
+					this.reservationForm.value.horaInicio,
 				),
 				horaFim: createDate(
 					this.isRecurrentForm
-						? this.reservationForm.value.reservationDate
-						: this.reservationForm.value.reservationDateFim,
-					this.reservationForm.value.timeRange.split("-")[1],
+						? this.reservationForm.value.reservationDateFim
+						: this.reservationForm.value.reservationDate,
+					this.reservationForm.value.horaFim,
 				),
-				fixo: !this.isRecurrentForm,
+				fixo: this.isRecurrentForm,
 				observacoes: "",
 				dias: this.daysPayload,
 			};
-			if (this.isRecurrentForm) request.dias = undefined;
+			if (!this.isRecurrentForm) request.dias = undefined;
 			this.reservationDialogComponentStore.createReservation$(request);
 		}
 	}
 
-	getRoomsById(event: string): void {
+	getRoomsById(event: string | number): void {
+		this.reservationForm.patchValue({ room: "" });
 		this.reservationDialogComponentStore.setRoomsByFilter([]);
 		this.reservationDialogComponentStore.getRoomsBySectionId$({
 			sectionId: +event,

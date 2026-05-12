@@ -1,26 +1,26 @@
 <mat-drawer-container class="example-container">
-  @if (!outSystem){
+  @if (!outSystem()){
     <mat-drawer mode="over" [opened]="opened">
       <app-side-menu
-        [actualRoutePath]="actualRoutePath"
+        [actualRoutePath]="actualRoutePath()"
       >
       </app-side-menu>
     </mat-drawer>
   }
   <mat-drawer-content>
-    @if (loader.loading$ | async) {
+    @if (isLoading()) {
       <mat-progress-bar mode="indeterminate" class="app-progress"></mat-progress-bar>
     }
     <div class="container-page">
-      <div [class]="!outSystem ? 'content' : ''">
-        @if (!outSystem){
+      <div [class]="!outSystem() ? 'content' : ''">
+        @if (!outSystem()){
           <mat-toolbar>
             <mat-icon [style.cursor]="'pointer'" (click)="opened = !opened">menu</mat-icon>
             <span>Gerenciamento de salas – Ambulatório HU-UFS</span>
           </mat-toolbar>
           <app-cold-start-banner />
         }
-        <div class="container-router">
+        <div class="container-router" [class.container-router--auth]="outSystem()">
           <router-outlet></router-outlet>
         </div>
       </div>

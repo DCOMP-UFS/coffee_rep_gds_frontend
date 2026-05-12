@@ -20,4 +20,15 @@ describe("ReservationDialogComponent", () => {
 	it("should create", () => {
 		expect(component).toBeTruthy();
 	});
+
+	it("should switch between recorrente and pontual modes", () => {
+		expect(component.isRecurrentForm).toBeTrue();
+		expect(component.reservationForm.contains("reservationDateFim")).toBeTrue();
+		component.changeForm(false);
+		expect(component.isRecurrentForm).toBeFalse();
+		expect(component.reservationForm.contains("reservationDateFim")).toBeFalse();
+		component.changeForm(true);
+		expect(component.isRecurrentForm).toBeTrue();
+		expect(component.reservationForm.contains("reservationDateFim")).toBeTrue();
+	});
 });

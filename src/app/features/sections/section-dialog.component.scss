@@ -1,5 +1,15 @@
 .section-dialog {
 	min-width: min(92vw, 420px);
+	overflow: visible;
+	max-height: none;
+	padding-top: 1rem;
+
+	textarea {
+		resize: vertical;
+		min-height: 3.5rem;
+		max-height: min(40vh, 14rem);
+		box-sizing: border-box;
+	}
 }
 
 .full {

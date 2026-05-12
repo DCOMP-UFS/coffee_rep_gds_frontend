@@ -1,0 +1,64 @@
+.form-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.125rem;
+  width: 100%;
+}
+
+.searchable-select-field__panel {
+  .searchable-select-field__search-field {
+    width: 100%;
+    margin: 0;
+
+    .mat-mdc-form-field-subscript-wrapper {
+      display: none;
+    }
+
+    .mat-mdc-text-field-wrapper {
+      background: var(--mat-select-panel-background-color, #fff);
+    }
+
+    input.mat-mdc-input-element::placeholder {
+      color: rgba(0, 0, 0, 0.6);
+      opacity: 1;
+    }
+  }
+
+  .mat-mdc-option.searchable-select-field__state-option.mdc-list-item {
+    height: auto;
+    line-height: normal;
+    cursor: default;
+    background-color: transparent;
+
+    .mat-pseudo-checkbox,
+    .mat-mdc-option-pseudo-checkbox {
+      display: none;
+    }
+
+    &:hover,
+    &:focus,
+    &.mat-mdc-option-active,
+    &.mdc-list-item--selected {
+      background-color: transparent;
+    }
+  }
+
+  .searchable-select-field__state-panel {
+    padding: 0.75rem 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+
+    p {
+      margin: 0;
+      white-space: normal;
+      color: #c62828;
+    }
+  }
+
+  .searchable-select-field__create-action {
+    padding: 0;
+    min-width: 0;
+  }
+}

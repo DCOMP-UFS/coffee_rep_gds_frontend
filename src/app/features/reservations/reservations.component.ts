@@ -23,6 +23,8 @@ import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { Reservation } from "../../core/models/reservation-response.model";
 import { ConfirmationDialogComponent } from "../../shared/components/confirmation-dialog/confirmation-dialog.component";
 import { DeleteReservationComponent } from "../../shared/components/delete-reservation/delete-reservation.component";
+import { EmptyStateComponent } from "../../shared/components/empty-state/empty-state.component";
+import { FORM_DIALOG_CONFIG } from "../../shared/constants/dialog-config";
 import { ReservationDialogComponent } from "../../shared/components/reservation-dialog/reservation-dialog.component";
 import { ReservationsComponentStore } from "./reservations.store";
 
@@ -40,6 +42,7 @@ import { ReservationsComponentStore } from "./reservations.store";
 		ReactiveFormsModule,
 		MatFormFieldModule,
 		AsyncPipe,
+		EmptyStateComponent,
 	],
 	standalone: true,
 	providers: [ReservationsComponentStore, MatDialogModule],
@@ -103,8 +106,7 @@ export class ReservationsComponent implements OnInit {
 
 	openDialog() {
 		const dialog = this.dialog.open(ReservationDialogComponent, {
-			width: "375px",
-			height: "670px",
+			...FORM_DIALOG_CONFIG,
 		});
 
 		dialog.afterClosed().subscribe(() => {

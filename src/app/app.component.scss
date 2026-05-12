@@ -26,7 +26,16 @@
     }
   }
 }
-mat-drawer-container{
+mat-drawer-container {
   height: 100% !important;
   background: #efefef;
+}
+
+.container-router--auth {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  padding: 1.5rem 1rem;
+  box-sizing: border-box;
 }

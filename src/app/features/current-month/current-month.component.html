@@ -9,49 +9,50 @@
 
       </mat-card-title>
       <mat-card-content>
-        <form [formGroup]="reservationForm" (ngSubmit)="submitForm()">
-          <div>
-            <mat-form-field>
-              <mat-label>Setor</mat-label>
-              <mat-select formControlName="section" (selectionChange)="getRoomsById($event.value)">
-                @for (section of (store.getSections | async); track section.id) {
-                  <mat-option value="{{section.id}}">{{ section.nome }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
+        <form class="quick-reservation-form" [formGroup]="reservationForm" (ngSubmit)="submitForm()">
+          <p class="quick-reservation-form__intro">
+            Comece pelo setor; as salas são carregadas em seguida.
+          </p>
+          @if (store.getSections | async; as sections) {
+            <app-searchable-select-field
+              label="Setor"
+              preset="section"
+              formControlName="section"
+              [options]="mapSectionOptions(sections)"
+              (selectionChange)="getRoomsById($event)"
+            />
+          }
 
-            <mat-form-field>
-              <mat-label>Sala</mat-label>
-              <mat-select formControlName="room">
-                @for (room of (store.getRoomsByFilter | async); track room.id) {
-                  <mat-option value="{{room.id}}">{{ room.nome }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
+          @if (store.getRoomsByFilter | async; as rooms) {
+            <app-searchable-select-field
+              label="Sala"
+              preset="room"
+              formControlName="room"
+              [options]="mapRoomOptions(rooms)"
+              [dependencyBlocked]="!reservationForm.get('section')?.value"
+              [disabled]="!reservationForm.get('section')?.value"
+            />
+          }
 
-            <mat-form-field>
-              <mat-label>Data de reserva</mat-label>
-              <input matInput [matDatepicker]="picker" formControlName="reservationDate">
-              <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-              <mat-datepicker #picker></mat-datepicker>
-            </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Data de reserva</mat-label>
+            <input matInput [matDatepicker]="picker" formControlName="reservationDate">
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
 
-            <mat-form-field>
-              <mat-label>Responsável</mat-label>
-              <mat-select formControlName="requester">
-                @for (req of (store.getRequesters | async); track req.nome) {
-                  <mat-option [value]="req.id">{{ req.nome + ' - ' + req.especialidade }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
+          @if (store.getRequesters | async; as requesters) {
+            <app-searchable-select-field
+              label="Responsável"
+              preset="requester"
+              formControlName="requester"
+              [options]="mapRequesterOptions(requesters)"
+            />
+          }
 
-            <mat-form-field appearance="outline">
-              <mat-label>Horário</mat-label>
-              <input matInput #inputField placeholder="00:00 - 00:00" (input)="formatTimeRange(inputField)" maxlength="13" formControlName="timeRange">
-            </mat-form-field>
-          </div>
+          <app-time-range-fields [compact]="true" />
 
-          <div class="container-button-top">
+          <div class="quick-reservation-form__actions">
             <button class="default-button" type="submit">Reservar Agora</button>
           </div>
         </form>
@@ -63,7 +64,7 @@
       <mat-card-title>
         <div class="card-title">
           <mat-icon>calendar_today</mat-icon>
-          <span>Calendário do Mês</span>
+          <span>Calendário</span>
         </div>
       </mat-card-title>
       <mat-card-content>

@@ -1,0 +1,36 @@
+.searchable-select-field {
+	width: 100%;
+}
+
+.searchable-select-field__search {
+	position: sticky;
+	top: 0;
+	z-index: 1;
+	padding: 0.5rem 0.75rem 0.25rem;
+	background: var(--mat-select-panel-background-color, #fff);
+	border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.searchable-select-field__search-field {
+	width: 100%;
+	margin: 0;
+}
+
+.searchable-select-field__create-action {
+	padding: 0;
+	min-width: 0;
+}
+
+.searchable-select-field__hint--alert {
+	color: #c62828;
+}
+
+.searchable-select-field__hint--guide {
+	color: rgba(0, 0, 0, 0.6);
+}
+
+.searchable-select-field--dependency-blocked {
+	.mat-mdc-select-placeholder {
+		color: rgba(0, 0, 0, 0.6);
+	}
+}

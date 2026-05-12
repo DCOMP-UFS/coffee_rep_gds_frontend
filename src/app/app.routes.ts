@@ -10,6 +10,7 @@ import { SectionsComponent } from "./features/sections/sections.component";
 
 export const routes: Routes = [
 	{ path: "login", component: LoginSignUpComponent, pathMatch: "full" },
+	{ path: "cadastro", component: LoginSignUpComponent, pathMatch: "full" },
 	{
 		path: "calendar",
 		component: CurrentMonthComponent,

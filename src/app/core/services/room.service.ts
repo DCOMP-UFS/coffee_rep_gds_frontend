@@ -1,6 +1,6 @@
 import { HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
+import { Observable, map } from "rxjs";
 import { CreateRoomRequestModel } from "../models/create-room-request.model";
 import { RoomRequestParamsModel } from "../models/room-request-params.model";
 import { Room, RoomResponseModel } from "../models/room-response.model";
@@ -24,11 +24,17 @@ export class RoomService {
 	}
 
 	getRoomBySectionId(id: number, unoccupied: string): Observable<Room[]> {
-		let params = new HttpParams().set("unpaged", true);
+		let params = new HttpParams().set("unpaged", "true");
 		if (unoccupied !== "Todas") {
 			params = params.set("ocupada", unoccupied === "Ocupada");
 		}
-		return this.http.getWithLoader<Room[]>(`room/section/${id}`, params);
+		return this.http
+			.getWithLoader<Room[] | RoomResponseModel>(`room/section/${id}`, params)
+			.pipe(map((response) => this.unwrapRoomList(response)));
+	}
+
+	private unwrapRoomList(response: Room[] | RoomResponseModel): Room[] {
+		return Array.isArray(response) ? response : (response.content ?? []);
 	}
 
 	createRoom(room: CreateRoomRequestModel): Observable<void> {

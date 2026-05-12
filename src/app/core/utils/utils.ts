@@ -1,25 +1,29 @@
-export function formatTimeRange(input: HTMLInputElement): void {
-	let value = input.value.replace(/\D/g, "");
-	if (value.length > 8) {
-		value = value.substring(0, 8);
+export function formatTimeValue(value: string): string {
+	let digits = value.replace(/\D/g, "");
+	if (digits.length > 4) {
+		digits = digits.substring(0, 4);
 	}
 
-	let hh1 = value.substring(0, 2);
-	let mm1 = value.substring(2, 4);
-	let hh2 = value.substring(4, 6);
-	let mm2 = value.substring(6, 8);
+	let hours = digits.substring(0, 2);
+	let minutes = digits.substring(2, 4);
 
-	if (Number.parseInt(hh1) > 23) hh1 = "23";
-	if (Number.parseInt(hh2) > 23) hh2 = "23";
-	if (Number.parseInt(mm1) > 59) mm1 = "59";
-	if (Number.parseInt(mm2) > 59) mm2 = "59";
+	if (hours && Number.parseInt(hours, 10) > 23) {
+		hours = "23";
+	}
+	if (minutes && Number.parseInt(minutes, 10) > 59) {
+		minutes = "59";
+	}
 
-	let formattedValue = hh1;
-	if (value.length > 2) formattedValue += `:${mm1}`;
-	if (value.length > 4) formattedValue += ` - ${hh2}`;
-	if (value.length > 6) formattedValue += `:${mm2}`;
+	if (digits.length <= 2) {
+		return hours;
+	}
 
-	input.value = formattedValue;
+	return `${hours}:${minutes}`;
+}
+
+/** @deprecated Use formatTimeValue with separate start/end fields. */
+export function formatTimeRange(input: HTMLInputElement): void {
+	input.value = formatTimeValue(input.value);
 }
 
 export function createDate(dateObj: Date, timeString: string): string {

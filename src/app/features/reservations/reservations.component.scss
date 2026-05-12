@@ -1,36 +1,68 @@
-.container-reservation-page{
-  display: flex;
-  gap: 10px;
-  flex-direction: column;
-  .container-type-table{
-    display: flex;
-    gap: 5px;
-    align-items: center;
-  }
-  .card-reservation{
-    background: white;
-    border-radius: 8px;
-  }
-  form{
-    max-width: 300px;
-    display: flex;
-    gap: 15px;
-  }
-  .card-title{
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    margin-bottom: 10px;
-    padding: 16px 16px 0 16px;
-  }
-  .table-container{
-    background: white;
-    padding: 10px;
-    border-radius: 8px;
-    table {
-      width: 100%;
-      background: white;
+.container-reservation-page {
+	display: flex;
+	gap: 10px;
+	flex-direction: column;
 
-    }
-  }
+	.container-type-table {
+		display: flex;
+		gap: 5px;
+		align-items: center;
+	}
+
+	.card-reservation {
+		background: white;
+		border-radius: 8px;
+	}
+
+	.card-title {
+		display: flex;
+		align-items: center;
+		gap: 5px;
+		margin-bottom: 10px;
+		padding: 16px 16px 0 16px;
+	}
+
+	.table-container {
+		background: white;
+		padding: 10px;
+		border-radius: 8px;
+
+		table {
+			width: 100%;
+			background: white;
+		}
+	}
+}
+
+.reservations-toolbar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	gap: 1rem;
+	width: 100%;
+	padding: 0 16px 16px;
+	box-sizing: border-box;
+}
+
+.reservations-toolbar__field {
+	flex: 1 1 22rem;
+	min-width: min(100%, 22rem);
+	max-width: 36rem;
+	width: 100%;
+}
+
+.reservations-toolbar__actions {
+	display: flex;
+	flex: 0 0 auto;
+	flex-direction: row;
+	flex-wrap: nowrap;
+	align-items: center;
+	gap: 0.75rem;
+
+	.default-button {
+		width: auto;
+		min-width: max-content;
+		white-space: nowrap;
+		flex-shrink: 0;
+	}
 }

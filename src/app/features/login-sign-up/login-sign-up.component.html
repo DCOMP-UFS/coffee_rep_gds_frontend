@@ -1,13 +1,13 @@
 <div class="login-page">
 
-  <div class="login-page__container">
+  <div class="login-page__container" [class.login-page__container--signup]="isSignUp">
 
     <img alt="Logo" src="assets/logo.png">
-    @if(typeForm === 'login'){
-      <form [formGroup]="loginForm" (submit)="submitLogin()">
+    @if (!isSignUp) {
+      <form class="form-stack login-page__form" [formGroup]="loginForm" (submit)="submitLogin()">
         <mat-form-field appearance="outline">
           <mat-label>CPF</mat-label>
-          <input formControlName="cpf" matInput mask="000.000.000-00" placeholder="000.000.000-00">
+          <input formControlName="cpf" matInput mask="000.000.000-00" placeholder="000.000.000-00" autocomplete="username">
           <mat-icon matSuffix>perm_identity</mat-icon>
           @if (loginForm.controls['cpf'].invalid && loginForm.controls['cpf'].touched) {
             <mat-error>Informe um CPF válido (11 dígitos).</mat-error>
@@ -15,8 +15,16 @@
         </mat-form-field>
         <mat-form-field appearance="outline">
           <mat-label>Senha</mat-label>
-          <input formControlName="password" matInput placeholder="Senha" [type]="typeInput">
-          <mat-icon [style.cursor]="'pointer'" (click)="tradeTypeInput()" matSuffix>lock_open</mat-icon>
+          <input formControlName="password" matInput placeholder="Senha" [type]="loginPasswordInputType" autocomplete="current-password">
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            [attr.aria-label]="loginPasswordInputType === 'password' ? 'Mostrar senha' : 'Ocultar senha'"
+            [attr.aria-pressed]="loginPasswordInputType === 'text'"
+            (click)="toggleLoginPasswordVisibility()">
+            <mat-icon>{{ loginPasswordInputType === 'password' ? 'visibility' : 'visibility_off' }}</mat-icon>
+          </button>
           @if (loginForm.controls['password'].invalid && loginForm.controls['password'].touched) {
             <mat-error>Informe a senha.</mat-error>
           }
@@ -25,15 +33,14 @@
         <div class="container-buttons">
           <button [disabled]="!loginForm.valid" type="submit" mat-flat-button color="primary">Entrar</button>
         </div>
-        <button (click)="tradeTypeForm()"  type="button" class="signup-option">Ainda não possui acesso? <strong>Clique aqui.</strong>
-        </button>
+        <button type="button" routerLink="/cadastro" class="signup-option">Ainda não possui acesso? <strong>Clique aqui.</strong></button>
       </form>
     } @else {
-      <button (click)="tradeTypeForm()" class="container-back-to-login" type="button">
+      <button type="button" routerLink="/login" class="container-back-to-login">
         <mat-icon>keyboard_arrow_left</mat-icon>
         <span>Voltar</span>
       </button>
-      <form [formGroup]="signUpForm" (submit)="submitSignUp()">
+      <form class="form-stack login-page__form" [formGroup]="signUpForm" (submit)="submitSignUp()">
         <mat-form-field appearance="outline">
           <mat-label>Nome</mat-label>
           <input formControlName="name" matInput placeholder="Nome">
@@ -44,21 +51,21 @@
         <mat-form-field appearance="outline">
           <mat-label>Telefone</mat-label>
           <input formControlName="phone" (input)="filterNumbers('phone')" type="tel" matInput
-                 mask="(00) 00000-0000" placeholder="(00) 00000-0000">
+                 mask="(00) 00000-0000" placeholder="(00) 00000-0000" autocomplete="tel">
           @if (signUpForm.controls['phone'].invalid && signUpForm.controls['phone'].touched) {
             <mat-error>Informe o telefone.</mat-error>
           }
         </mat-form-field>
         <mat-form-field appearance="outline">
           <mat-label>E-mail</mat-label>
-          <input formControlName="email" matInput placeholder="Seu melhor e-mail">
+          <input formControlName="email" matInput placeholder="Seu melhor e-mail" autocomplete="email">
           @if (signUpForm.controls['email'].invalid && signUpForm.controls['email'].touched) {
             <mat-error>E-mail inválido.</mat-error>
           }
         </mat-form-field>
         <mat-form-field appearance="outline">
           <mat-label>CPF</mat-label>
-          <input formControlName="cpf" matInput mask="000.000.000-00" placeholder="000.000.000-00">
+          <input formControlName="cpf" matInput mask="000.000.000-00" placeholder="000.000.000-00" autocomplete="username">
           @if (signUpForm.controls['cpf'].invalid && signUpForm.controls['cpf'].touched) {
             <mat-error>Informe um CPF válido (11 dígitos).</mat-error>
           }
@@ -66,16 +73,29 @@
 
         <mat-form-field appearance="outline">
           <mat-label>Data de nascimento</mat-label>
-          <input [max]="maxDate" formControlName="birthDate" matInput [matDatepicker]="picker">
-          <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-          <mat-datepicker #picker></mat-datepicker>
+          <input
+            formControlName="birthDate"
+            matInput
+            mask="00/00/0000"
+            placeholder="DD/MM/AAAA"
+            autocomplete="bday"
+          >
           @if (signUpForm.controls['birthDate'].invalid && signUpForm.controls['birthDate'].touched) {
             <mat-error>Informe a data.</mat-error>
           }
         </mat-form-field>
         <mat-form-field appearance="outline">
           <mat-label>Senha</mat-label>
-          <input formControlName="password" matInput type="password" placeholder="Senha">
+          <input formControlName="password" matInput placeholder="Senha" [type]="signUpPasswordInputType" autocomplete="new-password">
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            [attr.aria-label]="signUpPasswordInputType === 'password' ? 'Mostrar senha' : 'Ocultar senha'"
+            [attr.aria-pressed]="signUpPasswordInputType === 'text'"
+            (click)="toggleSignUpPasswordVisibility()">
+            <mat-icon>{{ signUpPasswordInputType === 'password' ? 'visibility' : 'visibility_off' }}</mat-icon>
+          </button>
           @if (signUpForm.controls['password'].invalid && signUpForm.controls['password'].touched) {
             <mat-error>Informe a senha.</mat-error>
           }

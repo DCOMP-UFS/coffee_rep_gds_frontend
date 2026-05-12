@@ -1,6 +1,6 @@
 import { HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
+import { Observable, map } from "rxjs";
 import { ReservationRequestParamsModel } from "../models/reservation-request-params.model";
 import { ReservationRequestModel } from "../models/reservation-request.model";
 import {
@@ -31,6 +31,27 @@ export class ReservationService {
 
 	getReservationCurrentMonth(): Observable<Reservation[]> {
 		return this.http.getWithLoader<Reservation[]>("reservation/current-month");
+	}
+
+	getReservationsByRange(start: Date, end: Date): Observable<Reservation[]> {
+		const inclusiveEnd = new Date(end);
+		inclusiveEnd.setMilliseconds(inclusiveEnd.getMilliseconds() - 1);
+		const params = new HttpParams()
+			.set("size", "1000")
+			.set("page", "0")
+			.set("inicio", this.toRangeParam(start, false))
+			.set("fim", this.toRangeParam(inclusiveEnd, true));
+
+		return this.http
+			.getWithoutLoad<ReservationResponseModel>("reservation", params)
+			.pipe(map((response) => response.content ?? []));
+	}
+
+	private toRangeParam(date: Date, endOfDay: boolean): string {
+		const year = date.getFullYear();
+		const month = String(date.getMonth() + 1).padStart(2, "0");
+		const day = String(date.getDate()).padStart(2, "0");
+		return `${year}-${month}-${day}T${endOfDay ? "23:59:59" : "00:00:00"}`;
 	}
 
 	reserveRoom(req: ReservationRequestModel): Observable<void> {

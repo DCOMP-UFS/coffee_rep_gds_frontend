@@ -8,20 +8,20 @@
         </div>
       </mat-card-title>
       <mat-card-content>
-        <form [formGroup]="reservationForm">
-          <div>
-            <mat-form-field>
-              <mat-label>Selecione um Período</mat-label>
-              <mat-date-range-input  [rangePicker]="picker">
-                <input matStartDate formControlName="start" placeholder="Start date">
-                <input matEndDate formControlName="end" placeholder="End date">
-              </mat-date-range-input>
-              <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-              <mat-date-range-picker #picker></mat-date-range-picker>
-            </mat-form-field>
+        <form class="reservations-toolbar" [formGroup]="reservationForm">
+          <mat-form-field class="reservations-toolbar__field">
+            <mat-label>Selecione um Período</mat-label>
+            <mat-date-range-input [rangePicker]="picker">
+              <input matStartDate formControlName="start" placeholder="Start date">
+              <input matEndDate formControlName="end" placeholder="End date">
+            </mat-date-range-input>
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-date-range-picker #picker></mat-date-range-picker>
+          </mat-form-field>
+          <div class="reservations-toolbar__actions">
+            <button class="default-button" type="button" (click)="submit()">Buscar</button>
+            <button class="default-button" type="button" (click)="openDialog()">Nova Reserva</button>
           </div>
-          <button class="default-button" (click)="submit()">Buscar</button>
-          <button class="default-button" (click)="openDialog()">Nova Reserva</button>
         </form>
       </mat-card-content>
     </div>
@@ -29,6 +29,15 @@
   </mat-card>
   <mat-card>
     <div class="table-container">
+      @if (!(store.getReservations | async)?.content?.length) {
+      <app-empty-state
+        icon="alarm"
+        title="Nenhuma reserva encontrada"
+        description="Ajuste o período da busca ou crie uma nova reserva."
+        actionLabel="Nova Reserva"
+        (action)="openDialog()"
+      />
+      } @else {
       <table mat-table [dataSource]="dataSource">
 
         <ng-container matColumnDef="sala">
@@ -87,6 +96,7 @@
                      (page)="handlePageEvent($event)"
                      aria-label="Select page of periodic elements">
       </mat-paginator>
+      }
     </div>
   </mat-card>
 </div>

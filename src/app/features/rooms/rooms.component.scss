@@ -11,11 +11,15 @@
 
 .rooms-toolbar {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+	grid-template-columns: repeat(2, minmax(160px, 1fr)) auto;
 	gap: 1rem;
 	align-items: start;
 	padding: 0 8px 8px;
 	max-width: 960px;
+
+	@media (max-width: 719px) {
+		grid-template-columns: 1fr;
+	}
 }
 
 .rooms-toolbar__field {
@@ -24,14 +28,15 @@
 
 .rooms-toolbar__actions {
 	display: flex;
-	flex-wrap: wrap;
+	flex-direction: row;
+	flex-wrap: nowrap;
 	gap: 0.75rem;
 	align-items: center;
-	grid-column: 1 / -1;
+	justify-self: end;
 
-	@media (min-width: 720px) {
-		grid-column: auto;
-		justify-self: end;
+	@media (max-width: 719px) {
+		justify-self: stretch;
+		flex-wrap: wrap;
 	}
 }
 
