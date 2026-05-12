@@ -15,6 +15,15 @@
   </mat-card>
   <mat-card>
     <div class="table-container">
+      @if (!(store.getRequesters | async)?.content?.length) {
+      <app-empty-state
+        icon="person"
+        title="Nenhum solicitante cadastrado"
+        description="Cadastre solicitantes para vincular às reservas."
+        actionLabel="Novo Solicitante"
+        (action)="openDialog()"
+      />
+      } @else {
       <table mat-table [dataSource]="dataSource">
 
         <ng-container matColumnDef="nome">
@@ -24,12 +33,12 @@
 
         <ng-container matColumnDef="telefone">
           <th mat-header-cell *matHeaderCellDef> Telefone </th>
-          <td mat-cell *matCellDef="let element"> {{element.contato}} </td>
+          <td mat-cell *matCellDef="let element"> {{ formatPhone(element.contato) }} </td>
         </ng-container>
 
         <ng-container matColumnDef="cpf">
           <th mat-header-cell *matHeaderCellDef> CPF </th>
-          <td mat-cell *matCellDef="let element"> {{element.cpf}} </td>
+          <td mat-cell *matCellDef="let element"> {{ formatCpf(element.cpf) }} </td>
         </ng-container>
 
         <ng-container matColumnDef="especialidade">
@@ -45,8 +54,17 @@
         </ng-container>
 
         <ng-container matColumnDef="delete">
-          <th mat-header-cell *matHeaderCellDef> Excluir Soliciante </th>
-          <td mat-cell *matCellDef="let element"> <mat-icon [style.cursor]="'pointer'" (click)="deleteRequester(element)">cancel</mat-icon> </td>
+          <th mat-header-cell *matHeaderCellDef> Excluir Solicitante </th>
+          <td mat-cell *matCellDef="let element">
+            <button
+              type="button"
+              mat-icon-button
+              aria-label="Excluir solicitante"
+              (click)="deleteRequester(element)"
+            >
+              <mat-icon>delete_outline</mat-icon>
+            </button>
+          </td>
         </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
@@ -61,6 +79,7 @@
                      showFirstLastButtons
                      aria-label="Select page of periodic elements">
       </mat-paginator>
+      }
     </div>
   </mat-card>
 </div>

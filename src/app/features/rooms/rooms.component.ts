@@ -10,7 +10,7 @@ import {
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { MatChipSet, MatChip } from "@angular/material/chips";
-import { MatNativeDateModule, MatOption } from "@angular/material/core";
+import { MatNativeDateModule } from "@angular/material/core";
 import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatDialog, MatDialogModule } from "@angular/material/dialog";
 import { MatFormFieldModule } from "@angular/material/form-field";
@@ -20,7 +20,6 @@ import {
 	MatPaginatorModule,
 	PageEvent,
 } from "@angular/material/paginator";
-import { MatSelect } from "@angular/material/select";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { tap, take } from "rxjs";
 import { Room } from "../../core/models/room-response.model";
@@ -28,7 +27,11 @@ import { Section } from "../../core/models/section-response.model";
 import { ConfirmationDialogComponent } from "../../shared/components/confirmation-dialog/confirmation-dialog.component";
 import { EmptyStateComponent } from "../../shared/components/empty-state/empty-state.component";
 import { ErrorStateComponent } from "../../shared/components/error-state/error-state.component";
+import { FORM_DIALOG_CONFIG_NARROW } from "../../shared/constants/dialog-config";
 import { RoomDialogComponent } from "../../shared/components/room-dialog/room-dialog.component";
+import { SearchableSelectOption } from "../../shared/components/searchable-select-field/searchable-select-field.component";
+import { mapSectionOptions } from "../../shared/components/searchable-select-field/searchable-select-options.util";
+import { SearchableSelectFieldComponent } from "../../shared/components/searchable-select-field/searchable-select-field.component";
 import { TableSkeletonComponent } from "../../shared/components/table-skeleton/table-skeleton.component";
 import { RoomsComponentStore } from "./rooms.store";
 
@@ -45,8 +48,7 @@ import { RoomsComponentStore } from "./rooms.store";
 		ReactiveFormsModule,
 		MatFormFieldModule,
 		AsyncPipe,
-		MatOption,
-		MatSelect,
+		SearchableSelectFieldComponent,
 		MatDialogModule,
 		MatButtonModule,
 		MatChipSet,
@@ -61,6 +63,21 @@ import { RoomsComponentStore } from "./rooms.store";
 	styleUrl: "./rooms.component.scss",
 })
 export class RoomsComponent implements OnInit {
+	readonly allSectionsOption: SearchableSelectOption[] = [
+		{ value: 0, label: "Todas" },
+	];
+	readonly statusOptions: SearchableSelectOption[] = [
+		"Todas",
+		"Ocupada",
+		"Livre",
+	].map((status) => ({ value: status, label: status }));
+	protected readonly mapSectionFilterOptions = (
+		sections: Parameters<typeof mapSectionOptions>[0],
+	) =>
+		mapSectionOptions(sections).map((option) => ({
+			value: Number(option.value),
+			label: option.label,
+		}));
 	displayedColumns: string[] = ["nome", "setor", "status", "update", "delete"];
 	dataSource = new MatTableDataSource<Room>();
 	@ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -121,8 +138,7 @@ export class RoomsComponent implements OnInit {
 
 	openDialog(sections: Section[]) {
 		const dialog = this.dialog.open(RoomDialogComponent, {
-			width: "min(95vw, 480px)",
-			maxHeight: "90vh",
+			...FORM_DIALOG_CONFIG_NARROW,
 			autoFocus: true,
 			data: { sections },
 		});
@@ -145,8 +161,7 @@ export class RoomsComponent implements OnInit {
 
 	openDialogUpdate(sections: Section[], element: Room) {
 		const dialog = this.dialog.open(RoomDialogComponent, {
-			width: "min(95vw, 480px)",
-			maxHeight: "90vh",
+			...FORM_DIALOG_CONFIG_NARROW,
 			data: { sections, element },
 		});
 

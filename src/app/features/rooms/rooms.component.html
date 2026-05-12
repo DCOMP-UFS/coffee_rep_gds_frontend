@@ -9,24 +9,26 @@
       </mat-card-title>
       <mat-card-content>
         <form [formGroup]="roomsForm" class="rooms-toolbar">
-          <mat-form-field class="rooms-toolbar__field">
-            <mat-label>Setor</mat-label>
-            <mat-select formControlName="section">
-              <mat-option [value]="0">Todas</mat-option>
-              @for (section of (store.getSections | async); track section.id) {
-                <mat-option [value]="section.id">{{ section.nome }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
+          @if (store.getSections | async; as sections) {
+            <div class="rooms-toolbar__field">
+              <app-searchable-select-field
+                label="Setor"
+                preset="section"
+                formControlName="section"
+                [staticOptions]="allSectionsOption"
+                [options]="mapSectionFilterOptions(sections)"
+              />
+            </div>
+          }
 
-          <mat-form-field class="rooms-toolbar__field">
-            <mat-label>Status</mat-label>
-            <mat-select formControlName="status">
-              @for (status of ['Todas','Ocupada', 'Livre']; track status) {
-                <mat-option [value]="status">{{status }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
+          <div class="rooms-toolbar__field">
+            <app-searchable-select-field
+              label="Status"
+              preset="status"
+              formControlName="status"
+              [options]="statusOptions"
+            />
+          </div>
 
           <div class="rooms-toolbar__actions">
             <button mat-flat-button color="primary" type="button" (click)="submit()">Buscar</button>

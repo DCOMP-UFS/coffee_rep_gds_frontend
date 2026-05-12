@@ -1,5 +1,6 @@
 import { AsyncPipe } from "@angular/common";
 import { Component, OnInit, ViewChild } from "@angular/core";
+import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { MatDialog, MatDialogModule } from "@angular/material/dialog";
 import { MatIconModule } from "@angular/material/icon";
@@ -10,7 +11,10 @@ import {
 } from "@angular/material/paginator";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { Requester } from "../../core/models/requester-response.model";
+import { formatCpfBr, formatPhoneBr } from "../../core/utils/br-format.util";
 import { ConfirmationDialogComponent } from "../../shared/components/confirmation-dialog/confirmation-dialog.component";
+import { EmptyStateComponent } from "../../shared/components/empty-state/empty-state.component";
+import { FORM_DIALOG_CONFIG } from "../../shared/constants/dialog-config";
 import { RequesterDialogComponent } from "../../shared/components/requester-dialog/requester-dialog.component";
 import { RequestersComponentStore } from "./requesters.store";
 
@@ -22,14 +26,19 @@ import { RequestersComponentStore } from "./requesters.store";
 	styleUrl: "./requesters.component.scss",
 	imports: [
 		MatCardModule,
+		MatButtonModule,
 		MatTableModule,
 		MatIconModule,
 		MatPaginatorModule,
 		MatDialogModule,
 		AsyncPipe,
+		EmptyStateComponent,
 	],
 })
 export class RequestersComponent implements OnInit {
+	readonly formatCpf = formatCpfBr;
+	readonly formatPhone = formatPhoneBr;
+
 	displayedColumns: string[] = [
 		"nome",
 		"telefone",
@@ -59,8 +68,7 @@ export class RequestersComponent implements OnInit {
 
 	openDialog(): void {
 		const dialog = this.dialog.open(RequesterDialogComponent, {
-			width: "375px",
-			height: "500px",
+			...FORM_DIALOG_CONFIG,
 		});
 
 		dialog.afterClosed().subscribe((saved) => {
@@ -70,8 +78,7 @@ export class RequestersComponent implements OnInit {
 
 	openDialogUpdate(element: Requester): void {
 		const dialog = this.dialog.open(RequesterDialogComponent, {
-			width: "375px",
-			height: "500px",
+			...FORM_DIALOG_CONFIG,
 			data: { element },
 		});
 
