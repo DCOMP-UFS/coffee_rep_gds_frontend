@@ -1,15 +1,37 @@
-.mat-mdc-dialog-container .mat-mdc-dialog-title + .mat-mdc-dialog-content {
-	overflow: visible;
+// Modais de formulário: título fixo, corpo rolável, ações fixas no rodapé.
+// panelClass (form-dialog-panel) é aplicado ao .cdk-overlay-pane pelo MatDialog.
+.cdk-overlay-pane.form-dialog-panel {
+	.mat-mdc-dialog-container {
+		max-height: inherit;
+	}
+
+	.mat-mdc-dialog-surface {
+		display: flex;
+		flex-direction: column;
+		max-height: inherit;
+	}
+
+	.mat-mdc-dialog-title {
+		flex-shrink: 0;
+	}
+
+	.mat-mdc-dialog-content.dialog-form-content {
+		flex: 1 1 auto;
+		min-height: 0;
+		overflow-x: hidden;
+		overflow-y: auto;
+		-webkit-overflow-scrolling: touch;
+		scrollbar-gutter: stable;
+	}
+
+	.mat-mdc-dialog-actions {
+		flex-shrink: 0;
+	}
 }
 
 .dialog-form-content {
 	min-width: min(92vw, 480px);
 	box-sizing: border-box;
 	padding-top: 1rem;
-	padding-bottom: 0.25rem;
-
-	> .form-stack {
-		max-height: min(calc(90vh - 10rem), 36rem);
-		scrollbar-gutter: stable;
-	}
+	padding-bottom: 1rem;
 }
