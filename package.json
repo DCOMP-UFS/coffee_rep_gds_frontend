@@ -3,7 +3,6 @@
 	"version": "0.0.0",
 	"packageManager": "pnpm@10.33.3",
 	"scripts": {
-		"ng": "ng",
 		"start": "ng serve",
 		"gs": "node node_modules/generate-store-lib/src/generate.js",
 		"biome": "npx @biomejs/biome check --write ./src",
