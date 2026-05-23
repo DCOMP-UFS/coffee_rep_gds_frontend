@@ -16,6 +16,10 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 import { Room } from "../../../core/models/room-response.model";
 import { Section } from "../../../core/models/section-response.model";
+import {
+	runIfValid,
+	shouldShowControlError,
+} from "../../../core/utils/form-validation.util";
 import { SearchableSelectFieldComponent } from "../searchable-select-field/searchable-select-field.component";
 import { mapSectionOptions } from "../searchable-select-field/searchable-select-options.util";
 import { RoomDialogComponentStore } from "./room-dialog.store";
@@ -57,21 +61,26 @@ export class RoomDialogComponent {
 		});
 	}
 
-	submit() {
-		this.roomForm.markAllAsTouched();
-		if (this.roomForm.invalid || !(this.data.sections?.length ?? 0)) return;
+	fieldError(controlName: string): boolean {
+		return shouldShowControlError(this.roomForm.get(controlName));
+	}
 
-		if (!this.data.element) {
-			this.roomDialogComponentStore.createRoom$({
+	submit() {
+		if (!(this.data.sections?.length ?? 0)) return;
+
+		runIfValid(this.roomForm, () => {
+			if (!this.data.element) {
+				this.roomDialogComponentStore.createRoom$({
+					nome: this.roomForm.value.name.trim(),
+					setorId: +this.roomForm.value.section,
+				});
+				return;
+			}
+			this.roomDialogComponentStore.updateRoom$({
 				nome: this.roomForm.value.name.trim(),
 				setorId: +this.roomForm.value.section,
+				roomId: +this.data.element.id,
 			});
-			return;
-		}
-		this.roomDialogComponentStore.updateRoom$({
-			nome: this.roomForm.value.name.trim(),
-			setorId: +this.roomForm.value.section,
-			roomId: +this.data.element.id,
 		});
 	}
 }

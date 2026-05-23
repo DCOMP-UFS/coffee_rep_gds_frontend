@@ -10,7 +10,9 @@
       [formControl]="startControl"
       (input)="onTimeInput(startControl, $event)"
     />
-    @if (startControl.hasError("timeFormat") && startControl.touched) {
+    @if (showError(startControl) && startControl.hasError("required")) {
+      <mat-error>Informe o horário de início.</mat-error>
+    } @else if (showError(startControl) && startControl.hasError("timeFormat")) {
       <mat-error>Informe o horário no formato HH:MM.</mat-error>
     }
   </mat-form-field>
@@ -26,10 +28,11 @@
       [formControl]="endControl"
       (input)="onTimeInput(endControl, $event)"
     />
-    @if (endControl.hasError("timeFormat") && endControl.touched) {
+    @if (showError(endControl) && endControl.hasError("required")) {
+      <mat-error>Informe o horário de fim.</mat-error>
+    } @else if (showError(endControl) && endControl.hasError("timeFormat")) {
       <mat-error>Informe o horário no formato HH:MM.</mat-error>
-    }
-    @if (endControl.parent?.hasError("endBeforeStart") && endControl.touched) {
+    } @else if (showError(endControl) && endControl.parent?.hasError("endBeforeStart")) {
       <mat-error>O horário de fim deve ser posterior ao início.</mat-error>
     }
   </mat-form-field>

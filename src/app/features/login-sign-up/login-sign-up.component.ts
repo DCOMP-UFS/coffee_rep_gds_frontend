@@ -19,6 +19,10 @@ import { CookieService } from "ngx-cookie-service";
 import { NgxMaskDirective } from "ngx-mask";
 import { Subject, filter, takeUntil } from "rxjs";
 import {
+	runIfValid,
+	shouldShowControlError,
+} from "../../core/utils/form-validation.util";
+import {
 	birthDateBrToApi,
 	birthDateMaskValidator,
 } from "../../core/validators/birth-date.validators";
@@ -128,25 +132,33 @@ export class LoginSignUpComponent implements OnInit, OnDestroy {
 			this.signUpPasswordInputType === "password" ? "text" : "password";
 	}
 
+	loginFieldError(controlName: string): boolean {
+		return shouldShowControlError(this.loginForm.get(controlName));
+	}
+
+	signUpFieldError(controlName: string): boolean {
+		return shouldShowControlError(this.signUpForm.get(controlName));
+	}
+
 	submitLogin(): void {
-		this.loginForm.markAllAsTouched();
-		if (!this.loginForm.valid) return;
-		const v = this.loginForm.value;
-		this.loginStore.sendLoginRequest$({
-			cpf: String(v.cpf).replace(/\D/g, ""),
-			password: v.password,
+		runIfValid(this.loginForm, () => {
+			const v = this.loginForm.value;
+			this.loginStore.sendLoginRequest$({
+				cpf: String(v.cpf).replace(/\D/g, ""),
+				password: v.password,
+			});
 		});
 	}
 
 	submitSignUp(): void {
-		this.signUpForm.markAllAsTouched();
-		if (!this.signUpForm.valid) return;
-		const v = this.signUpForm.value;
-		this.loginStore.sendSignUpRequest$({
-			...v,
-			cpf: String(v.cpf).replace(/\D/g, ""),
-			phone: String(v.phone).replace(/\D/g, ""),
-			birthDate: birthDateBrToApi(String(v.birthDate)),
+		runIfValid(this.signUpForm, () => {
+			const v = this.signUpForm.value;
+			this.loginStore.sendSignUpRequest$({
+				...v,
+				cpf: String(v.cpf).replace(/\D/g, ""),
+				phone: String(v.phone).replace(/\D/g, ""),
+				birthDate: birthDateBrToApi(String(v.birthDate)),
+			});
 		});
 	}
 

@@ -33,9 +33,9 @@ export class SideMenuComponent {
 			route: "/calendar",
 		},
 		{
-			icon: "alarm",
-			description: "Reservas",
-			route: "/reservation",
+			icon: "domain",
+			description: "Setores",
+			route: "/sections",
 		},
 		{
 			icon: "meeting_room",
@@ -43,19 +43,19 @@ export class SideMenuComponent {
 			route: "/rooms",
 		},
 		{
-			icon: "domain",
-			description: "Setores",
-			route: "/sections",
+			icon: "person",
+			description: "Solicitante",
+			route: "/requester",
+		},
+		{
+			icon: "alarm",
+			description: "Reservas",
+			route: "/reservation",
 		},
 		{
 			icon: "event_busy",
 			description: "Ausências",
 			route: "/absences",
-		},
-		{
-			icon: "person",
-			description: "Solicitante",
-			route: "/requester",
 		},
 		{
 			icon: "logout",

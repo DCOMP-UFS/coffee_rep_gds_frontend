@@ -1,7 +1,36 @@
+import { Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import {
+	FormControl,
+	FormGroup,
+	ReactiveFormsModule,
+	Validators,
+} from "@angular/forms";
 import { MatDialogRef } from "@angular/material/dialog";
+import { By } from "@angular/platform-browser";
 import { Router } from "@angular/router";
+import { markAllAsTouched } from "../../../core/utils/form-validation.util";
 import { SearchableSelectFieldComponent } from "./searchable-select-field.component";
+
+@Component({
+	standalone: true,
+	imports: [ReactiveFormsModule, SearchableSelectFieldComponent],
+	template: `
+		<form [formGroup]="form">
+			<app-searchable-select-field
+				label="Setor"
+				formControlName="section"
+				[options]="options"
+			/>
+		</form>
+	`,
+})
+class SearchableSelectHostComponent {
+	form = new FormGroup({
+		section: new FormControl("", Validators.required),
+	});
+	options = [{ value: "1", label: "Ambulatório" }];
+}
 
 describe("SearchableSelectFieldComponent", () => {
 	let component: SearchableSelectFieldComponent;
@@ -138,5 +167,25 @@ describe("SearchableSelectFieldComponent", () => {
 			standaloneComponent.onCreateAction(new MouseEvent("click")),
 		).not.toThrow();
 		expect(standaloneRouter.navigate).toHaveBeenCalledWith(["/sections"]);
+	});
+
+	it("should show required error after markAllAsTouched", async () => {
+		await TestBed.resetTestingModule()
+			.configureTestingModule({
+				imports: [SearchableSelectHostComponent],
+			})
+			.compileComponents();
+
+		const hostFixture = TestBed.createComponent(SearchableSelectHostComponent);
+		hostFixture.detectChanges();
+		markAllAsTouched(hostFixture.componentInstance.form);
+		hostFixture.detectChanges();
+
+		const select = hostFixture.debugElement.query(
+			By.directive(SearchableSelectFieldComponent),
+		).componentInstance as SearchableSelectFieldComponent;
+
+		expect(select.showError).toBeTrue();
+		expect(select.errorMessage).toContain("Selecione Setor");
 	});
 });

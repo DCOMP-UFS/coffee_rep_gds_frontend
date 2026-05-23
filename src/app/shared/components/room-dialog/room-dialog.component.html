@@ -5,7 +5,7 @@
     <mat-form-field class="room-dialog-field">
       <mat-label>Nome da sala</mat-label>
       <input formControlName="name" matInput type="text" placeholder="Ex.: Consultório 12" autocomplete="off">
-      @if (roomForm.controls['name'].invalid && roomForm.controls['name'].touched) {
+      @if (fieldError('name')) {
         <mat-error>Informe o nome da sala.</mat-error>
       }
     </mat-form-field>

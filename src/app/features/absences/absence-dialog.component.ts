@@ -19,6 +19,10 @@ import {
 } from "../../core/models/requester-absence.model";
 import { Requester } from "../../core/models/requester-response.model";
 import { RequesterAbsenceHttpService } from "../../core/services/requester-absence-http.service";
+import {
+	runIfValid,
+	shouldShowControlError,
+} from "../../core/utils/form-validation.util";
 import { SearchableSelectFieldComponent } from "../../shared/components/searchable-select-field/searchable-select-field.component";
 import { mapRequesterOptions } from "../../shared/components/searchable-select-field/searchable-select-options.util";
 
@@ -63,24 +67,30 @@ export class AbsenceDialogComponent {
 		});
 	}
 
+	fieldError(controlName: string): boolean {
+		return shouldShowControlError(this.form.get(controlName));
+	}
+
 	save(): void {
-		this.form.markAllAsTouched();
-		if (this.form.invalid || !this.requesters.length) return;
-		const v = this.form.getRawValue();
-		const payload: CreateRequesterAbsencePayload = {
-			solicitanteId: +v.solicitanteId,
-			dataInicio: v.inicio,
-			dataFim: v.fim,
-		};
-		if (payload.dataInicio > payload.dataFim) return;
+		if (!this.requesters.length) return;
 
-		const req$ = this.data.element
-			? this.absenceApi.update(this.data.element.id, payload)
-			: this.absenceApi.create(payload);
+		runIfValid(this.form, () => {
+			const v = this.form.getRawValue();
+			const payload: CreateRequesterAbsencePayload = {
+				solicitanteId: +v.solicitanteId,
+				dataInicio: v.inicio,
+				dataFim: v.fim,
+			};
+			if (payload.dataInicio > payload.dataFim) return;
 
-		req$.subscribe({
-			next: () => this.dialogRef.close(true),
-			error: () => {},
+			const req$ = this.data.element
+				? this.absenceApi.update(this.data.element.id, payload)
+				: this.absenceApi.create(payload);
+
+			req$.subscribe({
+				next: () => this.dialogRef.close(true),
+				error: () => {},
+			});
 		});
 	}
 }

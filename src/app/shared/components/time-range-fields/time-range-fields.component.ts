@@ -3,10 +3,12 @@ import {
 	ControlContainer,
 	FormControl,
 	FormGroup,
+	FormGroupDirective,
 	ReactiveFormsModule,
 } from "@angular/forms";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
+import { shouldShowControlError } from "../../../core/utils/form-validation.util";
 import { formatTimeValue } from "../../../core/utils/utils";
 
 @Component({
@@ -31,7 +33,12 @@ export class TimeRangeFieldsComponent implements OnInit {
 
 	constructor(
 		@Optional() private readonly controlContainer: ControlContainer,
+		@Optional() private readonly parentForm: FormGroupDirective,
 	) {}
+
+	showError(control: FormControl<string>): boolean {
+		return shouldShowControlError(control, this.parentForm?.submitted ?? false);
+	}
 
 	ngOnInit(): void {
 		const group = this.controlContainer?.control as FormGroup | null;

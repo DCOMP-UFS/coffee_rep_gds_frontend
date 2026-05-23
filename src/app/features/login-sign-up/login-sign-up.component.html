@@ -9,7 +9,7 @@
           <mat-label>CPF</mat-label>
           <input formControlName="cpf" matInput mask="000.000.000-00" placeholder="000.000.000-00" autocomplete="username">
           <mat-icon matSuffix>perm_identity</mat-icon>
-          @if (loginForm.controls['cpf'].invalid && loginForm.controls['cpf'].touched) {
+          @if (loginFieldError('cpf')) {
             <mat-error>Informe um CPF válido (11 dígitos).</mat-error>
           }
         </mat-form-field>
@@ -25,7 +25,7 @@
             (click)="toggleLoginPasswordVisibility()">
             <mat-icon>{{ loginPasswordInputType === 'password' ? 'visibility' : 'visibility_off' }}</mat-icon>
           </button>
-          @if (loginForm.controls['password'].invalid && loginForm.controls['password'].touched) {
+          @if (loginFieldError('password')) {
             <mat-error>Informe a senha.</mat-error>
           }
         </mat-form-field>
@@ -44,7 +44,7 @@
         <mat-form-field appearance="outline">
           <mat-label>Nome</mat-label>
           <input formControlName="name" matInput placeholder="Nome">
-          @if (signUpForm.controls['name'].invalid && signUpForm.controls['name'].touched) {
+          @if (signUpFieldError('name')) {
             <mat-error>Informe o nome.</mat-error>
           }
         </mat-form-field>
@@ -52,21 +52,21 @@
           <mat-label>Telefone</mat-label>
           <input formControlName="phone" (input)="filterNumbers('phone')" type="tel" matInput
                  mask="(00) 00000-0000" placeholder="(00) 00000-0000" autocomplete="tel">
-          @if (signUpForm.controls['phone'].invalid && signUpForm.controls['phone'].touched) {
+          @if (signUpFieldError('phone')) {
             <mat-error>Informe o telefone.</mat-error>
           }
         </mat-form-field>
         <mat-form-field appearance="outline">
           <mat-label>E-mail</mat-label>
           <input formControlName="email" matInput placeholder="Seu melhor e-mail" autocomplete="email">
-          @if (signUpForm.controls['email'].invalid && signUpForm.controls['email'].touched) {
+          @if (signUpFieldError('email')) {
             <mat-error>E-mail inválido.</mat-error>
           }
         </mat-form-field>
         <mat-form-field appearance="outline">
           <mat-label>CPF</mat-label>
           <input formControlName="cpf" matInput mask="000.000.000-00" placeholder="000.000.000-00" autocomplete="username">
-          @if (signUpForm.controls['cpf'].invalid && signUpForm.controls['cpf'].touched) {
+          @if (signUpFieldError('cpf')) {
             <mat-error>Informe um CPF válido (11 dígitos).</mat-error>
           }
         </mat-form-field>
@@ -80,7 +80,7 @@
             placeholder="DD/MM/AAAA"
             autocomplete="bday"
           >
-          @if (signUpForm.controls['birthDate'].invalid && signUpForm.controls['birthDate'].touched) {
+          @if (signUpFieldError('birthDate')) {
             <mat-error>Informe a data.</mat-error>
           }
         </mat-form-field>
@@ -96,7 +96,7 @@
             (click)="toggleSignUpPasswordVisibility()">
             <mat-icon>{{ signUpPasswordInputType === 'password' ? 'visibility' : 'visibility_off' }}</mat-icon>
           </button>
-          @if (signUpForm.controls['password'].invalid && signUpForm.controls['password'].touched) {
+          @if (signUpFieldError('password')) {
             <mat-error>Informe a senha.</mat-error>
           }
         </mat-form-field>

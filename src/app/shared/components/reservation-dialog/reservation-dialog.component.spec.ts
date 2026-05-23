@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { DateAdapter, provideNativeDateAdapter } from "@angular/material/core";
+import { PtBrDateAdapter } from "../../../core/adapters/pt-br-date.adapter";
 import { provideComponentHttp } from "../../../testing/test-providers";
 import { ReservationDialogComponent } from "./reservation-dialog.component";
 
@@ -9,7 +11,11 @@ describe("ReservationDialogComponent", () => {
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
 			imports: [ReservationDialogComponent],
-			providers: [...provideComponentHttp()],
+			providers: [
+				...provideComponentHttp(),
+				provideNativeDateAdapter(),
+				{ provide: DateAdapter, useClass: PtBrDateAdapter },
+			],
 		}).compileComponents();
 
 		fixture = TestBed.createComponent(ReservationDialogComponent);

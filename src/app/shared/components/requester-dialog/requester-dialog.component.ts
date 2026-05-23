@@ -12,6 +12,10 @@ import { MatInputModule } from "@angular/material/input";
 import { MatSelectModule } from "@angular/material/select";
 import { NgxMaskDirective } from "ngx-mask";
 import { Requester } from "../../../core/models/requester-response.model";
+import {
+	runIfValid,
+	shouldShowControlError,
+} from "../../../core/utils/form-validation.util";
 import { cpfDigitsValidator } from "../../../core/validators/cpf.validators";
 import { RequesterDialogComponentStore } from "./requester-dialog.store";
 
@@ -64,28 +68,29 @@ export class RequesterDialogComponent {
 		});
 	}
 
+	fieldError(controlName: string): boolean {
+		return shouldShowControlError(this.requesterForm.get(controlName));
+	}
+
 	submit() {
-		this.requesterForm.markAllAsTouched();
-		if (!this.requesterForm.valid) {
-			return;
-		}
+		runIfValid(this.requesterForm, () => {
+			const raw = this.requesterForm.getRawValue();
+			const payload = {
+				nome: raw.name,
+				cpf: String(raw.cpf).replace(/\D/g, ""),
+				telefone: String(raw.phone).replace(/\D/g, ""),
+				especialidade: raw.type,
+			};
 
-		const raw = this.requesterForm.getRawValue();
-		const payload = {
-			nome: raw.name,
-			cpf: String(raw.cpf).replace(/\D/g, ""),
-			telefone: String(raw.phone).replace(/\D/g, ""),
-			especialidade: raw.type,
-		};
+			if (this.data?.element) {
+				this.store.updateRequester$({
+					id: this.data.element.id,
+					...payload,
+				});
+				return;
+			}
 
-		if (this.data?.element) {
-			this.store.updateRequester$({
-				id: this.data.element.id,
-				...payload,
-			});
-			return;
-		}
-
-		this.store.createRequester$(payload);
+			this.store.createRequester$(payload);
+		});
 	}
 }
