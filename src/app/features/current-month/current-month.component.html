@@ -34,12 +34,10 @@
             />
           }
 
-          <mat-form-field appearance="outline">
-            <mat-label>Data de reserva</mat-label>
-            <input matInput [matDatepicker]="picker" formControlName="reservationDate">
-            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-            <mat-datepicker #picker></mat-datepicker>
-          </mat-form-field>
+          <app-masked-date-field
+            controlName="reservationDate"
+            label="Data de reserva"
+          />
 
           @if (store.getRequesters | async; as requesters) {
             <app-searchable-select-field

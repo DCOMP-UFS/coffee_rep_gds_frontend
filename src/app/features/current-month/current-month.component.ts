@@ -8,18 +8,19 @@ import {
 } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
-import { MatNativeDateModule } from "@angular/material/core";
-import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
 import { MatPaginatorModule } from "@angular/material/paginator";
 import { Subscription, distinctUntilChanged } from "rxjs";
+import { runIfValid } from "../../core/utils/form-validation.util";
 import { createDate } from "../../core/utils/utils";
+import { dateMaskValidator } from "../../core/validators/date-mask.validators";
 import {
 	endTimeAfterStartValidator,
 	timeFormatValidator,
 } from "../../core/validators/time.validators";
+import { MaskedDateFieldComponent } from "../../shared/components/masked-date-field/masked-date-field.component";
 import { CalendarComponent } from "../../shared/components/calendar/calendar.component";
 import { SearchableSelectFieldComponent } from "../../shared/components/searchable-select-field/searchable-select-field.component";
 import {
@@ -41,9 +42,8 @@ import { CurrentMonthComponentStore } from "./current-month.store";
 		MatInputModule,
 		MatPaginatorModule,
 		MatFormFieldModule,
-		MatDatepickerModule,
-		MatNativeDateModule,
 		MatButtonModule,
+		MaskedDateFieldComponent,
 		SearchableSelectFieldComponent,
 		TimeRangeFieldsComponent,
 		ReactiveFormsModule,
@@ -67,7 +67,10 @@ export class CurrentMonthComponent implements OnInit, OnDestroy {
 			{
 				section: ["", Validators.required],
 				room: ["", Validators.required],
-				reservationDate: [new Date(), Validators.required],
+				reservationDate: [
+					new Date(),
+					[Validators.required, dateMaskValidator({ allowFuture: true })],
+				],
 				horaInicio: ["", [Validators.required, timeFormatValidator]],
 				horaFim: ["", [Validators.required, timeFormatValidator]],
 				requester: ["", Validators.required],
@@ -109,7 +112,7 @@ export class CurrentMonthComponent implements OnInit, OnDestroy {
 	}
 
 	submitForm(): void {
-		if (this.reservationForm.valid) {
+		runIfValid(this.reservationForm, () => {
 			this.store.createReservation$({
 				salaId: +this.reservationForm.value.room,
 				solicitanteId: +this.reservationForm.value.requester,
@@ -123,6 +126,6 @@ export class CurrentMonthComponent implements OnInit, OnDestroy {
 				),
 				observacoes: "",
 			});
-		}
+		});
 	}
 }

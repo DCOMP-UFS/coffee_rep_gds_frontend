@@ -8,19 +8,20 @@ import {
 } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatChipListbox, MatChipOption } from "@angular/material/chips";
-import { MatNativeDateModule } from "@angular/material/core";
-import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatDialogModule } from "@angular/material/dialog";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
 import { MatPaginatorModule } from "@angular/material/paginator";
 import { MatSlideToggle } from "@angular/material/slide-toggle";
+import { runIfValid } from "../../../core/utils/form-validation.util";
 import { createDate } from "../../../core/utils/utils";
+import { dateMaskValidator } from "../../../core/validators/date-mask.validators";
 import {
 	endTimeAfterStartValidator,
 	timeFormatValidator,
 } from "../../../core/validators/time.validators";
+import { MaskedDateFieldComponent } from "../masked-date-field/masked-date-field.component";
 import { SearchableSelectFieldComponent } from "../searchable-select-field/searchable-select-field.component";
 import {
 	mapRequesterOptions,
@@ -40,9 +41,8 @@ import { ReservationDialogComponentStore } from "./reservation-dialog.store";
 		MatInputModule,
 		MatPaginatorModule,
 		MatFormFieldModule,
-		MatDatepickerModule,
-		MatNativeDateModule,
 		MatButtonModule,
+		MaskedDateFieldComponent,
 		SearchableSelectFieldComponent,
 		TimeRangeFieldsComponent,
 		ReactiveFormsModule,
@@ -79,7 +79,10 @@ export class ReservationDialogComponent {
 		}
 		this.reservationForm.addControl(
 			"reservationDateFim",
-			this.fb.control("", Validators.required),
+			this.fb.control("", [
+				Validators.required,
+				dateMaskValidator({ allowFuture: true }),
+			]),
 		);
 	}
 
@@ -98,7 +101,10 @@ export class ReservationDialogComponent {
 			{
 				section: ["", Validators.required],
 				room: ["", Validators.required],
-				reservationDate: ["", Validators.required],
+				reservationDate: [
+					"",
+					[Validators.required, dateMaskValidator({ allowFuture: true })],
+				],
 				horaInicio: ["", [Validators.required, timeFormatValidator]],
 				horaFim: ["", [Validators.required, timeFormatValidator]],
 				requester: ["", Validators.required],
@@ -109,7 +115,7 @@ export class ReservationDialogComponent {
 	}
 
 	submitForm(): void {
-		if (this.reservationForm.valid) {
+		runIfValid(this.reservationForm, () => {
 			const request = {
 				salaId: +this.reservationForm.value.room,
 				solicitanteId: +this.reservationForm.value.requester,
@@ -129,7 +135,7 @@ export class ReservationDialogComponent {
 			};
 			if (!this.isRecurrentForm) request.dias = undefined;
 			this.reservationDialogComponentStore.createReservation$(request);
-		}
+		});
 	}
 
 	getRoomsById(event: string | number): void {

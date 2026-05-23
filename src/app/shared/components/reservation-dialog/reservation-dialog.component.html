@@ -42,26 +42,11 @@
 
     @if (isRecurrentForm) {
       <div class="reservation-dialog__date-row">
-        <mat-form-field appearance="outline">
-          <mat-label>Data início</mat-label>
-          <input matInput [matDatepicker]="picker1" formControlName="reservationDate">
-          <mat-datepicker-toggle matIconSuffix [for]="picker1"></mat-datepicker-toggle>
-          <mat-datepicker #picker1></mat-datepicker>
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-          <mat-label>Data fim</mat-label>
-          <input matInput [min]="reservationForm.value.reservationDate" [matDatepicker]="picker2" formControlName="reservationDateFim">
-          <mat-datepicker-toggle matIconSuffix [for]="picker2"></mat-datepicker-toggle>
-          <mat-datepicker #picker2></mat-datepicker>
-        </mat-form-field>
+        <app-masked-date-field controlName="reservationDate" label="Data início" />
+        <app-masked-date-field controlName="reservationDateFim" label="Data fim" />
       </div>
     } @else {
-      <mat-form-field appearance="outline">
-        <mat-label>Data de reserva</mat-label>
-        <input matInput [matDatepicker]="picker" formControlName="reservationDate">
-        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-        <mat-datepicker #picker></mat-datepicker>
-      </mat-form-field>
+      <app-masked-date-field controlName="reservationDate" label="Data de reserva" />
     }
 
     <app-time-range-fields />
