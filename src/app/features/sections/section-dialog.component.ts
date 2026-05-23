@@ -15,6 +15,10 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 import { Section } from "../../core/models/section-response.model";
 import { SectionService } from "../../core/services/section.service";
+import {
+	runIfValid,
+	shouldShowControlError,
+} from "../../core/utils/form-validation.util";
 
 @Component({
 	selector: "app-section-dialog",
@@ -44,21 +48,25 @@ export class SectionDialogComponent {
 		});
 	}
 
-	save(): void {
-		this.form.markAllAsTouched();
-		if (this.form.invalid) return;
-		const v = this.form.getRawValue();
-		const body = {
-			nome: v.nome.trim(),
-			observacao: v.observacao?.trim() || null,
-		};
-		const req$ = this.data.element
-			? this.sectionService.updateSection(this.data.element.id, body)
-			: this.sectionService.createSection(body);
+	fieldError(controlName: string): boolean {
+		return shouldShowControlError(this.form.get(controlName));
+	}
 
-		req$.subscribe({
-			next: () => this.dialogRef.close(true),
-			error: () => {},
+	save(): void {
+		runIfValid(this.form, () => {
+			const v = this.form.getRawValue();
+			const body = {
+				nome: v.nome.trim(),
+				observacao: v.observacao?.trim() || null,
+			};
+			const req$ = this.data.element
+				? this.sectionService.updateSection(this.data.element.id, body)
+				: this.sectionService.createSection(body);
+
+			req$.subscribe({
+				next: () => this.dialogRef.close(true),
+				error: () => {},
+			});
 		});
 	}
 }

@@ -5,6 +5,9 @@
     <mat-form-field>
       <mat-label>Nome</mat-label>
       <input formControlName="name" matInput type="name" placeholder="Nome">
+      @if (fieldError('name')) {
+        <mat-error>Informe o nome.</mat-error>
+      }
     </mat-form-field>
 
     <mat-form-field>
@@ -16,7 +19,7 @@
         placeholder="000.000.000-00"
         autocomplete="off"
       >
-      @if (requesterForm.controls['cpf'].invalid && requesterForm.controls['cpf'].touched) {
+      @if (fieldError('cpf')) {
         <mat-error>Informe um CPF válido (11 dígitos).</mat-error>
       }
     </mat-form-field>
@@ -30,11 +33,17 @@
         placeholder="(00) 00000-0000"
         autocomplete="tel"
       >
+      @if (fieldError('phone')) {
+        <mat-error>Informe o telefone.</mat-error>
+      }
     </mat-form-field>
 
     <mat-form-field>
       <mat-label>Especialidade</mat-label>
       <input formControlName="type" matInput type="name" placeholder="Especialidade">
+      @if (fieldError('type')) {
+        <mat-error>Informe a especialidade.</mat-error>
+      }
     </mat-form-field>
 
 

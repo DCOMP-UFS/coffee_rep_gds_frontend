@@ -14,11 +14,17 @@
     <mat-form-field appearance="outline" class="full">
       <mat-label>Data início</mat-label>
       <input matInput type="date" formControlName="inicio">
+      @if (fieldError('inicio')) {
+        <mat-error>Informe a data de início.</mat-error>
+      }
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="full">
       <mat-label>Data fim</mat-label>
       <input matInput type="date" formControlName="fim">
+      @if (fieldError('fim')) {
+        <mat-error>Informe a data de fim.</mat-error>
+      }
     </mat-form-field>
   </form>
 </mat-dialog-content>
