@@ -110,10 +110,10 @@ export class SearchableSelectFieldComponent
 
 	get errorMessage(): string {
 		const control = this.ngControl?.control;
-		if (!control?.errors) {
+		if (!control) {
 			return "";
 		}
-		if (control.errors.required) {
+		if (control.hasError("required")) {
 			return `Selecione ${this.label}.`;
 		}
 		return "Valor inválido.";
