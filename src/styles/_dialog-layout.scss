@@ -32,6 +32,17 @@
 .dialog-form-content {
 	min-width: min(92vw, 480px);
 	box-sizing: border-box;
-	padding-top: 1rem;
+	padding-top: 1.75rem;
 	padding-bottom: 1rem;
+
+	.form-stack {
+		padding-top: 0.25rem;
+
+		> .mat-mdc-form-field,
+		> app-searchable-select-field,
+		> app-masked-date-field,
+		> app-time-range-fields {
+			scroll-margin-top: 12px;
+		}
+	}
 }
