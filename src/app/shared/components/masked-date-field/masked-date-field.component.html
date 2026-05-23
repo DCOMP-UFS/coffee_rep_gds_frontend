@@ -1,0 +1,24 @@
+<mat-form-field
+  appearance="outline"
+  class="masked-date-field"
+  [class.masked-date-field--invalid]="showError"
+>
+  <mat-label>{{ label }}</mat-label>
+  <input
+    matInput
+    [matDatepicker]="picker"
+    [formControl]="control"
+    placeholder="DD/MM/AAAA"
+    autocomplete="off"
+    (input)="onDateInput($event)"
+  />
+  <mat-datepicker-toggle matIconSuffix [for]="picker" />
+  <mat-datepicker #picker />
+  @if (showRequiredError) {
+    <mat-error>Informe {{ label }}.</mat-error>
+  } @else if (showMaskError) {
+    <mat-error>Informe a data no formato DD/MM/AAAA.</mat-error>
+  } @else if (showInvalidDateError) {
+    <mat-error>Data inválida.</mat-error>
+  }
+</mat-form-field>

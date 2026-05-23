@@ -1,3 +1,19 @@
+export function formatDateInput(value: string): string {
+	let digits = value.replace(/\D/g, "");
+	if (digits.length > 8) {
+		digits = digits.substring(0, 8);
+	}
+
+	if (digits.length <= 2) {
+		return digits;
+	}
+	if (digits.length <= 4) {
+		return `${digits.substring(0, 2)}/${digits.substring(2)}`;
+	}
+
+	return `${digits.substring(0, 2)}/${digits.substring(2, 4)}/${digits.substring(4)}`;
+}
+
 export function formatTimeValue(value: string): string {
 	let digits = value.replace(/\D/g, "");
 	if (digits.length > 4) {
