@@ -19,13 +19,13 @@ import { CookieService } from "ngx-cookie-service";
 import { NgxMaskDirective } from "ngx-mask";
 import { Subject, filter, takeUntil } from "rxjs";
 import {
-	birthDateBrToApi,
-	birthDateMaskValidator,
-} from "../../core/validators/birth-date.validators";
-import {
 	runIfValid,
 	shouldShowControlError,
 } from "../../core/utils/form-validation.util";
+import {
+	birthDateBrToApi,
+	birthDateMaskValidator,
+} from "../../core/validators/birth-date.validators";
 import { cpfDigitsValidator } from "../../core/validators/cpf.validators";
 import { LoginSignUpStore } from "./login-sign-up.store";
 

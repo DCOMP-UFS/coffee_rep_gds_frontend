@@ -7,8 +7,7 @@ export class ShowOnDirtyTouchedSubmittedMatcher implements ErrorStateMatcher {
 		form: FormGroupDirective | NgForm | null,
 	): boolean {
 		return !!(
-			control &&
-			control.invalid &&
+			control?.invalid &&
 			(control.dirty || control.touched || (form?.submitted ?? false))
 		);
 	}

@@ -15,11 +15,7 @@ import {
 	MAT_DATE_LOCALE,
 	MatDateFormats,
 } from "@angular/material/core";
-import {
-	MAT_FORM_FIELD_DEFAULT_OPTIONS,
-} from "@angular/material/form-field";
-import { PtBrDateAdapter } from "./core/adapters/pt-br-date.adapter";
-import { ShowOnDirtyTouchedSubmittedMatcher } from "./core/i18n/show-on-dirty-touched-submitted.matcher";
+import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from "@angular/material/form-field";
 import { MatPaginatorIntl } from "@angular/material/paginator";
 import { provideAnimationsAsync } from "@angular/platform-browser/animations/async";
 import { provideRouter } from "@angular/router";
@@ -29,7 +25,9 @@ import { provideEnvironmentNgxMask } from "ngx-mask";
 import { catchError, firstValueFrom, of } from "rxjs";
 import { environment } from "../environments/environment";
 import { routes } from "./app.routes";
+import { PtBrDateAdapter } from "./core/adapters/pt-br-date.adapter";
 import { PtBrMatPaginatorIntl } from "./core/i18n/pt-br-mat-paginator-intl";
+import { ShowOnDirtyTouchedSubmittedMatcher } from "./core/i18n/show-on-dirty-touched-submitted.matcher";
 import { authInterceptor } from "./core/interceptors/auth.interceptor";
 import { credentialsInterceptor } from "./core/interceptors/credentials.interceptor";
 

@@ -37,10 +37,7 @@ export class TimeRangeFieldsComponent implements OnInit {
 	) {}
 
 	showError(control: FormControl<string>): boolean {
-		return shouldShowControlError(
-			control,
-			this.parentForm?.submitted ?? false,
-		);
+		return shouldShowControlError(control, this.parentForm?.submitted ?? false);
 	}
 
 	ngOnInit(): void {

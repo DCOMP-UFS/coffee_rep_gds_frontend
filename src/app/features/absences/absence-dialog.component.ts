@@ -19,11 +19,11 @@ import {
 } from "../../core/models/requester-absence.model";
 import { Requester } from "../../core/models/requester-response.model";
 import { RequesterAbsenceHttpService } from "../../core/services/requester-absence-http.service";
-import { SearchableSelectFieldComponent } from "../../shared/components/searchable-select-field/searchable-select-field.component";
 import {
 	runIfValid,
 	shouldShowControlError,
 } from "../../core/utils/form-validation.util";
+import { SearchableSelectFieldComponent } from "../../shared/components/searchable-select-field/searchable-select-field.component";
 import { mapRequesterOptions } from "../../shared/components/searchable-select-field/searchable-select-options.util";
 
 @Component({

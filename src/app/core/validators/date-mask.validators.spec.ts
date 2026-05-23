@@ -20,7 +20,10 @@ describe("dateMaskValidator", () => {
 	it("should reject future dates when allowFuture is false", () => {
 		const future = new Date();
 		future.setFullYear(future.getFullYear() + 2);
-		const control = new FormControl(future, dateMaskValidator({ allowFuture: false }));
+		const control = new FormControl(
+			future,
+			dateMaskValidator({ allowFuture: false }),
+		);
 		expect(control.errors).toEqual({ dateInvalid: true });
 	});
 });

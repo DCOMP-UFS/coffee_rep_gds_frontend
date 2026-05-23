@@ -20,13 +20,13 @@ import {
 	NgControl,
 	Validators,
 } from "@angular/forms";
-import { shouldShowControlError } from "../../../core/utils/form-validation.util";
 import { MatButtonModule } from "@angular/material/button";
 import { MatDialogRef } from "@angular/material/dialog";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 import { MatSelect, MatSelectModule } from "@angular/material/select";
 import { Router } from "@angular/router";
+import { shouldShowControlError } from "../../../core/utils/form-validation.util";
 import {
 	SELECT_FIELD_PRESETS,
 	SelectFieldPresetKey,
@@ -113,7 +113,7 @@ export class SearchableSelectFieldComponent
 		if (!control?.errors) {
 			return "";
 		}
-		if (control.errors["required"]) {
+		if (control.errors.required) {
 			return `Selecione ${this.label}.`;
 		}
 		return "Valor inválido.";
