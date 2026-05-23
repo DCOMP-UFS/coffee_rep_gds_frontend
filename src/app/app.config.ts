@@ -9,12 +9,17 @@ import {
 	provideZoneChangeDetection,
 } from "@angular/core";
 import {
+	DateAdapter,
+	ErrorStateMatcher,
 	MAT_DATE_FORMATS,
 	MAT_DATE_LOCALE,
 	MatDateFormats,
-	provideNativeDateAdapter,
 } from "@angular/material/core";
-import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from "@angular/material/form-field";
+import {
+	MAT_FORM_FIELD_DEFAULT_OPTIONS,
+} from "@angular/material/form-field";
+import { PtBrDateAdapter } from "./core/adapters/pt-br-date.adapter";
+import { ShowOnDirtyTouchedSubmittedMatcher } from "./core/i18n/show-on-dirty-touched-submitted.matcher";
 import { MatPaginatorIntl } from "@angular/material/paginator";
 import { provideAnimationsAsync } from "@angular/platform-browser/animations/async";
 import { provideRouter } from "@angular/router";
@@ -55,7 +60,7 @@ export const appConfig: ApplicationConfig = {
 			withInterceptors([authInterceptor, credentialsInterceptor]),
 		),
 		provideStore(),
-		provideNativeDateAdapter(),
+		{ provide: DateAdapter, useClass: PtBrDateAdapter },
 		CookieService,
 		provideEnvironmentNgxMask(),
 		{
@@ -69,6 +74,10 @@ export const appConfig: ApplicationConfig = {
 		{
 			provide: MAT_FORM_FIELD_DEFAULT_OPTIONS,
 			useValue: { appearance: "outline", subscriptSizing: "dynamic" },
+		},
+		{
+			provide: ErrorStateMatcher,
+			useClass: ShowOnDirtyTouchedSubmittedMatcher,
 		},
 		{ provide: MatPaginatorIntl, useClass: PtBrMatPaginatorIntl },
 		provideAnimationsAsync(),
