@@ -34,3 +34,9 @@
 		color: rgba(0, 0, 0, 0.6);
 	}
 }
+
+.searchable-select-field--invalid {
+	--mdc-outlined-text-field-outline-color: var(--mat-form-field-error-text-color, #f44336);
+	--mdc-outlined-text-field-focus-outline-color: var(--mat-form-field-error-text-color, #f44336);
+	--mdc-outlined-text-field-hover-outline-color: var(--mat-form-field-error-text-color, #f44336);
+}

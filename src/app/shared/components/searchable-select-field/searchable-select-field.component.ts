@@ -5,18 +5,22 @@ import {
 	Input,
 	OnChanges,
 	OnInit,
+	Optional,
 	Output,
+	Self,
 	SimpleChange,
 	SimpleChanges,
 	ViewChild,
-	forwardRef,
 	inject,
 } from "@angular/core";
 import {
 	ControlValueAccessor,
+	FormGroupDirective,
 	FormsModule,
-	NG_VALUE_ACCESSOR,
+	NgControl,
+	Validators,
 } from "@angular/forms";
+import { shouldShowControlError } from "../../../core/utils/form-validation.util";
 import { MatButtonModule } from "@angular/material/button";
 import { MatDialogRef } from "@angular/material/dialog";
 import { MatFormFieldModule } from "@angular/material/form-field";
@@ -47,13 +51,6 @@ const PANEL_STATE_VALUE = "__searchable_select_state__";
 	],
 	templateUrl: "./searchable-select-field.component.html",
 	styleUrl: "./searchable-select-field.component.scss",
-	providers: [
-		{
-			provide: NG_VALUE_ACCESSOR,
-			useExisting: forwardRef(() => SearchableSelectFieldComponent),
-			multi: true,
-		},
-	],
 })
 export class SearchableSelectFieldComponent
 	implements ControlValueAccessor, OnChanges, OnInit
@@ -91,8 +88,43 @@ export class SearchableSelectFieldComponent
 	private readonly router = inject(Router);
 	private readonly dialogRef = inject(MatDialogRef, { optional: true });
 
+	constructor(
+		@Optional() @Self() private readonly ngControl: NgControl,
+		@Optional() private readonly parentForm: FormGroupDirective,
+	) {
+		if (this.ngControl) {
+			this.ngControl.valueAccessor = this;
+		}
+	}
+
 	ngOnInit(): void {
 		this.applyPreset();
+	}
+
+	get showError(): boolean {
+		return shouldShowControlError(
+			this.ngControl?.control ?? null,
+			this.parentForm?.submitted ?? false,
+		);
+	}
+
+	get errorMessage(): string {
+		const control = this.ngControl?.control;
+		if (!control?.errors) {
+			return "";
+		}
+		if (control.errors["required"]) {
+			return `Selecione ${this.label}.`;
+		}
+		return "Valor inválido.";
+	}
+
+	get isRequired(): boolean {
+		if (this.required) {
+			return true;
+		}
+		const control = this.ngControl?.control;
+		return !!control?.hasValidator(Validators.required);
 	}
 
 	ngOnChanges(changes: SimpleChanges): void {

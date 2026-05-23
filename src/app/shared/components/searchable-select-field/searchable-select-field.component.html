@@ -2,12 +2,13 @@
   [appearance]="appearance"
   class="searchable-select-field"
   [class.searchable-select-field--dependency-blocked]="showDependencyHint"
+  [class.searchable-select-field--invalid]="showError"
 >
   <mat-label>{{ label }}</mat-label>
   <mat-select
     [value]="selectValue"
     [disabled]="disabled"
-    [required]="required"
+    [required]="isRequired"
     [compareWith]="compareWith"
     [placeholder]="selectPlaceholder"
     [attr.aria-describedby]="showDependencyHint ? label + '-dependency-hint' : null"
@@ -107,5 +108,8 @@
     <mat-hint class="searchable-select-field__hint--alert">{{ emptyPanelMessage }}</mat-hint>
   } @else {
     <mat-hint>{{ countHint }}</mat-hint>
+  }
+  @if (showError) {
+    <mat-error>{{ errorMessage }}</mat-error>
   }
 </mat-form-field>
