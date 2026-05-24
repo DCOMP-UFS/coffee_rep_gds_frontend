@@ -9,5 +9,6 @@ export interface Requester {
 	id: number;
 	nome: string;
 	especialidade: string;
-	contato?: string | null;
+	cpf: string;
+	contato: string;
 }

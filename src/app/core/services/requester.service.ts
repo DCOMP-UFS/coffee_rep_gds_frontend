@@ -41,6 +41,8 @@ export class RequesterService {
 	}
 
 	updateRequester(req: RequesterRequestModel): Observable<void> {
-		return this.http.putWithLoader(`requester/${req.id}`, req);
+		const request = { ...req };
+		request.cpf = undefined;
+		return this.http.putWithLoader(`requester/${req.id}`, request);
 	}
 }
