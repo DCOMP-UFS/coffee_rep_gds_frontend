@@ -1,9 +1,16 @@
 import { AsyncPipe } from "@angular/common";
 import { Component, OnInit, ViewChild } from "@angular/core";
+import {
+	FormBuilder,
+	FormGroup,
+	ReactiveFormsModule,
+} from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { MatDialog, MatDialogModule } from "@angular/material/dialog";
+import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
+import { MatInputModule } from "@angular/material/input";
 import {
 	MatPaginator,
 	MatPaginatorModule,
@@ -31,6 +38,9 @@ import { RequestersComponentStore } from "./requesters.store";
 		MatIconModule,
 		MatPaginatorModule,
 		MatDialogModule,
+		MatFormFieldModule,
+		MatInputModule,
+		ReactiveFormsModule,
 		AsyncPipe,
 		EmptyStateComponent,
 	],
@@ -46,22 +56,28 @@ export class RequestersComponent implements OnInit {
 		"delete",
 	];
 	dataSource = new MatTableDataSource<Requester>();
+	requesterForm: FormGroup;
 	@ViewChild(MatPaginator) paginator!: MatPaginator;
 
 	constructor(
 		public store: RequestersComponentStore,
 		private dialog: MatDialog,
-	) {}
+		private fb: FormBuilder,
+	) {
+		this.requesterForm = this.fb.group({
+			busca: [""],
+		});
+	}
 
 	ngOnInit(): void {
-		this.store.getRequester$({
-			size: 5,
-			page: 0,
-			unpaged: false,
-		});
+		this.reloadRequesters(0, 5);
 		this.store.getRequesters.subscribe((i) => {
 			this.dataSource.data = i.content ?? [];
 		});
+	}
+
+	search(): void {
+		this.reloadRequesters(0, this.paginator?.pageSize ?? 5);
 	}
 
 	openDialog(): void {
@@ -96,10 +112,16 @@ export class RequestersComponent implements OnInit {
 	}
 
 	handlePageEvent(e: PageEvent) {
+		this.reloadRequesters(e.pageIndex, e.pageSize);
+	}
+
+	private reloadRequesters(page: number, size: number): void {
+		const busca = String(this.requesterForm.getRawValue().busca ?? "").trim();
 		this.store.getRequester$({
-			size: e.pageSize,
-			page: e.pageIndex,
+			size,
+			page,
 			unpaged: false,
+			...(busca ? { busca } : {}),
 		});
 	}
 }
