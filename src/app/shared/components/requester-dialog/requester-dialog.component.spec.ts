@@ -37,10 +37,9 @@ describe("RequesterDialogComponent", () => {
 		expect(component).toBeTruthy();
 	});
 
-	it("should send CPF and phone digits only on create", () => {
+	it("should send phone digits only on create", () => {
 		component.requesterForm.setValue({
 			name: "Dra. Ana Silva",
-			cpf: "52998224725",
 			phone: "11987654321",
 			type: "Clínica geral",
 		});
@@ -50,8 +49,24 @@ describe("RequesterDialogComponent", () => {
 
 		expect(store.createRequester$).toHaveBeenCalledWith({
 			nome: "Dra. Ana Silva",
-			cpf: "52998224725",
 			telefone: "11987654321",
+			especialidade: "Clínica geral",
+		});
+	});
+
+	it("should send null telefone when phone is empty on create", () => {
+		component.requesterForm.setValue({
+			name: "Dra. Ana Silva",
+			phone: "",
+			type: "Clínica geral",
+		});
+		fixture.detectChanges();
+
+		component.submit();
+
+		expect(store.createRequester$).toHaveBeenCalledWith({
+			nome: "Dra. Ana Silva",
+			telefone: null,
 			especialidade: "Clínica geral",
 		});
 	});

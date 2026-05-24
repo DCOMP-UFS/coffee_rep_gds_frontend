@@ -1,7 +1,6 @@
 export interface RequesterRequestModel {
 	id?: number;
 	nome: string;
-	cpf: string;
-	telefone: string;
+	telefone?: string | null;
 	especialidade: string;
 }
