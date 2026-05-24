@@ -83,6 +83,11 @@ export class RequestersComponentStore extends ComponentStore<RequesterState> {
 
 	readonly getRequesters = this.select((state) => state.requesters);
 
+	readonly hasActiveSearch = this.select((state) => {
+		const busca = state.lastRequesterParams?.busca?.trim();
+		return !!busca;
+	});
+
 	readonly setRequesters = this.updater(
 		(state, requesters: RequesterResponseModel) => ({
 			...state,

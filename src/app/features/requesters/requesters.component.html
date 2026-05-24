@@ -8,21 +8,48 @@
         </div>
       </mat-card-title>
       <mat-card-content>
-        <button class="default-button" (click)="openDialog()" >Novo Solicitante</button>
+        <form class="requester-toolbar" [formGroup]="requesterForm" (submit)="$event.preventDefault()">
+          <div class="requester-toolbar__field">
+            <mat-form-field class="requester-toolbar__search">
+              <mat-label>Buscar solicitante</mat-label>
+              <input
+                matInput
+                formControlName="busca"
+                placeholder="Ex.: Ana, Cardiologia ou 79999"
+                (keyup.enter)="search()"
+              >
+              <mat-hint>Busque por nome, telefone ou especialidade</mat-hint>
+            </mat-form-field>
+          </div>
+
+          <div class="requester-toolbar__actions">
+            <button mat-flat-button color="primary" type="button" (click)="search()">Buscar</button>
+            <button mat-stroked-button color="primary" type="button" (click)="openDialog()">
+              Novo Solicitante
+            </button>
+          </div>
+        </form>
       </mat-card-content>
     </div>
-
   </mat-card>
   <mat-card>
     <div class="table-container">
       @if (!(store.getRequesters | async)?.content?.length) {
-      <app-empty-state
-        icon="person"
-        title="Nenhum solicitante cadastrado"
-        description="Cadastre solicitantes para vincular às reservas."
-        actionLabel="Novo Solicitante"
-        (action)="openDialog()"
-      />
+        @if (store.hasActiveSearch | async) {
+          <app-empty-state
+            icon="search_off"
+            title="Nenhum solicitante encontrado"
+            description="Tente outro termo de busca."
+          />
+        } @else {
+          <app-empty-state
+            icon="person"
+            title="Nenhum solicitante cadastrado"
+            description="Cadastre solicitantes para vincular às reservas."
+            actionLabel="Novo Solicitante"
+            (action)="openDialog()"
+          />
+        }
       } @else {
       <table mat-table [dataSource]="dataSource">
 

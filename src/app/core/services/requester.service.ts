@@ -18,10 +18,16 @@ export class RequesterService {
 	getRequesters(
 		req: RequesterRequestParamsModel,
 	): Observable<RequesterResponseModel> {
-		const params = new HttpParams()
-			.set("size", req.size)
-			.set("page", req.page)
+		let params = new HttpParams()
+			.set("size", req.size ?? 5)
+			.set("page", req.page ?? 0)
 			.set("unpaged", req.unpaged);
+
+		const busca = req.busca?.trim();
+		if (busca) {
+			params = params.set("busca", busca);
+		}
+
 		return this.http.getWithLoader<RequesterResponseModel>("requester", params);
 	}
 

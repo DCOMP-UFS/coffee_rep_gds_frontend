@@ -1,31 +1,62 @@
-.container-requester-page{
-  display: flex;
-  gap: 10px;
-  flex-direction: column;
-  .card-requester{
-    background: white;
-    border-radius: 8px;
-  }
-  form{
-    max-width: 300px;
-    display: flex;
-    gap: 15px;
-  }
-  .card-title{
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    margin-bottom: 10px;
-    padding: 16px 16px 0 16px;
-  }
-  .table-container{
-    background: white;
-    padding: 10px;
-    border-radius: 8px;
-    table {
-      width: 100%;
-      background: white;
+.container-requester-page {
+	display: flex;
+	gap: 10px;
+	flex-direction: column;
 
-    }
-  }
+	.card-requester {
+		background: white;
+		border-radius: 8px;
+	}
+
+	.card-title {
+		display: flex;
+		align-items: center;
+		gap: 5px;
+		margin-bottom: 10px;
+		padding: 16px 16px 0 16px;
+	}
+
+	.requester-toolbar {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: flex-start;
+		gap: 1rem;
+		padding: 0 16px 16px;
+		width: 100%;
+		box-sizing: border-box;
+
+		@media (max-width: 719px) {
+			flex-direction: column;
+			align-items: stretch;
+		}
+	}
+
+	.requester-toolbar__field {
+		flex: 1 1 320px;
+		min-width: 0;
+	}
+
+	.requester-toolbar__search {
+		width: 100%;
+		display: block;
+	}
+
+	.requester-toolbar__actions {
+		display: flex;
+		flex-shrink: 0;
+		flex-wrap: wrap;
+		gap: 0.75rem;
+		align-items: center;
+	}
+
+	.table-container {
+		background: white;
+		padding: 10px;
+		border-radius: 8px;
+
+		table {
+			width: 100%;
+			background: white;
+		}
+	}
 }
