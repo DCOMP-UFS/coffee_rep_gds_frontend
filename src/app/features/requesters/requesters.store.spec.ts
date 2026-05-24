@@ -37,4 +37,39 @@ describe("RequestersComponentStore", () => {
 		store.refetch();
 		expect(requesterService.getRequesters).toHaveBeenCalledTimes(2);
 	});
+
+	it("passes busca param to service and preserves it on refetch", () => {
+		requesterService.getRequesters.and.returnValue(
+			of({
+				content: [],
+				page: { totalElements: 0, totalPages: 0, size: 5, number: 0 },
+			}),
+		);
+
+		store.getRequester$({ size: 5, page: 0, unpaged: false, busca: "Cardio" });
+		store.refetch();
+
+		expect(requesterService.getRequesters).toHaveBeenCalledWith({
+			size: 5,
+			page: 0,
+			unpaged: false,
+			busca: "Cardio",
+		});
+	});
+
+	it("hasActiveSearch is true when busca is set", (done) => {
+		requesterService.getRequesters.and.returnValue(
+			of({
+				content: [],
+				page: { totalElements: 0, totalPages: 0, size: 5, number: 0 },
+			}),
+		);
+
+		store.getRequester$({ size: 5, page: 0, unpaged: false, busca: "Ana" });
+
+		store.hasActiveSearch.subscribe((active) => {
+			expect(active).toBeTrue();
+			done();
+		});
+	});
 });
