@@ -1,10 +1,6 @@
 import { AsyncPipe } from "@angular/common";
 import { Component, OnInit, ViewChild } from "@angular/core";
-import {
-	FormBuilder,
-	FormGroup,
-	ReactiveFormsModule,
-} from "@angular/forms";
+import { FormBuilder, FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { MatDialog, MatDialogModule } from "@angular/material/dialog";

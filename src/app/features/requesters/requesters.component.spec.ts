@@ -16,10 +16,14 @@ describe("RequestersComponent", () => {
 	};
 
 	beforeEach(async () => {
-		store = jasmine.createSpyObj("RequestersComponentStore", ["getRequester$"], {
-			getRequesters: of(emptyResponse),
-			hasActiveSearch: of(false),
-		});
+		store = jasmine.createSpyObj(
+			"RequestersComponentStore",
+			["getRequester$"],
+			{
+				getRequesters: of(emptyResponse),
+				hasActiveSearch: of(false),
+			},
+		);
 
 		await TestBed.configureTestingModule({
 			imports: [RequestersComponent],
