@@ -16,7 +16,6 @@ import {
 	runIfValid,
 	shouldShowControlError,
 } from "../../../core/utils/form-validation.util";
-import { cpfDigitsValidator } from "../../../core/validators/cpf.validators";
 import { RequesterDialogComponentStore } from "./requester-dialog.store";
 
 @Component({
@@ -48,17 +47,7 @@ export class RequesterDialogComponent {
 				this.data?.element?.nome ? this.data.element.nome : "",
 				Validators.required,
 			],
-			cpf: [
-				{
-					value: this.data?.element?.cpf ? this.data.element.cpf : "",
-					disabled: !!this.data?.element?.cpf,
-				},
-				[Validators.required, cpfDigitsValidator()],
-			],
-			phone: [
-				this.data?.element?.contato ? this.data.element.contato : "",
-				Validators.required,
-			],
+			phone: [this.data?.element?.contato ? this.data.element.contato : ""],
 			type: [
 				this.data?.element?.especialidade
 					? this.data.element.especialidade
@@ -75,10 +64,10 @@ export class RequesterDialogComponent {
 	submit() {
 		runIfValid(this.requesterForm, () => {
 			const raw = this.requesterForm.getRawValue();
+			const phoneDigits = String(raw.phone).replace(/\D/g, "");
 			const payload = {
 				nome: raw.name,
-				cpf: String(raw.cpf).replace(/\D/g, ""),
-				telefone: String(raw.phone).replace(/\D/g, ""),
+				telefone: phoneDigits.length ? phoneDigits : null,
 				especialidade: raw.type,
 			};
 
