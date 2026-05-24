@@ -36,11 +36,6 @@
           <td mat-cell *matCellDef="let element"> {{ formatPhone(element.contato) }} </td>
         </ng-container>
 
-        <ng-container matColumnDef="cpf">
-          <th mat-header-cell *matHeaderCellDef> CPF </th>
-          <td mat-cell *matCellDef="let element"> {{ formatCpf(element.cpf) }} </td>
-        </ng-container>
-
         <ng-container matColumnDef="especialidade">
           <th mat-header-cell *matHeaderCellDef> Especialidade </th>
           <td mat-cell *matCellDef="let element"> {{element.especialidade}} </td>

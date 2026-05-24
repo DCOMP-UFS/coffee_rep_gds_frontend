@@ -11,20 +11,6 @@
     </mat-form-field>
 
     <mat-form-field>
-      <mat-label>CPF</mat-label>
-      <input
-        formControlName="cpf"
-        matInput
-        mask="000.000.000-00"
-        placeholder="000.000.000-00"
-        autocomplete="off"
-      >
-      @if (fieldError('cpf')) {
-        <mat-error>Informe um CPF válido (11 dígitos).</mat-error>
-      }
-    </mat-form-field>
-
-    <mat-form-field>
       <mat-label>Telefone</mat-label>
       <input
         formControlName="phone"
@@ -33,9 +19,6 @@
         placeholder="(00) 00000-0000"
         autocomplete="tel"
       >
-      @if (fieldError('phone')) {
-        <mat-error>Informe o telefone.</mat-error>
-      }
     </mat-form-field>
 
     <mat-form-field>

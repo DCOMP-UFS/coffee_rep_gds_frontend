@@ -11,7 +11,7 @@ import {
 } from "@angular/material/paginator";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { Requester } from "../../core/models/requester-response.model";
-import { formatCpfBr, formatPhoneBr } from "../../core/utils/br-format.util";
+import { formatPhoneBr } from "../../core/utils/br-format.util";
 import { ConfirmationDialogComponent } from "../../shared/components/confirmation-dialog/confirmation-dialog.component";
 import { EmptyStateComponent } from "../../shared/components/empty-state/empty-state.component";
 import { RequesterDialogComponent } from "../../shared/components/requester-dialog/requester-dialog.component";
@@ -36,13 +36,11 @@ import { RequestersComponentStore } from "./requesters.store";
 	],
 })
 export class RequestersComponent implements OnInit {
-	readonly formatCpf = formatCpfBr;
 	readonly formatPhone = formatPhoneBr;
 
 	displayedColumns: string[] = [
 		"nome",
 		"telefone",
-		"cpf",
 		"especialidade",
 		"update",
 		"delete",
