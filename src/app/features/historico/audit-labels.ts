@@ -15,6 +15,7 @@ export const AUDIT_ACTION_LABELS: Record<string, string> = {
 	"reservation.cancel": "Cancelamento de reserva",
 	"reservation.cancel_recurrence": "Cancelamento de série",
 	"auth.register": "Cadastro de usuário",
+	"auth.login": "Login",
 };
 
 export const AUDIT_ENTITY_LABELS: Record<string, string> = {

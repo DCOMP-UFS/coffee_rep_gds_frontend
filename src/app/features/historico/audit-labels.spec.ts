@@ -8,6 +8,7 @@ import {
 describe("audit-labels", () => {
 	it("maps known actions", () => {
 		expect(auditActionLabel("room.create")).toBe("Criação de sala");
+		expect(auditActionLabel("auth.login")).toBe("Login");
 	});
 
 	it("falls back to raw action", () => {
