@@ -63,7 +63,11 @@ export class PaginationBarComponent implements OnChanges {
 	}
 
 	ngOnChanges(changes: SimpleChanges): void {
-		if (changes.pageIndex || changes.pageSize || changes.totalElements) {
+		if (
+			"pageIndex" in changes ||
+			"pageSize" in changes ||
+			"totalElements" in changes
+		) {
 			this.gotoValue = String(this.page);
 		}
 	}
