@@ -1,0 +1,71 @@
+.container-historico-page {
+	display: flex;
+	gap: 1rem;
+	flex-direction: column;
+}
+
+.card-historico {
+	background: white;
+	border-radius: 8px;
+}
+
+.historico-toolbar {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(140px, 1fr)) auto;
+	gap: 1rem;
+	align-items: start;
+	padding: 0 8px 8px;
+
+	@media (max-width: 959px) {
+		grid-template-columns: 1fr 1fr;
+	}
+
+	@media (max-width: 599px) {
+		grid-template-columns: 1fr;
+	}
+}
+
+.historico-toolbar__field {
+	width: 100%;
+}
+
+.historico-toolbar__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.75rem;
+	align-items: center;
+	grid-column: 1 / -1;
+}
+
+.card-title {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-bottom: 10px;
+	padding: 16px 16px 0 16px;
+}
+
+.table-container {
+	background: white;
+	padding: 10px;
+	border-radius: 8px;
+
+	table {
+		width: 100%;
+		background: white;
+	}
+}
+
+.details-cell {
+	max-width: 320px;
+	font-size: 0.875rem;
+	color: rgba(0, 0, 0, 0.7);
+	word-break: break-word;
+}
+
+.backfill-chip {
+	margin-left: 0.5rem;
+	font-size: 0.75rem;
+	min-height: 22px;
+	padding: 0 8px;
+}

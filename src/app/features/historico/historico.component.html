@@ -1,0 +1,137 @@
+<div class="container-historico-page">
+  <mat-card>
+    <div class="card-historico">
+      <mat-card-title>
+        <div class="card-title">
+          <mat-icon aria-hidden="true">history</mat-icon>
+          <span>Histórico</span>
+        </div>
+      </mat-card-title>
+      <mat-card-content>
+        <form class="historico-toolbar" [formGroup]="filterForm" (submit)="$event.preventDefault()">
+          <mat-form-field class="historico-toolbar__field">
+            <mat-label>Buscar</mat-label>
+            <input
+              matInput
+              formControlName="q"
+              placeholder="Usuário, ação ou entidade"
+              (keyup.enter)="submit()"
+            />
+          </mat-form-field>
+
+          <mat-form-field class="historico-toolbar__field">
+            <mat-label>Ação</mat-label>
+            <mat-select formControlName="action">
+              @for (opt of actionOptions; track opt.value) {
+                <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field class="historico-toolbar__field">
+            <mat-label>Entidade</mat-label>
+            <mat-select formControlName="entityType">
+              @for (opt of entityOptions; track opt.value) {
+                <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field class="historico-toolbar__field">
+            <mat-label>De</mat-label>
+            <input matInput [matDatepicker]="fromPicker" formControlName="createdFrom" />
+            <mat-datepicker-toggle matIconSuffix [for]="fromPicker"></mat-datepicker-toggle>
+            <mat-datepicker #fromPicker></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field class="historico-toolbar__field">
+            <mat-label>Até</mat-label>
+            <input matInput [matDatepicker]="toPicker" formControlName="createdTo" />
+            <mat-datepicker-toggle matIconSuffix [for]="toPicker"></mat-datepicker-toggle>
+            <mat-datepicker #toPicker></mat-datepicker>
+          </mat-form-field>
+
+          <div class="historico-toolbar__actions">
+            <button mat-flat-button color="primary" type="button" (click)="submit()">Filtrar</button>
+            <button mat-stroked-button color="primary" type="button" (click)="clearFilters()">
+              Limpar
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </div>
+  </mat-card>
+
+  <mat-card>
+    <div class="table-container">
+      @if (store.loading | async) {
+        <app-table-skeleton [rows]="6" [columns]="5"></app-table-skeleton>
+      } @else {
+        @if (store.error | async; as err) {
+          <app-error-state [message]="err" (retry)="reload()"></app-error-state>
+        } @else if (!(store.getEvents | async)?.content?.length) {
+          <app-empty-state
+            icon="history"
+            title="Nenhum evento encontrado"
+            description="Ações do sistema aparecerão aqui. Ajuste os filtros ou aguarde novas operações."
+          />
+        } @else {
+          <app-pagination-summary
+            [pageIndex]="pageIndex"
+            [pageSize]="pageSize"
+            [totalElements]="totalElements"
+            summaryLabel="evento(s)"
+          />
+          <table mat-table [dataSource]="dataSource">
+            <ng-container matColumnDef="createdAt">
+              <th mat-header-cell *matHeaderCellDef>Data</th>
+              <td mat-cell *matCellDef="let element">
+                {{ element.createdAt | date: "dd/MM/yyyy HH:mm" }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="action">
+              <th mat-header-cell *matHeaderCellDef>Ação</th>
+              <td mat-cell *matCellDef="let element">
+                {{ actionLabel(element.action) }}
+                @if (isBackfill(element.details)) {
+                  <mat-chip class="backfill-chip" disableRipple>Importado</mat-chip>
+                }
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="entity">
+              <th mat-header-cell *matHeaderCellDef>Entidade</th>
+              <td mat-cell *matCellDef="let element">
+                {{ entityLabel(element.entityType, element.entityId) }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="actor">
+              <th mat-header-cell *matHeaderCellDef>Responsável</th>
+              <td mat-cell *matCellDef="let element">{{ element.actorName }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="details">
+              <th mat-header-cell *matHeaderCellDef>Detalhes</th>
+              <td mat-cell *matCellDef="let element" class="details-cell">
+                {{ detailsText(element.details) }}
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+          </table>
+
+          <app-pagination-bar
+            [totalElements]="totalElements"
+            [pageIndex]="pageIndex"
+            [pageSize]="pageSize"
+            [pageSizeOptions]="[10, 20, 50]"
+            (pageChange)="handlePageEvent($event)"
+          />
+        }
+      }
+    </div>
+  </mat-card>
+</div>

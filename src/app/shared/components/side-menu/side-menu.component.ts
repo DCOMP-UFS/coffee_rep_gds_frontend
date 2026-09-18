@@ -58,6 +58,11 @@ export class SideMenuComponent {
 			route: "/absences",
 		},
 		{
+			icon: "history",
+			description: "Histórico",
+			route: "/historico",
+		},
+		{
 			icon: "logout",
 			description: "Sair",
 			route: "/login",
