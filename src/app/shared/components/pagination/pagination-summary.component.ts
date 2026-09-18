@@ -1,8 +1,5 @@
 import { Component, Input } from "@angular/core";
-import {
-	formatPaginationSummary,
-	pageFromIndex,
-} from "./pagination-range";
+import { formatPaginationSummary, pageFromIndex } from "./pagination-range";
 
 @Component({
 	selector: "app-pagination-summary",

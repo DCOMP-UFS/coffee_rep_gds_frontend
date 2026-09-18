@@ -9,10 +9,10 @@ import {
 import { FormsModule } from "@angular/forms";
 import { PaginationPageChange } from "./pagination-page-change.model";
 import {
+	PageItem,
 	clampPage,
 	getVisiblePages,
 	pageFromIndex,
-	PageItem,
 } from "./pagination-range";
 import { PaginationSummaryComponent } from "./pagination-summary.component";
 
@@ -63,7 +63,7 @@ export class PaginationBarComponent implements OnChanges {
 	}
 
 	ngOnChanges(changes: SimpleChanges): void {
-		if (changes["pageIndex"] || changes["pageSize"] || changes["totalElements"]) {
+		if (changes.pageIndex || changes.pageSize || changes.totalElements) {
 			this.gotoValue = String(this.page);
 		}
 	}

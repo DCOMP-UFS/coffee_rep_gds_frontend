@@ -50,7 +50,10 @@ export function getVisiblePages(
 
 	if (!showLeftEllipsis && showRightEllipsis) {
 		const leftCount = 3 + 2 * siblings;
-		const leftRange = Array.from({ length: leftCount }, (_, index) => index + 1);
+		const leftRange = Array.from(
+			{ length: leftCount },
+			(_, index) => index + 1,
+		);
 		return [...leftRange, "ellipsis", total];
 	}
 
