@@ -1,0 +1,101 @@
+<nav class="pagination-bar" aria-label="Paginação">
+  <app-pagination-summary
+    [pageIndex]="pageIndex"
+    [pageSize]="pageSize"
+    [totalElements]="totalElements"
+    [summaryLabel]="summaryLabel"
+  />
+
+  <div class="pagination-controls">
+    <label class="pagination-size">
+      <span class="pagination-size-label">Itens por página:</span>
+      <select
+        [ngModel]="pageSize"
+        [disabled]="disabled"
+        (ngModelChange)="onPageSizeChange($event)"
+        aria-label="Itens por página"
+      >
+        @for (option of pageSizeOptions; track option) {
+          <option [ngValue]="option">{{ option }}</option>
+        }
+      </select>
+    </label>
+
+    <button
+      class="pagination-btn"
+      type="button"
+      [disabled]="controlsDisabled || atFirst"
+      (click)="goTo(1)"
+    >
+      Primeira
+    </button>
+    <button
+      class="pagination-btn"
+      type="button"
+      [disabled]="controlsDisabled || atFirst"
+      (click)="goTo(page - 1)"
+    >
+      Anterior
+    </button>
+
+    <div class="pagination-pages" aria-label="Páginas">
+      @for (item of visiblePages; track $index) {
+        @if (isEllipsis(item)) {
+          <span class="pagination-ellipsis">…</span>
+        } @else {
+          <button
+            class="pagination-btn pagination-page"
+            type="button"
+            [class.is-current]="item === page"
+            [disabled]="controlsDisabled"
+            [attr.aria-current]="item === page ? 'page' : null"
+            (click)="goTo(item)"
+          >
+            {{ item }}
+          </button>
+        }
+      }
+    </div>
+
+    <button
+      class="pagination-btn pagination-btn--accent"
+      type="button"
+      [disabled]="controlsDisabled || atLast"
+      (click)="goTo(page + 1)"
+    >
+      Próxima
+    </button>
+    <button
+      class="pagination-btn"
+      type="button"
+      [disabled]="controlsDisabled || atLast"
+      (click)="goTo(totalPages)"
+    >
+      Última
+    </button>
+
+    <form class="pagination-goto" (submit)="onGotoSubmit($event)">
+      <label class="pagination-goto-label" [attr.for]="gotoInputId">
+        Ir para
+      </label>
+      <input
+        [id]="gotoInputId"
+        type="number"
+        min="1"
+        [max]="totalPages"
+        inputmode="numeric"
+        [(ngModel)]="gotoValue"
+        name="gotoPage"
+        [disabled]="controlsDisabled"
+        aria-label="Número da página"
+      />
+      <button
+        class="pagination-btn pagination-btn--accent"
+        type="submit"
+        [disabled]="controlsDisabled"
+      >
+        Ir
+      </button>
+    </form>
+  </div>
+</nav>

@@ -1,0 +1,230 @@
+.pagination-bar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.85rem 1.25rem;
+	margin: 0;
+	padding: 0.85rem 0;
+	background: transparent;
+}
+
+.pagination-bar ::ng-deep .pagination-summary {
+	padding: 0;
+}
+
+.pagination-controls {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.4rem;
+	align-items: center;
+	justify-content: flex-end;
+	margin-left: auto;
+}
+
+.pagination-size {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	margin-right: 0.35rem;
+	padding-right: 0.75rem;
+	border-right: 1px solid #dee2e6;
+}
+
+.pagination-size-label {
+	font-size: 0.85rem;
+	font-weight: 500;
+	color: #64748b;
+	white-space: nowrap;
+}
+
+.pagination-size select {
+	height: 2.25rem;
+	box-sizing: border-box;
+	border: 1px solid #ced4da;
+	border-radius: 6px;
+	padding: 0 0.45rem;
+	background: #fff;
+	font: inherit;
+	font-size: 0.875rem;
+	color: #334155;
+}
+
+.pagination-size select:disabled {
+	opacity: 0.55;
+	cursor: not-allowed;
+	background: #f1f5f9;
+}
+
+.pagination-pages {
+	display: inline-flex;
+	flex-wrap: wrap;
+	gap: 0.3rem;
+	align-items: center;
+	margin: 0 0.15rem;
+}
+
+.pagination-ellipsis {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 1.75rem;
+	padding: 0 0.15rem;
+	user-select: none;
+	color: #94a3b8;
+	font-weight: 600;
+}
+
+.pagination-goto {
+	display: inline-flex;
+	flex-wrap: nowrap;
+	gap: 0.4rem;
+	align-items: center;
+	margin-left: 0.35rem;
+	padding-left: 0.75rem;
+	border-left: 1px solid #dee2e6;
+}
+
+.pagination-goto-label {
+	font-size: 0.85rem;
+	font-weight: 500;
+	color: #64748b;
+	white-space: nowrap;
+}
+
+.pagination-goto input {
+	width: 3.25rem;
+	height: 2.25rem;
+	box-sizing: border-box;
+	border: 1px solid #ced4da;
+	border-radius: 6px;
+	padding: 0 0.45rem;
+	background: #fff;
+	font: inherit;
+	font-size: 0.875rem;
+	text-align: center;
+	color: #334155;
+}
+
+.pagination-goto input:focus {
+	outline: none;
+	border-color: #0168a6;
+	box-shadow: 0 0 0 2px rgb(1 104 166 / 25%);
+}
+
+.pagination-goto input:disabled {
+	opacity: 0.55;
+	cursor: not-allowed;
+	background: #f1f5f9;
+}
+
+.pagination-btn {
+	appearance: none;
+	box-sizing: border-box;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	height: 2.25rem;
+	min-width: 2.25rem;
+	padding: 0 0.8rem;
+	margin: 0;
+	font: inherit;
+	font-size: 0.8125rem;
+	font-weight: 600;
+	line-height: 1;
+	border-radius: 6px;
+	border: 1px solid #cbd5e1;
+	background: #fff;
+	color: #334155;
+	cursor: pointer;
+	transition:
+		background-color 0.15s ease,
+		border-color 0.15s ease,
+		color 0.15s ease,
+		box-shadow 0.15s ease;
+}
+
+.pagination-btn:hover:not(:disabled) {
+	border-color: #0168a6;
+	color: #0168a6;
+}
+
+.pagination-btn:focus-visible {
+	outline: none;
+	box-shadow: 0 0 0 2px rgb(1 104 166 / 30%);
+}
+
+.pagination-btn:disabled {
+	cursor: not-allowed;
+	background: #f1f5f9;
+	border-color: #e2e8f0;
+	color: #94a3b8;
+}
+
+.pagination-btn--accent {
+	background: #0168a6;
+	border-color: #0168a6;
+	color: #fff;
+}
+
+.pagination-btn--accent:hover:not(:disabled) {
+	background: #015a90;
+	border-color: #015a90;
+	color: #fff;
+}
+
+.pagination-btn--accent:disabled {
+	background: color-mix(in srgb, #0168a6 35%, #e2e8f0);
+	border-color: transparent;
+	color: #fff;
+}
+
+.pagination-page {
+	min-width: 2.25rem;
+	padding: 0 0.55rem;
+}
+
+.pagination-page.is-current {
+	background: #0168a6;
+	border-color: #0168a6;
+	color: #fff;
+}
+
+.pagination-page.is-current:hover:not(:disabled) {
+	background: #015a90;
+	border-color: #015a90;
+	color: #fff;
+}
+
+.pagination-page.is-current:disabled {
+	background: #0168a6;
+	border-color: #0168a6;
+	color: #fff;
+	opacity: 0.85;
+}
+
+@media (max-width: 768px) {
+	.pagination-bar {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.pagination-controls {
+		margin-left: 0;
+		justify-content: flex-start;
+	}
+
+	.pagination-size {
+		margin-right: 0;
+		padding-right: 0;
+		border-right: none;
+		width: 100%;
+	}
+
+	.pagination-goto {
+		margin-left: 0;
+		padding-left: 0;
+		border-left: none;
+		width: 100%;
+	}
+}
