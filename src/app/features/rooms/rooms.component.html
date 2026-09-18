@@ -57,6 +57,12 @@
           (action)="openDialogFromEmpty()"
         />
       } @else {
+      <app-pagination-summary
+        [pageIndex]="pageIndex"
+        [pageSize]="pageSize"
+        [totalElements]="totalElements"
+        summaryLabel="sala(s)"
+      />
       <table mat-table [dataSource]="dataSource">
 
         <ng-container matColumnDef="nome">
@@ -110,14 +116,13 @@
         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
       </table>
 
-      <mat-paginator [pageSizeOptions]="[5, 10]"
-                     [length]="(store.getRooms | async)?.page?.totalElements ?? 0"
-                     [pageSize]="(store.getRooms | async)?.page?.size ?? 5"
-                     [pageIndex]="(store.getRooms | async)?.page?.number ?? 0"
-                     showFirstLastButtons
-                     (page)="handlePageEvent($event)"
-                     aria-label="Paginação de salas">
-      </mat-paginator>
+      <app-pagination-bar
+        [pageIndex]="pageIndex"
+        [pageSize]="pageSize"
+        [totalElements]="totalElements"
+        summaryLabel="sala(s)"
+        (pageChange)="handlePageEvent($event)"
+      />
       }
       }
     </div>

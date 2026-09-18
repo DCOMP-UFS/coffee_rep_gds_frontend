@@ -47,7 +47,7 @@ describe("RequestersComponent", () => {
 
 	it("search should call store with busca term on page 0", () => {
 		component.requesterForm.setValue({ busca: "Cardio" });
-		component.paginator = { pageSize: 5 } as never;
+		component.pageSize = 5;
 
 		component.search();
 

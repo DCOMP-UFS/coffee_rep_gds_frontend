@@ -1,5 +1,5 @@
 import { AsyncPipe } from "@angular/common";
-import { Component, OnInit, ViewChild } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import {
 	FormBuilder,
 	FormGroup,
@@ -15,11 +15,6 @@ import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatDialog, MatDialogModule } from "@angular/material/dialog";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIcon } from "@angular/material/icon";
-import {
-	MatPaginator,
-	MatPaginatorModule,
-	PageEvent,
-} from "@angular/material/paginator";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { take, tap } from "rxjs";
 import { Room } from "../../core/models/room-response.model";
@@ -27,6 +22,9 @@ import { Section } from "../../core/models/section-response.model";
 import { ConfirmationDialogComponent } from "../../shared/components/confirmation-dialog/confirmation-dialog.component";
 import { EmptyStateComponent } from "../../shared/components/empty-state/empty-state.component";
 import { ErrorStateComponent } from "../../shared/components/error-state/error-state.component";
+import { PaginationBarComponent } from "../../shared/components/pagination/pagination-bar.component";
+import { PaginationPageChange } from "../../shared/components/pagination/pagination-page-change.model";
+import { PaginationSummaryComponent } from "../../shared/components/pagination/pagination-summary.component";
 import { RoomDialogComponent } from "../../shared/components/room-dialog/room-dialog.component";
 import { SearchableSelectOption } from "../../shared/components/searchable-select-field/searchable-select-field.component";
 import { SearchableSelectFieldComponent } from "../../shared/components/searchable-select-field/searchable-select-field.component";
@@ -39,7 +37,6 @@ import { RoomsComponentStore } from "./rooms.store";
 	selector: "app-rooms",
 	imports: [
 		MatTableModule,
-		MatPaginatorModule,
 		MatCardModule,
 		MatIcon,
 		MatDatepickerModule,
@@ -56,6 +53,8 @@ import { RoomsComponentStore } from "./rooms.store";
 		EmptyStateComponent,
 		ErrorStateComponent,
 		TableSkeletonComponent,
+		PaginationBarComponent,
+		PaginationSummaryComponent,
 	],
 	providers: [RoomsComponentStore],
 	standalone: true,
@@ -80,7 +79,9 @@ export class RoomsComponent implements OnInit {
 		}));
 	displayedColumns: string[] = ["nome", "setor", "status", "update", "delete"];
 	dataSource = new MatTableDataSource<Room>();
-	@ViewChild(MatPaginator) paginator!: MatPaginator;
+	pageSize = 5;
+	pageIndex = 0;
+	totalElements = 0;
 	roomsForm: FormGroup;
 
 	constructor(
@@ -96,38 +97,23 @@ export class RoomsComponent implements OnInit {
 
 	ngOnInit(): void {
 		this.store.getSections$();
-		this.store.getRooms$({
-			size: 5,
-			page: 0,
-			section: this.roomsForm.value.section,
-			ocupada: this.roomsForm.value.status,
-			unpaged: false,
-		});
+		this.fetchRooms(0, this.pageSize);
 		this.store.getRooms.subscribe((i) => {
 			this.dataSource.data = i.content ?? [];
+			this.pageSize = i.page?.size ?? this.pageSize;
+			this.pageIndex = i.page?.number ?? this.pageIndex;
+			this.totalElements = i.page?.totalElements ?? 0;
 		});
 	}
 
 	submit() {
 		if (this.roomsForm.valid) {
-			this.store.getRooms$({
-				size: this.paginator?.pageSize ?? 5,
-				page: 0,
-				section: this.roomsForm.value.section,
-				ocupada: this.roomsForm.value.status,
-				unpaged: false,
-			});
+			this.fetchRooms(0, this.pageSize);
 		}
 	}
 
 	reloadRooms(): void {
-		this.store.getRooms$({
-			size: this.paginator?.pageSize ?? 5,
-			page: this.paginator?.pageIndex ?? 0,
-			section: this.roomsForm.value.section,
-			ocupada: this.roomsForm.value.status,
-			unpaged: false,
-		});
+		this.fetchRooms(this.pageIndex, this.pageSize);
 	}
 
 	openDialogFromEmpty(): void {
@@ -145,17 +131,7 @@ export class RoomsComponent implements OnInit {
 
 		dialog
 			.afterClosed()
-			.pipe(
-				tap(() =>
-					this.store.getRooms$({
-						size: this.paginator?.pageSize ?? 5,
-						page: this.paginator?.pageIndex ?? 0,
-						section: this.roomsForm.value.section,
-						ocupada: this.roomsForm.value.status,
-						unpaged: false,
-					}),
-				),
-			)
+			.pipe(tap(() => this.fetchRooms(this.pageIndex, this.pageSize)))
 			.subscribe();
 	}
 
@@ -167,28 +143,12 @@ export class RoomsComponent implements OnInit {
 
 		dialog
 			.afterClosed()
-			.pipe(
-				tap(() =>
-					this.store.getRooms$({
-						size: this.paginator?.pageSize ?? 5,
-						page: this.paginator?.pageIndex ?? 0,
-						section: this.roomsForm.value.section,
-						ocupada: this.roomsForm.value.status,
-						unpaged: false,
-					}),
-				),
-			)
+			.pipe(tap(() => this.fetchRooms(this.pageIndex, this.pageSize)))
 			.subscribe();
 	}
 
-	handlePageEvent(e: PageEvent) {
-		this.store.getRooms$({
-			size: e.pageSize,
-			page: e.pageIndex,
-			section: this.roomsForm.value.section,
-			ocupada: this.roomsForm.value.status,
-			unpaged: false,
-		});
+	handlePageEvent(e: PaginationPageChange) {
+		this.fetchRooms(e.pageIndex, e.pageSize);
 	}
 
 	deleteRoom(element: Room) {
@@ -198,5 +158,17 @@ export class RoomsComponent implements OnInit {
 			.subscribe(
 				(i) => i.action && this.store.deleteRoom$({ roomId: element.id }),
 			);
+	}
+
+	private fetchRooms(page: number, size: number): void {
+		this.pageIndex = page;
+		this.pageSize = size;
+		this.store.getRooms$({
+			size,
+			page,
+			section: this.roomsForm.value.section,
+			ocupada: this.roomsForm.value.status,
+			unpaged: false,
+		});
 	}
 }
