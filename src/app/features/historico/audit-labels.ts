@@ -81,8 +81,10 @@ export function auditEntityLabel(
 	return entityId != null ? `${type} #${entityId}` : type;
 }
 
-export function isBackfillEvent(details: Record<string, unknown> | null | undefined): boolean {
-	return details?.['backfill'] === true;
+export function isBackfillEvent(
+	details: { backfill?: unknown } | null | undefined,
+): boolean {
+	return details?.backfill === true;
 }
 
 export function formatAuditDetails(

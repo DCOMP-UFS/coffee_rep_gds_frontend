@@ -14,9 +14,7 @@ export class AuditService {
 	constructor(private readonly http: HttpService) {}
 
 	getEvents(req: AuditRequestParams): Observable<AuditResponseModel> {
-		let params = new HttpParams()
-			.set("size", req.size)
-			.set("page", req.page);
+		let params = new HttpParams().set("size", req.size).set("page", req.page);
 
 		if (req.q?.trim()) {
 			params = params.set("q", req.q.trim());

@@ -1,19 +1,15 @@
 import { AsyncPipe, DatePipe } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
-import {
-	FormBuilder,
-	FormGroup,
-	ReactiveFormsModule,
-} from "@angular/forms";
+import { FormBuilder, FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
+import { MatChip } from "@angular/material/chips";
 import { MatNativeDateModule } from "@angular/material/core";
 import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIcon } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
 import { MatSelectModule } from "@angular/material/select";
-import { MatChip } from "@angular/material/chips";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { AuditEvent } from "../../core/models/audit-response.model";
 import { EmptyStateComponent } from "../../shared/components/empty-state/empty-state.component";

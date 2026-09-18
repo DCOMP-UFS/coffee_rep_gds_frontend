@@ -1,13 +1,6 @@
 import { Injectable } from "@angular/core";
 import { ComponentStore } from "@ngrx/component-store";
-import {
-	EMPTY,
-	Observable,
-	catchError,
-	finalize,
-	switchMap,
-	tap,
-} from "rxjs";
+import { EMPTY, Observable, catchError, finalize, switchMap, tap } from "rxjs";
 import {
 	AuditRequestParams,
 	AuditResponseModel,
