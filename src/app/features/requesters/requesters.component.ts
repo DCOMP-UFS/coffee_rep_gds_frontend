@@ -1,5 +1,5 @@
 import { AsyncPipe } from "@angular/common";
-import { Component, OnInit, ViewChild } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
@@ -7,16 +7,14 @@ import { MatDialog, MatDialogModule } from "@angular/material/dialog";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
-import {
-	MatPaginator,
-	MatPaginatorModule,
-	PageEvent,
-} from "@angular/material/paginator";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { Requester } from "../../core/models/requester-response.model";
 import { formatPhoneBr } from "../../core/utils/br-format.util";
 import { ConfirmationDialogComponent } from "../../shared/components/confirmation-dialog/confirmation-dialog.component";
 import { EmptyStateComponent } from "../../shared/components/empty-state/empty-state.component";
+import { PaginationBarComponent } from "../../shared/components/pagination/pagination-bar.component";
+import { PaginationPageChange } from "../../shared/components/pagination/pagination-page-change.model";
+import { PaginationSummaryComponent } from "../../shared/components/pagination/pagination-summary.component";
 import { RequesterDialogComponent } from "../../shared/components/requester-dialog/requester-dialog.component";
 import { FORM_DIALOG_CONFIG } from "../../shared/constants/dialog-config";
 import { RequestersComponentStore } from "./requesters.store";
@@ -32,13 +30,14 @@ import { RequestersComponentStore } from "./requesters.store";
 		MatButtonModule,
 		MatTableModule,
 		MatIconModule,
-		MatPaginatorModule,
 		MatDialogModule,
 		MatFormFieldModule,
 		MatInputModule,
 		ReactiveFormsModule,
 		AsyncPipe,
 		EmptyStateComponent,
+		PaginationBarComponent,
+		PaginationSummaryComponent,
 	],
 })
 export class RequestersComponent implements OnInit {
@@ -53,7 +52,9 @@ export class RequestersComponent implements OnInit {
 	];
 	dataSource = new MatTableDataSource<Requester>();
 	requesterForm: FormGroup;
-	@ViewChild(MatPaginator) paginator!: MatPaginator;
+	pageSize = 5;
+	pageIndex = 0;
+	totalElements = 0;
 
 	constructor(
 		public store: RequestersComponentStore,
@@ -69,11 +70,14 @@ export class RequestersComponent implements OnInit {
 		this.reloadRequesters(0, 5);
 		this.store.getRequesters.subscribe((i) => {
 			this.dataSource.data = i.content ?? [];
+			this.pageSize = i.page?.size ?? this.pageSize;
+			this.pageIndex = i.page?.number ?? this.pageIndex;
+			this.totalElements = i.page?.totalElements ?? 0;
 		});
 	}
 
 	search(): void {
-		this.reloadRequesters(0, this.paginator?.pageSize ?? 5);
+		this.reloadRequesters(0, this.pageSize);
 	}
 
 	openDialog(): void {
@@ -107,11 +111,13 @@ export class RequestersComponent implements OnInit {
 			);
 	}
 
-	handlePageEvent(e: PageEvent) {
+	handlePageEvent(e: PaginationPageChange) {
 		this.reloadRequesters(e.pageIndex, e.pageSize);
 	}
 
 	private reloadRequesters(page: number, size: number): void {
+		this.pageIndex = page;
+		this.pageSize = size;
 		const busca = String(this.requesterForm.getRawValue().busca ?? "").trim();
 		this.store.getRequester$({
 			size,
