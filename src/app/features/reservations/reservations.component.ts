@@ -1,5 +1,5 @@
 import { AsyncPipe, DatePipe } from "@angular/common";
-import { Component, OnInit, ViewChild } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import {
 	FormBuilder,
 	FormControl,
@@ -14,16 +14,14 @@ import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatDialog, MatDialogModule } from "@angular/material/dialog";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIcon } from "@angular/material/icon";
-import {
-	MatPaginator,
-	MatPaginatorModule,
-	PageEvent,
-} from "@angular/material/paginator";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { Reservation } from "../../core/models/reservation-response.model";
 import { ConfirmationDialogComponent } from "../../shared/components/confirmation-dialog/confirmation-dialog.component";
 import { DeleteReservationComponent } from "../../shared/components/delete-reservation/delete-reservation.component";
 import { EmptyStateComponent } from "../../shared/components/empty-state/empty-state.component";
+import { PaginationBarComponent } from "../../shared/components/pagination/pagination-bar.component";
+import { PaginationPageChange } from "../../shared/components/pagination/pagination-page-change.model";
+import { PaginationSummaryComponent } from "../../shared/components/pagination/pagination-summary.component";
 import { ReservationDialogComponent } from "../../shared/components/reservation-dialog/reservation-dialog.component";
 import { FORM_DIALOG_CONFIG } from "../../shared/constants/dialog-config";
 import { ReservationsComponentStore } from "./reservations.store";
@@ -32,7 +30,6 @@ import { ReservationsComponentStore } from "./reservations.store";
 	selector: "app-reservations",
 	imports: [
 		MatTableModule,
-		MatPaginatorModule,
 		DatePipe,
 		MatCardModule,
 		MatIcon,
@@ -43,6 +40,8 @@ import { ReservationsComponentStore } from "./reservations.store";
 		MatFormFieldModule,
 		AsyncPipe,
 		EmptyStateComponent,
+		PaginationBarComponent,
+		PaginationSummaryComponent,
 	],
 	standalone: true,
 	providers: [ReservationsComponentStore, MatDialogModule],
@@ -61,7 +60,9 @@ export class ReservationsComponent implements OnInit {
 		"cancel",
 	];
 	dataSource = new MatTableDataSource<Reservation>();
-	@ViewChild(MatPaginator) paginator!: MatPaginator;
+	pageSize = 5;
+	pageIndex = 0;
+	totalElements = 0;
 	reservationForm: FormGroup;
 
 	constructor(
@@ -82,25 +83,18 @@ export class ReservationsComponent implements OnInit {
 	}
 
 	ngOnInit(): void {
-		this.store.getReservations$({
-			start: this.reservationForm.value.start,
-			end: this.reservationForm.value.end,
-			size: 5,
-			page: 0,
-		});
+		this.fetchReservations(0, this.pageSize);
 		this.store.getReservations.subscribe((i) => {
 			this.dataSource.data = i.content;
+			this.pageSize = i.page?.size ?? this.pageSize;
+			this.pageIndex = i.page?.number ?? this.pageIndex;
+			this.totalElements = i.page?.totalElements ?? 0;
 		});
 	}
 
 	submit() {
 		if (this.reservationForm.valid) {
-			this.store.getReservations$({
-				start: this.reservationForm.value.start,
-				end: this.reservationForm.value.end,
-				size: 5,
-				page: 0,
-			});
+			this.fetchReservations(0, this.pageSize);
 		}
 	}
 
@@ -110,22 +104,12 @@ export class ReservationsComponent implements OnInit {
 		});
 
 		dialog.afterClosed().subscribe(() => {
-			this.store.getReservations$({
-				start: this.reservationForm.value.start,
-				end: this.reservationForm.value.end,
-				size: 5,
-				page: 0,
-			});
+			this.fetchReservations(this.pageIndex, this.pageSize);
 		});
 	}
 
-	handlePageEvent(e: PageEvent) {
-		this.store.getReservations$({
-			start: this.reservationForm.value.start,
-			end: this.reservationForm.value.end,
-			size: e.pageSize,
-			page: e.pageIndex,
-		});
+	handlePageEvent(e: PaginationPageChange) {
+		this.fetchReservations(e.pageIndex, e.pageSize);
 	}
 
 	cancelReservation(element: Reservation) {
@@ -153,5 +137,16 @@ export class ReservationsComponent implements OnInit {
 				}
 			});
 		}
+	}
+
+	private fetchReservations(page: number, size: number): void {
+		this.pageIndex = page;
+		this.pageSize = size;
+		this.store.getReservations$({
+			start: this.reservationForm.value.start,
+			end: this.reservationForm.value.end,
+			size,
+			page,
+		});
 	}
 }
