@@ -22,6 +22,8 @@ export interface AuditFilters {
 }
 
 export interface AuditListParams extends AuditFilters {
+	/** `createdAt,asc|desc`; ausente, do mais recente para o mais antigo. */
+	sort?: string;
 	page: number;
 	size: number;
 }

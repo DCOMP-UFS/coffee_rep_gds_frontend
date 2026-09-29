@@ -1,10 +1,14 @@
 import "@testing-library/jest-dom/vitest";
 import "@/lib/zod";
 
-import { cleanup } from "@testing-library/react";
+import { cleanup, configure } from "@testing-library/react";
 import { toast } from "sonner";
 import { afterAll, afterEach, beforeAll } from "vitest";
 import { server } from "./msw/server";
+
+// Com todos os arquivos em paralelo, o primeiro render de uma tela pode passar de 1 s, o padrão
+// dos `findBy` e do `waitFor`.
+configure({ asyncUtilTimeout: 3_000 });
 
 // `onUnhandledRequest: "error"` faz qualquer chamada sem handler reprovar o teste: é assim
 // que garantimos que a tela não dispara requisições fora do contrato esperado.

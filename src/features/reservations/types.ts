@@ -30,10 +30,17 @@ export interface ReservationWriteDto {
 	dias?: number[];
 }
 
-/** Período em datas ISO (`AAAA-MM-DD`), inclusive nas duas pontas. */
+/** Período em datas ISO (`AAAA-MM-DD`), inclusive nas duas pontas, e filtros opcionais. */
 export interface ReservationListFilters {
 	inicio: string;
 	fim: string;
+	/** Sala, setor, solicitante ou quem criou; vazio não filtra. */
+	search: string;
+	setorId?: number;
+	/** `true` só recorrentes, `false` só pontuais; ausente, as duas. */
+	recorrente?: boolean;
+	/** `campo,asc|desc`; ausente, do mais recente para o mais antigo. */
+	sort?: string;
 	page: number;
 	size: number;
 }

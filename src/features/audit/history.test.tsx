@@ -63,14 +63,21 @@ const EVENTS: AuditEvent[] = [
 
 type AuditRequest = Record<string, string>;
 
+/** Backend em memória que pagina e busca por responsável ou número do registro; os demais filtros não reduzem a lista. */
 function mockAudit(events: AuditEvent[] = EVENTS) {
 	const requests: AuditRequest[] = [];
 	server.use(
 		http.get(apiUrl("audit"), ({ request }) => {
 			const params = new URL(request.url).searchParams;
 			requests.push(Object.fromEntries(params));
+			const q = params.get("q")?.toLowerCase();
+			const filtered = q
+				? events.filter(
+						(event) => event.actorName.toLowerCase().includes(q) || String(event.entityId) === q,
+					)
+				: events;
 			return HttpResponse.json(
-				paged(events, Number(params.get("page")), Number(params.get("size"))),
+				paged(filtered, Number(params.get("page")), Number(params.get("size"))),
 			);
 		}),
 	);
@@ -133,28 +140,22 @@ describe("Histórico", () => {
 		expect(unknown.getByText("report")).toBeInTheDocument();
 	});
 
-	// Regressão: no Angular, a paginação usava os filtros digitados e ainda não aplicados.
-	it("aplica todos os filtros só ao clicar em Filtrar, inclusive ao paginar", async () => {
+	it("aplica a busca, sem espaços nas pontas, e os selects na hora", async () => {
 		const audit = mockAudit();
 		const { user } = renderHistory();
 		await screen.findByText("João Recepção");
 
-		expect(screen.getByLabelText("Buscar")).toHaveAccessibleDescription(
+		const searchInput = screen.getByRole("searchbox", { name: "Buscar evento" });
+		expect(searchInput).toHaveAccessibleDescription(
 			"Busque pelo nome de quem fez a ação ou pelo número do registro",
 		);
-		expect(screen.getByLabelText("Buscar")).toHaveAttribute("placeholder", "Ex.: Maria ou 42");
+		expect(searchInput).toHaveAttribute("placeholder", "Ex.: Maria ou 42");
+		expect(screen.getByRole("button", { name: "Limpar filtros" })).toBeDisabled();
 
-		await user.type(screen.getByLabelText("Buscar"), " Maria ");
+		await user.type(searchInput, " Maria ");
 		await selectFilter(user, "Ação", "Edição de setor");
 		await selectFilter(user, "Entidade", "Setor");
-		await user.type(screen.getByLabelText("De"), "01092026");
-		await user.type(screen.getByLabelText("Até"), "29092026");
 
-		await user.click(screen.getByRole("button", { name: "Próxima página" }));
-		await waitFor(() => expect(audit.last()).toEqual({ size: "10", page: "1" }));
-		expect(screen.queryByRole("button", { name: "Limpar filtros" })).not.toBeInTheDocument();
-
-		await user.click(screen.getByRole("button", { name: "Filtrar" }));
 		await waitFor(() =>
 			expect(audit.last()).toEqual({
 				size: "10",
@@ -162,39 +163,81 @@ describe("Histórico", () => {
 				q: "Maria",
 				action: "section.update",
 				entityType: "section",
+			}),
+		);
+		expect(screen.getByRole("button", { name: "Limpar filtros" })).toBeEnabled();
+	});
+
+	it("aplica as datas quando estão completas", async () => {
+		const audit = mockAudit();
+		const { user } = renderHistory();
+		await screen.findByText("João Recepção");
+
+		await user.type(screen.getByLabelText("De"), "01092026");
+		await user.type(screen.getByLabelText("Até"), "29092026");
+
+		await waitFor(() =>
+			expect(audit.last()).toEqual({
+				size: "10",
+				page: "0",
 				createdFrom: "2026-09-01",
 				createdTo: "2026-09-29",
 			}),
 		);
+		// Datas incompletas, durante a digitação, não chegam ao backend.
+		expect(
+			audit.requests.every(
+				(request) =>
+					[undefined, "2026-09-01"].includes(request.createdFrom) &&
+					[undefined, "2026-09-29"].includes(request.createdTo),
+			),
+		).toBe(true);
 	});
 
-	it("limpa os filtros aplicados e volta a consultar sem eles", async () => {
+	// Regressão: no Angular, a paginação usava filtros que não estavam valendo.
+	it("mantém os filtros aplicados ao paginar", async () => {
+		const audit = mockAudit();
+		const { user } = renderHistory();
+		await screen.findByText("João Recepção");
+
+		await selectFilter(user, "Entidade", "Setor");
+		await waitFor(() => expect(audit.last()).toMatchObject({ entityType: "section", page: "0" }));
+		await user.click(await screen.findByRole("button", { name: "Próxima página" }));
+
+		await waitFor(() =>
+			expect(audit.last()).toEqual({ size: "10", page: "1", entityType: "section" }),
+		);
+	});
+
+	it("limpa os filtros e volta a consultar sem eles", async () => {
 		const audit = mockAudit();
 		const { user } = renderHistory();
 		await screen.findByText("João Recepção");
 
 		await selectFilter(user, "Ação", "Login no sistema");
-		await user.click(screen.getByRole("button", { name: "Filtrar" }));
 		await waitFor(() => expect(audit.last()).toMatchObject({ action: "auth.login" }));
 
-		await user.click(await screen.findByRole("button", { name: "Limpar filtros" }));
+		await user.click(screen.getByRole("button", { name: "Limpar filtros" }));
 
 		await waitFor(() => expect(audit.last()).toEqual({ size: "10", page: "0" }));
 		expect(screen.getByRole("combobox", { name: "Ação" })).toHaveTextContent("Todas");
-		expect(screen.queryByRole("button", { name: "Limpar filtros" })).not.toBeInTheDocument();
+		expect(screen.getByRole("button", { name: "Limpar filtros" })).toBeDisabled();
 	});
 
-	it("recarrega ao filtrar de novo com os mesmos filtros", async () => {
+	it("ordena do mais antigo para o mais recente enviando sort", async () => {
 		const audit = mockAudit();
 		const { user } = renderHistory();
 		await screen.findByText("João Recepção");
 
-		await user.click(screen.getByRole("button", { name: "Filtrar" }));
+		await selectFilter(user, "Ordenar por", "Mais antigos");
 
-		await waitFor(() => expect(audit.requests).toHaveLength(2));
+		await waitFor(() =>
+			expect(audit.last()).toEqual({ size: "10", page: "0", sort: "createdAt,asc" }),
+		);
+		expect(screen.getByRole("button", { name: "Limpar filtros" })).toBeEnabled();
 	});
 
-	it("mostra Filtrando… enquanto a consulta carrega, mantendo a lista anterior", async () => {
+	it("mostra Buscando… enquanto a busca espera e carrega, mantendo a lista anterior", async () => {
 		mockAudit();
 		let release = () => {};
 		const gate = new Promise<void>((resolve) => {
@@ -209,45 +252,71 @@ describe("Histórico", () => {
 				return undefined;
 			}),
 		);
-		await user.type(screen.getByLabelText("Buscar"), "Maria");
-		await user.click(screen.getByRole("button", { name: "Filtrar" }));
+		await user.type(screen.getByRole("searchbox", { name: "Buscar evento" }), "Maria");
 
-		expect(await screen.findByRole("button", { name: "Filtrando…" })).toBeDisabled();
+		expect(await screen.findByText("Buscando…")).toBeInTheDocument();
 		expect(screen.getByText("João Recepção")).toBeInTheDocument();
 
 		release();
-		expect(await screen.findByRole("button", { name: "Filtrar" })).toBeEnabled();
+		await waitFor(() => expect(screen.queryByText("Buscando…")).not.toBeInTheDocument());
+		expect(screen.queryByText("João Recepção")).not.toBeInTheDocument();
 	});
 
-	it("valida as datas sem consultar o backend", async () => {
+	it("valida as datas e só consulta o backend com um período válido", async () => {
 		const audit = mockAudit();
 		const { user } = renderHistory();
 		await screen.findByText("João Recepção");
 
 		await user.type(screen.getByLabelText("De"), "10092026");
+		await waitFor(() => expect(audit.last()?.createdFrom).toBe("2026-09-10"));
 		await user.type(screen.getByLabelText("Até"), "09092026");
-		await user.click(screen.getByRole("button", { name: "Filtrar" }));
+		await user.tab();
 
 		expect(await screen.findByText(CREATED_TO_BEFORE_FROM_MESSAGE)).toBeInTheDocument();
 		expect(screen.getByLabelText("Até")).toHaveAttribute("aria-invalid", "true");
 
 		await user.clear(screen.getByLabelText("De"));
 		await user.type(screen.getByLabelText("De"), "31022026");
-		await user.click(screen.getByRole("button", { name: "Filtrar" }));
+		await user.tab();
 		expect(await screen.findByText("Data inválida.")).toBeInTheDocument();
-		expect(audit.requests).toHaveLength(1);
+		expect(screen.queryByText(CREATED_TO_BEFORE_FROM_MESSAGE)).not.toBeInTheDocument();
+
+		// Com o início apagado, o fim sozinho é um filtro válido; o início inválido não é enviado.
+		await waitFor(() =>
+			expect(audit.last()).toEqual({ size: "10", page: "0", createdTo: "2026-09-09" }),
+		);
+		expect(
+			audit.requests.some(
+				(request) => request.createdFrom === "2026-09-10" && request.createdTo === "2026-09-09",
+			),
+		).toBe(false);
+		expect(audit.requests.every((request) => request.createdFrom !== "2026-02-31")).toBe(true);
 	});
 
-	it("mostra o estado vazio", async () => {
+	it("mostra o estado vazio sem filtros", async () => {
 		mockAudit([]);
 		renderHistory();
 
-		expect(await screen.findByText("Nenhum evento encontrado")).toBeInTheDocument();
+		expect(await screen.findByText("Nenhum evento registrado")).toBeInTheDocument();
 		expect(
-			screen.getByText(
-				"Ações do sistema aparecerão aqui. Ajuste os filtros ou aguarde novas operações.",
-			),
+			screen.getByText("Ações do sistema aparecerão aqui assim que forem realizadas."),
 		).toBeInTheDocument();
+	});
+
+	it("distingue a busca sem resultado e permite limpar pelo estado vazio", async () => {
+		mockAudit();
+		const { user } = renderHistory();
+		await screen.findByText("João Recepção");
+
+		await user.type(screen.getByRole("searchbox", { name: "Buscar evento" }), "Inexistente");
+
+		expect(await screen.findByText("Nenhum evento encontrado")).toBeInTheDocument();
+		expect(screen.queryByText("Nenhum evento registrado")).not.toBeInTheDocument();
+
+		const [, emptyStateClear] = screen.getAllByRole("button", { name: "Limpar filtros" });
+		await user.click(emptyStateClear as HTMLElement);
+		expect(await screen.findByText("João Recepção")).toBeInTheDocument();
+		expect(screen.getByRole("searchbox", { name: "Buscar evento" })).toHaveValue("");
 	});
 
 	it("mostra um único aviso de erro, com opção de tentar novamente", async () => {

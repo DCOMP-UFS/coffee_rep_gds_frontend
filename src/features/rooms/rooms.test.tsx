@@ -32,6 +32,9 @@ interface ListRequest {
 	size: string | null;
 	page: string | null;
 	ocupada: string | null;
+	/** Ausentes quando não enviados, para não pesarem nas comparações com `toEqual`. */
+	nome?: string;
+	sort?: string;
 }
 
 /**
@@ -48,6 +51,8 @@ function mockBackend(initialRooms: Room[] = ROOMS) {
 		const size = Number(url.searchParams.get("size"));
 		const page = Number(url.searchParams.get("page"));
 		const ocupada = url.searchParams.get("ocupada");
+		const nome = url.searchParams.get("nome") ?? undefined;
+		const sort = url.searchParams.get("sort") ?? undefined;
 
 		if (size !== 1) {
 			listRequests.push({
@@ -55,14 +60,22 @@ function mockBackend(initialRooms: Room[] = ROOMS) {
 				size: url.searchParams.get("size"),
 				page: url.searchParams.get("page"),
 				ocupada,
+				nome,
+				sort,
 			});
 		}
 
 		const filtered = rooms.filter(
 			(item) =>
 				(sectionId === null || item.setorId === sectionId) &&
-				(ocupada === null || String(item.ocupada) === ocupada),
+				(ocupada === null || String(item.ocupada) === ocupada) &&
+				(nome === undefined || item.nome.toLowerCase().includes(nome.toLowerCase())),
 		);
+		if (sort) {
+			const [field, direction] = sort.split(",") as ["nome" | "setor", "asc" | "desc"];
+			const sign = direction === "desc" ? -1 : 1;
+			filtered.sort((a, b) => sign * a[field].localeCompare(b[field]) || sign * (a.id - b.id));
+		}
 		return HttpResponse.json(paged(filtered, page, size));
 	};
 
@@ -208,6 +221,98 @@ describe("Salas", () => {
 		expect(await screen.findByRole("cell", { name: "Sala 01" })).toBeInTheDocument();
 		await waitFor(() => expect(backend.lastList()?.path).toBe("room"));
 		expect(screen.getByRole("combobox", { name: "Setor" })).toHaveTextContent("Todas");
+	});
+
+	it("busca pelo nome depois da digitação, numa única consulta, voltando à primeira página", async () => {
+		const backend = mockBackend();
+		const { user } = renderRooms();
+		await screen.findByRole("cell", { name: "Sala 01" });
+		await user.click(screen.getByRole("button", { name: "Próxima página" }));
+		await waitFor(() => expect(backend.lastList()?.page).toBe("1"));
+
+		await user.type(screen.getByRole("searchbox", { name: "Buscar sala" }), "  sala 1 ");
+
+		expect(await screen.findByText("Buscando…")).toBeInTheDocument();
+		await waitFor(() =>
+			expect(backend.lastList()).toEqual({
+				path: "room",
+				size: "5",
+				page: "0",
+				ocupada: null,
+				nome: "sala 1",
+			}),
+		);
+		expect(await screen.findByRole("cell", { name: "Sala 10" })).toBeInTheDocument();
+		expect(screen.queryByRole("cell", { name: "Sala 01" })).not.toBeInTheDocument();
+		expect(backend.listRequests.filter((request) => request.nome !== undefined)).toHaveLength(1);
+		await waitFor(() => expect(screen.queryByText("Buscando…")).not.toBeInTheDocument());
+	});
+
+	it("ordena enviando sort e mantém o setor escolhido", async () => {
+		const backend = mockBackend();
+		const { user } = renderRooms();
+		await screen.findByRole("cell", { name: "Sala 01" });
+
+		await selectOption(user, "Setor", "Cardiologia");
+		await selectOption(user, "Ordenar por", "Nome Z–A");
+
+		await waitFor(() =>
+			expect(backend.lastList()).toEqual({
+				path: "room/section/7",
+				size: "5",
+				page: "0",
+				ocupada: null,
+				sort: "nome,desc",
+			}),
+		);
+		const firstRow = (await screen.findByRole("cell", { name: "Sala 08" })).closest("tr");
+		expect(screen.getAllByRole("row")[1]).toBe(firstRow);
+	});
+
+	it("habilita Limpar filtros só com filtros e restaura busca, setor, status e ordenação", async () => {
+		const backend = mockBackend();
+		const { user, location } = renderRooms();
+		await screen.findByRole("cell", { name: "Sala 01" });
+		expect(screen.getByRole("button", { name: "Limpar filtros" })).toBeDisabled();
+
+		await user.type(screen.getByRole("searchbox", { name: "Buscar sala" }), "Sala");
+		await selectOption(user, "Setor", "Pediatria");
+		await selectOption(user, "Status", "Livre");
+		await selectOption(user, "Ordenar por", "Setor A–Z");
+		await waitFor(() =>
+			expect(backend.lastList()).toMatchObject({
+				nome: "Sala",
+				ocupada: "false",
+				sort: "setor,asc",
+			}),
+		);
+
+		await user.click(screen.getByRole("button", { name: "Limpar filtros" }));
+
+		expect(screen.getByRole("searchbox", { name: "Buscar sala" })).toHaveValue("");
+		expect(screen.getByRole("combobox", { name: "Setor" })).toHaveTextContent("Todas");
+		expect(screen.getByRole("combobox", { name: "Status" })).toHaveTextContent("Todas");
+		expect(screen.getByRole("combobox", { name: "Ordenar por" })).toHaveTextContent(
+			"Mais recentes",
+		);
+		expect(screen.getByRole("button", { name: "Limpar filtros" })).toBeDisabled();
+		await waitFor(() => expect(location()).toBe("/rooms"));
+		expect(await screen.findByRole("cell", { name: "Sala 01" })).toBeInTheDocument();
+	});
+
+	it("distingue a busca sem resultado do cadastro vazio", async () => {
+		mockBackend();
+		const { user } = renderRooms();
+		await screen.findByRole("cell", { name: "Sala 01" });
+
+		await user.type(screen.getByRole("searchbox", { name: "Buscar sala" }), "Auditório");
+
+		expect(await screen.findByText("Nenhuma sala encontrada")).toBeInTheDocument();
+		expect(screen.queryByText("Nenhuma sala cadastrada")).not.toBeInTheDocument();
+
+		const [, emptyStateClear] = screen.getAllByRole("button", { name: "Limpar filtros" });
+		await user.click(emptyStateClear as HTMLElement);
+		expect(await screen.findByRole("cell", { name: "Sala 01" })).toBeInTheDocument();
 	});
 
 	it("pagina no servidor e troca a quantidade por página", async () => {

@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { normalizeSearch, SearchableSelect } from "./SearchableSelect";
+import { SearchableSelect } from "./SearchableSelect";
 
 const OPTIONS = [
 	{ value: 0, label: "Todas" },
@@ -26,10 +26,6 @@ function Harness({ onChange }: { onChange: (value: number) => void }) {
 }
 
 describe("SearchableSelect", () => {
-	it("normaliza acentos e caixa", () => {
-		expect(normalizeSearch("Clínica Médica")).toBe("clinica medica");
-	});
-
 	it("filtra pelo rótulo, ignorando acentos, e seleciona a opção", async () => {
 		const user = userEvent.setup();
 		const onChange = vi.fn();

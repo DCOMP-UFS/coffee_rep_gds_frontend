@@ -5,7 +5,7 @@ import { screen, waitFor, within } from "@testing-library/react";
 import { HttpResponse, http } from "msw";
 import { REQUESTER_ERROR_MESSAGES } from "./hooks";
 import { REQUESTER_SAVED_MESSAGE } from "./RequesterFormDialog";
-import { REQUESTER_DELETED_MESSAGE } from "./RequestersPage";
+import { REQUESTER_DELETED_MESSAGE, SPECIALTIES_LOAD_ERROR_MESSAGE } from "./RequestersPage";
 import { PHONE_MESSAGE } from "./schemas";
 import type { Requester } from "./types";
 
@@ -32,9 +32,18 @@ interface ListRequest {
 	size: string | null;
 	page: string | null;
 	busca: string | null;
+	/** Ausentes quando não enviados, para não pesarem nas comparações com `toEqual`. */
+	especialidade?: string;
+	sort?: string;
 }
 
-/** Backend em memória com a paginação e a busca do NestJS (nome, especialidade ou telefone). */
+const isUnpaged = (request: Request) => new URL(request.url).searchParams.get("unpaged") === "true";
+
+/**
+ * Backend em memória com a paginação, a busca (nome, especialidade ou telefone), o filtro de
+ * especialidade e a ordenação do NestJS. A lista completa (`unpaged=true`), que alimenta o
+ * select de especialidades, não entra em `listRequests`.
+ */
 function mockBackend(initial: Requester[] = REQUESTERS) {
 	let requesters = [...initial];
 	const listRequests: ListRequest[] = [];
@@ -52,16 +61,34 @@ function mockBackend(initial: Requester[] = REQUESTERS) {
 
 	server.use(
 		http.get(apiUrl("requester"), ({ request }) => {
+			if (isUnpaged(request)) return HttpResponse.json(requesters);
+
 			const url = new URL(request.url);
 			const busca = url.searchParams.get("busca");
+			const especialidade = url.searchParams.get("especialidade") ?? undefined;
+			const sort = url.searchParams.get("sort") ?? undefined;
 			const size = Number(url.searchParams.get("size"));
 			const page = Number(url.searchParams.get("page"));
 			listRequests.push({
 				size: url.searchParams.get("size"),
 				page: url.searchParams.get("page"),
 				busca,
+				especialidade,
+				sort,
 			});
-			const filtered = busca ? requesters.filter((item) => matches(item, busca)) : requesters;
+			const filtered = requesters.filter(
+				(item) =>
+					(!busca || matches(item, busca)) &&
+					(!especialidade ||
+						(item.especialidade ?? "").toLowerCase() === especialidade.toLowerCase()),
+			);
+			if (sort) {
+				const [field, direction] = sort.split(",") as ["nome" | "especialidade", string];
+				const sign = direction === "desc" ? -1 : 1;
+				filtered.sort(
+					(a, b) => sign * (a[field] ?? "").localeCompare(b[field] ?? "") || sign * (a.id - b.id),
+				);
+			}
 			return HttpResponse.json(paged(filtered, page, size));
 		}),
 		http.post(apiUrl("requester"), async ({ request }) => {
@@ -114,44 +141,49 @@ describe("Solicitantes", () => {
 		expect(within(rowOf("Profissional 01")).getByText("Cardiologia")).toBeInTheDocument();
 	});
 
-	it("busca ao enviar e mostra a opção de limpar", async () => {
+	it("busca depois da digitação, sem espaços nas pontas, e limpa pelo Limpar filtros", async () => {
 		const backend = mockBackend();
 		const { user } = renderRequesters();
 		await screen.findByRole("cell", { name: "Profissional 01" });
+		expect(screen.getByRole("button", { name: "Limpar filtros" })).toBeDisabled();
 
-		await user.type(screen.getByLabelText("Buscar solicitante"), "  pediatria {Enter}");
+		await user.type(screen.getByLabelText("Buscar solicitante"), "  pediatria ");
 
 		await waitFor(() =>
 			expect(backend.lastList()).toEqual({ size: "5", page: "0", busca: "pediatria" }),
 		);
 		expect(await screen.findByRole("cell", { name: "Profissional 07" })).toBeInTheDocument();
 		expect(screen.queryByRole("cell", { name: "Profissional 01" })).not.toBeInTheDocument();
+		expect(backend.listRequests.filter((request) => request.busca !== null)).toHaveLength(1);
 
-		await user.click(screen.getByRole("button", { name: "Limpar busca" }));
+		await user.click(screen.getByRole("button", { name: "Limpar filtros" }));
 		expect(await screen.findByRole("cell", { name: "Profissional 01" })).toBeInTheDocument();
 		expect(screen.getByLabelText("Buscar solicitante")).toHaveValue("");
-		expect(screen.queryByRole("button", { name: "Limpar busca" })).not.toBeInTheDocument();
+		expect(screen.getByRole("button", { name: "Limpar filtros" })).toBeDisabled();
 	});
 
-	// Regressão: no Angular, trocar de página aplicava o termo digitado e ainda não enviado.
-	it("ignora o termo ainda não enviado ao paginar", async () => {
+	// Regressão: no Angular, trocar de página aplicava um termo que não estava valendo.
+	it("mantém a busca aplicada ao paginar e volta à primeira página quando ela muda", async () => {
 		const backend = mockBackend();
 		const { user } = renderRequesters();
 		await screen.findByRole("cell", { name: "Profissional 01" });
 
-		await user.type(screen.getByLabelText("Buscar solicitante"), "Pediatria");
+		await user.type(screen.getByLabelText("Buscar solicitante"), "Profissional");
+		await waitFor(() => expect(backend.lastList()?.busca).toBe("Profissional"));
 		await user.click(screen.getByRole("button", { name: "Próxima página" }));
 
-		await waitFor(() => expect(backend.lastList()).toEqual({ size: "5", page: "1", busca: null }));
+		await waitFor(() =>
+			expect(backend.lastList()).toEqual({ size: "5", page: "1", busca: "Profissional" }),
+		);
 		expect(await screen.findByRole("cell", { name: "Profissional 06" })).toBeInTheDocument();
 
-		await user.click(screen.getByRole("button", { name: "Buscar" }));
+		await user.type(screen.getByLabelText("Buscar solicitante"), " 1");
 		await waitFor(() =>
-			expect(backend.lastList()).toEqual({ size: "5", page: "0", busca: "Pediatria" }),
+			expect(backend.lastList()).toEqual({ size: "5", page: "0", busca: "Profissional 1" }),
 		);
 	});
 
-	it("mostra Buscando… enquanto a busca carrega, mantendo a lista anterior", async () => {
+	it("mostra Buscando… enquanto a busca espera e carrega, mantendo a lista anterior", async () => {
 		mockBackend();
 		let release = () => {};
 		const gate = new Promise<void>((resolve) => {
@@ -166,14 +198,16 @@ describe("Solicitantes", () => {
 				return undefined;
 			}),
 		);
-		await user.type(screen.getByLabelText("Buscar solicitante"), "Pediatria{Enter}");
+		await user.type(screen.getByLabelText("Buscar solicitante"), "Pediatria");
 
-		expect(await screen.findByRole("button", { name: "Buscando…" })).toBeDisabled();
+		expect(await screen.findByText("Buscando…")).toBeInTheDocument();
+		await new Promise((resolve) => setTimeout(resolve, 400));
+		expect(screen.getByText("Buscando…")).toBeInTheDocument();
 		expect(screen.getByRole("cell", { name: "Profissional 01" })).toBeInTheDocument();
 
 		release();
-		expect(await screen.findByRole("button", { name: "Buscar" })).toBeEnabled();
 		expect(await screen.findByRole("cell", { name: "Profissional 07" })).toBeInTheDocument();
+		await waitFor(() => expect(screen.queryByText("Buscando…")).not.toBeInTheDocument());
 	});
 
 	it("busca por telefone", async () => {
@@ -181,11 +215,85 @@ describe("Solicitantes", () => {
 		const { user } = renderRequesters();
 		await screen.findByRole("cell", { name: "Profissional 01" });
 
-		await user.type(screen.getByLabelText("Buscar solicitante"), "3333{Enter}");
+		await user.type(screen.getByLabelText("Buscar solicitante"), "3333");
 
 		expect(await screen.findByRole("cell", { name: "Profissional 02" })).toBeInTheDocument();
 		await waitFor(() => expect(screen.getAllByRole("row")).toHaveLength(2));
 		expect(backend.lastList()?.busca).toBe("3333");
+	});
+
+	it("filtra por especialidade com as opções tiradas dos solicitantes ativos", async () => {
+		const backend = mockBackend();
+		const { user } = renderRequesters();
+		await screen.findByRole("cell", { name: "Profissional 01" });
+
+		const select = screen.getByRole("combobox", { name: "Especialidade" });
+		await waitFor(() => expect(select).toBeEnabled());
+		expect(select).toHaveTextContent("Todas");
+		await user.click(select);
+		expect((await screen.findAllByRole("option")).map((option) => option.textContent)).toEqual([
+			"Selecione a especialidade",
+			"Todas",
+			"Cardiologia",
+			"Pediatria",
+		]);
+		await user.click(screen.getByRole("option", { name: "Pediatria" }));
+
+		await waitFor(() =>
+			expect(backend.lastList()).toEqual({
+				size: "5",
+				page: "0",
+				busca: null,
+				especialidade: "Pediatria",
+			}),
+		);
+		expect(await screen.findByRole("cell", { name: "Profissional 07" })).toBeInTheDocument();
+		expect(screen.queryByRole("cell", { name: "Profissional 01" })).not.toBeInTheDocument();
+	});
+
+	it("avisa quando as especialidades não carregam e permite tentar de novo", async () => {
+		mockBackend();
+		let failures = 1;
+		server.use(
+			http.get(apiUrl("requester"), ({ request }) => {
+				if (isUnpaged(request) && failures > 0) {
+					failures--;
+					return new HttpResponse(null, { status: 500 });
+				}
+				return undefined;
+			}),
+		);
+		const { user } = renderRequesters();
+		await screen.findByRole("cell", { name: "Profissional 01" });
+
+		const select = screen.getByRole("combobox", { name: "Especialidade" });
+		expect(await screen.findByText(SPECIALTIES_LOAD_ERROR_MESSAGE)).toBeInTheDocument();
+		expect(select).toBeDisabled();
+
+		await user.click(screen.getByRole("button", { name: "Tentar novamente" }));
+
+		await waitFor(() => expect(select).toBeEnabled());
+		expect(screen.queryByText(SPECIALTIES_LOAD_ERROR_MESSAGE)).not.toBeInTheDocument();
+	});
+
+	it("ordena enviando sort e restaura tudo ao limpar os filtros", async () => {
+		const backend = mockBackend();
+		const { user } = renderRequesters();
+		await screen.findByRole("cell", { name: "Profissional 01" });
+
+		await user.click(screen.getByRole("combobox", { name: "Ordenar por" }));
+		await user.click(await screen.findByRole("option", { name: "Nome Z–A" }));
+
+		await waitFor(() =>
+			expect(backend.lastList()).toEqual({ size: "5", page: "0", busca: null, sort: "nome,desc" }),
+		);
+		expect(await screen.findByRole("cell", { name: "Profissional 12" })).toBeInTheDocument();
+
+		await user.click(screen.getByRole("button", { name: "Limpar filtros" }));
+		expect(screen.getByRole("combobox", { name: "Ordenar por" })).toHaveTextContent(
+			"Mais recentes",
+		);
+		expect(await screen.findByRole("cell", { name: "Profissional 01" })).toBeInTheDocument();
 	});
 
 	it("cadastra com valores aparados, telefone só com dígitos e aviso de sucesso", async () => {
@@ -385,17 +493,18 @@ describe("Solicitantes", () => {
 		expect(screen.getAllByRole("button", { name: "Novo solicitante" })).toHaveLength(2);
 	});
 
-	it("distingue a busca sem resultado e permite limpar a busca", async () => {
+	it("distingue a busca sem resultado e permite limpar pelo estado vazio", async () => {
 		mockBackend();
 		const { user } = renderRequesters();
 		await screen.findByRole("cell", { name: "Profissional 01" });
 
-		await user.type(screen.getByLabelText("Buscar solicitante"), "Neurologia{Enter}");
+		await user.type(screen.getByLabelText("Buscar solicitante"), "Neurologia");
 
 		expect(await screen.findByText("Nenhum solicitante encontrado")).toBeInTheDocument();
 		expect(screen.queryByText("Nenhum solicitante cadastrado")).not.toBeInTheDocument();
 
-		await user.click(screen.getAllByRole("button", { name: "Limpar busca" })[0] as HTMLElement);
+		const [, emptyStateClear] = screen.getAllByRole("button", { name: "Limpar filtros" });
+		await user.click(emptyStateClear as HTMLElement);
 		expect(await screen.findByRole("cell", { name: "Profissional 01" })).toBeInTheDocument();
 	});
 
@@ -403,8 +512,8 @@ describe("Solicitantes", () => {
 		const backend = mockBackend();
 		let failures = 1;
 		server.use(
-			http.get(apiUrl("requester"), () => {
-				if (failures > 0) {
+			http.get(apiUrl("requester"), ({ request }) => {
+				if (!isUnpaged(request) && failures > 0) {
 					failures--;
 					return new HttpResponse(null, { status: 500 });
 				}

@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { normalizeSearch } from "@/shared/format/search";
 import { SELECT_PLACEHOLDER_VALUE } from "./SelectPlaceholderItem";
 
 export interface SelectOption<TValue extends string | number> {
@@ -26,14 +27,6 @@ interface SearchableSelectProps<TValue extends string | number>
 	placeholder?: string;
 	searchPlaceholder?: string;
 	emptyMessage?: string;
-}
-
-/** Minúsculas e sem acentos: "Clínica Médica" é encontrada digitando "clinica medica". */
-export function normalizeSearch(text: string): string {
-	return text
-		.normalize("NFD")
-		.replace(/\p{Diacritic}/gu, "")
-		.toLowerCase();
 }
 
 /**

@@ -1,6 +1,6 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import { Loader2, Plus, Search, UserRound, X } from "lucide-react";
-import { type FormEvent, useCallback, useId, useMemo, useState } from "react";
+import { Plus, UserRound } from "lucide-react";
+import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { DataTable } from "@/components/data-table/DataTable";
 import { PaginationBar } from "@/components/data-table/PaginationBar";
@@ -8,34 +8,55 @@ import { PaginationSummary } from "@/components/data-table/PaginationSummary";
 import { RowActions } from "@/components/data-table/RowActions";
 import { ConfirmDialog } from "@/components/feedback/ConfirmDialog";
 import { EmptyState } from "@/components/feedback/EmptyState";
+import { ClearFiltersButton } from "@/components/filters/ClearFiltersButton";
+import { FilterBar } from "@/components/filters/FilterBar";
+import { FilterSelect } from "@/components/filters/FilterSelect";
+import { SearchInput } from "@/components/filters/SearchInput";
+import { FormField } from "@/components/form/FormField";
+import { SearchableSelect } from "@/components/form/SearchableSelect";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useClampPage } from "@/hooks/use-clamp-page";
+import { useDebouncedSearch } from "@/hooks/use-debounced-value";
+import { useFilteredPage } from "@/hooks/use-filtered-page";
 import { getHttpErrorMessage } from "@/lib/api/errors";
 import { formatPhoneBr } from "@/shared/format/br-format";
-import { REQUESTER_ERROR_MESSAGES, useDeleteRequester, useRequesters } from "./hooks";
+import {
+	ALL_SPECIALTIES_OPTION,
+	DEFAULT_REQUESTER_FILTERS,
+	hasActiveRequesterFilters,
+	REQUESTER_SORT_OPTIONS,
+	type RequesterFilters,
+	type RequesterSort,
+	specialtyOptions,
+	toRequesterListFilters,
+} from "./filters";
+import {
+	REQUESTER_ERROR_MESSAGES,
+	useAllRequesters,
+	useDeleteRequester,
+	useRequesters,
+} from "./hooks";
 import { RequesterFormDialog } from "./RequesterFormDialog";
 import type { Requester } from "./types";
 
 export const REQUESTER_DELETED_MESSAGE = "Solicitante excluído com sucesso.";
+export const SPECIALTIES_LOAD_ERROR_MESSAGE = "Não foi possível carregar as especialidades.";
 const PAGE_SIZE_OPTIONS = [5, 10] as const;
 const DEFAULT_PAGE_SIZE = PAGE_SIZE_OPTIONS[0];
 
 export function RequestersPage() {
-	const searchId = useId();
-	const searchHintId = useId();
-
-	// O termo digitado só vale depois de enviado, como no Angular: evita uma requisição por
-	// tecla e deixa claro o que está sendo buscado.
-	const [draft, setDraft] = useState("");
-	const [search, setSearch] = useState("");
-	const [page, setPage] = useState(0);
+	const [searchInput, setSearchInput] = useState(DEFAULT_REQUESTER_FILTERS.search);
+	const [specialty, setSpecialty] = useState(DEFAULT_REQUESTER_FILTERS.specialty);
+	const [sort, setSort] = useState<RequesterSort>(DEFAULT_REQUESTER_FILTERS.sort);
 	const [size, setSize] = useState<number>(DEFAULT_PAGE_SIZE);
+	const search = useDebouncedSearch(searchInput);
 
-	const requesters = useRequesters({ search, page, size });
+	const filters: RequesterFilters = { search: search.applied, specialty, sort };
+	const [page, setPage] = useFilteredPage(filters);
+	const requesters = useRequesters(toRequesterListFilters(filters, page, size));
+	const allRequesters = useAllRequesters();
 	const deleteRequester = useDeleteRequester();
 
 	// O alvo é mantido após fechar para o conteúdo não mudar durante a animação de saída.
@@ -46,26 +67,21 @@ export function RequestersPage() {
 
 	const pageInfo = requesters.data?.page;
 	const data = requesters.data?.content ?? [];
-	const hasSearch = search !== "";
-	const isSearching = requesters.isPlaceholderData;
+	const hasFilters = hasActiveRequesterFilters(filters);
+	const canClear =
+		hasActiveRequesterFilters({ ...filters, search: searchInput }) ||
+		sort !== DEFAULT_REQUESTER_FILTERS.sort;
+	const specialties = useMemo(
+		() => (allRequesters.data ? specialtyOptions(allRequesters.data) : []),
+		[allRequesters.data],
+	);
 
 	useClampPage({ page, pageInfo, isPlaceholderData: requesters.isPlaceholderData, setPage });
 
-	const applySearch = (event: FormEvent<HTMLFormElement>) => {
-		event.preventDefault();
-		const term = draft.trim();
-		if (term === search && page === 0) {
-			requesters.refetch();
-			return;
-		}
-		setSearch(term);
-		setPage(0);
-	};
-
-	const clearSearch = () => {
-		setDraft("");
-		setSearch("");
-		setPage(0);
+	const clearFilters = () => {
+		setSearchInput(DEFAULT_REQUESTER_FILTERS.search);
+		setSpecialty(DEFAULT_REQUESTER_FILTERS.specialty);
+		setSort(DEFAULT_REQUESTER_FILTERS.sort);
 	};
 
 	const openForm = useCallback((requester?: Requester) => {
@@ -151,41 +167,56 @@ export function RequestersPage() {
 			/>
 
 			<Card className="gap-0 overflow-hidden py-0">
-				<search className="border-b p-4">
-					<form className="flex flex-col gap-3 sm:flex-row sm:items-start" onSubmit={applySearch}>
-						<div className="grid gap-1.5 sm:w-96">
-							<Label htmlFor={searchId}>Buscar solicitante</Label>
-							<Input
-								id={searchId}
-								type="search"
-								value={draft}
-								onChange={(event) => setDraft(event.target.value)}
+				<FilterBar
+					label="Filtros dos solicitantes"
+					search={
+						<FormField label="Buscar solicitante" hint="Busque por nome, telefone ou especialidade">
+							<SearchInput
+								value={searchInput}
+								onChange={(event) => setSearchInput(event.target.value)}
 								placeholder="Ex.: Ana, Cardiologia ou 79999"
-								autoComplete="off"
-								aria-describedby={searchHintId}
+								isBusy={search.isPending || requesters.isPlaceholderData}
 							/>
-							<p id={searchHintId} className="text-xs text-muted-foreground">
-								Busque por nome, telefone ou especialidade
-							</p>
-						</div>
-						<div className="flex gap-2 sm:mt-5">
-							<Button type="submit" variant="outline" disabled={isSearching}>
-								{isSearching ? (
-									<Loader2 className="animate-spin" aria-hidden="true" />
-								) : (
-									<Search aria-hidden="true" />
-								)}
-								{isSearching ? "Buscando…" : "Buscar"}
+						</FormField>
+					}
+					onClear={clearFilters}
+					canClear={canClear}
+				>
+					<div className="flex w-full items-start gap-2 sm:w-auto">
+						<FormField
+							label="Especialidade"
+							error={allRequesters.isError ? SPECIALTIES_LOAD_ERROR_MESSAGE : undefined}
+							className="w-full sm:w-60"
+						>
+							<SearchableSelect
+								options={specialties}
+								value={specialty || ALL_SPECIALTIES_OPTION}
+								onChange={(value) => setSpecialty(value === ALL_SPECIALTIES_OPTION ? "" : value)}
+								disabled={!allRequesters.data}
+								placeholder={
+									allRequesters.isPending
+										? "Carregando especialidades…"
+										: "Selecione a especialidade"
+								}
+								searchPlaceholder="Pesquisar especialidade..."
+							/>
+						</FormField>
+						{allRequesters.isError && (
+							<Button
+								type="button"
+								variant="outline"
+								className="mt-5.5"
+								onClick={() => allRequesters.refetch()}
+								disabled={allRequesters.isFetching}
+							>
+								Tentar novamente
 							</Button>
-							{hasSearch && (
-								<Button type="button" variant="ghost" onClick={clearSearch}>
-									<X aria-hidden="true" />
-									Limpar busca
-								</Button>
-							)}
-						</div>
-					</form>
-				</search>
+						)}
+					</div>
+					<FormField label="Ordenar por" className="w-full sm:w-48">
+						<FilterSelect value={sort} onChange={setSort} options={REQUESTER_SORT_OPTIONS} />
+					</FormField>
+				</FilterBar>
 
 				<DataTable
 					caption="Solicitantes cadastrados"
@@ -199,16 +230,11 @@ export function RequestersPage() {
 					isPlaceholderData={requesters.isPlaceholderData}
 					skeletonRows={size}
 					emptyState={
-						hasSearch ? (
+						hasFilters ? (
 							<EmptyState
 								title="Nenhum solicitante encontrado"
-								description="Tente outro termo de busca."
-								action={
-									<Button variant="outline" onClick={clearSearch}>
-										<X aria-hidden="true" />
-										Limpar busca
-									</Button>
-								}
+								description="Nenhum solicitante corresponde aos filtros escolhidos. Ajuste os filtros ou cadastre um novo solicitante."
+								action={<ClearFiltersButton onClick={clearFilters} />}
 							/>
 						) : (
 							<EmptyState

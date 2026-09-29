@@ -15,11 +15,14 @@ export function statusToOcupada(status: RoomStatusFilter): boolean | undefined {
 }
 
 export const roomsApi = {
-	/** Mesma URL do `RoomService` do Angular: com setor, `room/section/{id}`; sem, `room`. */
-	list: ({ sectionId, status, page, size }: RoomListFilters, signal?: AbortSignal) =>
+	/**
+	 * Mesma URL do `RoomService` do Angular: com setor, `room/section/{id}`; sem, `room`. Busca e
+	 * ordenação só são enviadas quando preenchidas.
+	 */
+	list: ({ sectionId, status, search, sort, page, size }: RoomListFilters, signal?: AbortSignal) =>
 		api.get<PagedResponse<Room>>(
 			sectionId === ALL_SECTIONS ? "room" : `room/section/${sectionId}`,
-			{ size, page, ocupada: statusToOcupada(status) },
+			{ size, page, ocupada: statusToOcupada(status), nome: search.trim() || undefined, sort },
 			signal,
 		),
 

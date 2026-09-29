@@ -177,6 +177,10 @@ continua em `/cadastro` (item 13).
 | SEC7 | Excluir com salas | Kit C · **Excluir setor Ambulatório** | Botão **Excluir** desabilitado; "Este setor tem 2 salas. Exclua as salas deste setor antes de excluir o setor." e atalho **Ver salas do setor** (item 20) |
 | SEC8 | Atalho para Salas | Em SEC7, **Ver salas do setor** | Abre `/rooms?setor=ID` já filtrada por Ambulatório |
 | SEC9 | Backend fora do ar | Parar o backend · recarregar `/sections` | Quadro de erro com **Tentar novamente**; religar o backend e clicar recupera a lista |
+| SEC10 | Área de filtros | Kit C · abrir a página | Busca sozinha na primeira linha; embaixo, **Ordenar por** e **Limpar filtros** desabilitado (item 47) |
+| SEC11 | Busca sem acento | Buscar setor `AMBULATORIO` · depois `bloco` | Filtra enquanto digita, ignorando acentos e maiúsculas: primeiro `Ambulatório`, pelo nome, depois `Ortopedia`, pela observação; a contagem vira "1 de 3 setores" |
+| SEC12 | Ordenar | **Ordenar por** `Nome Z–A` | Ortopedia, Cardiologia, Ambulatório |
+| SEC13 | Busca sem resultado | Buscar `zzz` | "Nenhum setor encontrado" com **Limpar filtros**, que volta à lista completa e à ordem **Mais recentes** |
 
 ---
 
@@ -190,12 +194,15 @@ A página inicial `http://localhost:5173/` leva para `/rooms` quando há sessão
 |---|---------|--------------|-------------------|
 | SAL1 | Lista vazia (perfil A) | Abrir a página | "Nenhuma sala cadastrada" |
 | SAL2 | Resumo | Kit C | Faixa com **Total de salas**, **Ocupadas** e **Livres**, somando o total (item 16) |
-| SAL3 | Filtro por setor | Setor `Cardiologia` | A lista atualiza na hora, só com `Cardio-01`; aparece **Limpar filtros** (item 14) |
+| SAL3 | Filtro por setor | Setor `Cardiologia` | A lista atualiza na hora, só com `Cardio-01`; **Limpar filtros** fica habilitado (item 14) |
 | SAL4 | Status Ocupada | Reserva do Kit B em andamento agora (ajuste o horário para incluir o momento do teste) · Status `Ocupada` | A sala reservada aparece como ocupada |
 | SAL5 | Filtro sem resultado | Setor `Ortopedia` · Status `Ocupada` (sem reservas) | "Nenhuma sala encontrada" com opção de limpar os filtros (item 18) |
 | SAL6 | Busca no select de setor | Abrir Setor · digitar `ORTO` e depois `ambulatorio` (sem acento) | Encontra `Ortopedia` e `Ambulatório`, ignorando acentos e maiúsculas |
 | SAL7 | Filtro no endereço | Abrir `http://localhost:5173/rooms?setor=999999` | O filtro inválido é ignorado e a lista mostra todos os setores |
 | SAL8 | Paginação | 6+ salas · **Itens por página** `5` · próxima página | Segunda página coerente com o total |
+| SAL15 | Busca pelo nome | Buscar sala `cardio` (minúsculas) | Depois de parar de digitar, indicador girando no campo e só `Cardio-01`; volta para a primeira página (item 47) |
+| SAL16 | Ordenar | **Ordenar por** `Setor A–Z` · depois `Nome Z–A` | A ordem muda na hora e a paginação continua coerente |
+| SAL17 | Limpar tudo | Busca, setor, status e ordenação preenchidos · **Limpar filtros** | Todos voltam ao padrão, o `?setor=` sai do endereço e o botão fica desabilitado |
 
 ### Diálogo Nova sala / Editar sala
 
@@ -221,10 +228,14 @@ A página inicial `http://localhost:5173/` leva para `/rooms` quando há sessão
 | REQ5 | Telefone incompleto | Telefone `(11) 9876` · demais dados válidos · **Salvar** | "Informe um telefone com DDD (10 ou 11 dígitos)." (item 23) |
 | REQ6 | Só espaços | Nome `   ` · Especialidade `   ` · **Salvar** | "Informe o nome." e "Informe a especialidade." |
 | REQ7 | Editar | **Editar solicitante Dra. Ana Silva** · Especialidade `Medicina de família` · **Salvar** | Diálogo "Editar solicitante"; especialidade atualizada (item 24) |
-| REQ8 | Buscar | Buscar solicitante `ana` · **Buscar** | Só a Dra. Ana; aparece **Limpar busca** |
-| REQ9 | Busca só vale enviada | Buscar `ana` e enviar · digitar `bruno` sem enviar · trocar **Itens por página** | A lista continua filtrada por `ana` (item 22) |
+| REQ8 | Buscar | Buscar solicitante `ana` | Depois de parar de digitar, indicador girando no campo e só a Dra. Ana; **Limpar filtros** fica habilitado (item 22) |
+| REQ9 | Busca mantida ao paginar | 6+ solicitantes · buscar um termo com 6+ resultados · próxima página · trocar **Itens por página** | A lista continua filtrada pelo termo; mudar o termo volta para a primeira página (item 22) |
 | REQ10 | Excluir | **Excluir solicitante Dra. Carla Mendes** · confirmar | "Solicitante excluído com sucesso." |
 | REQ11 | Cancelar exclusão | Abrir a exclusão · **Cancelar** | Só fecha; console sem erro (item 25) |
+| REQ12 | Filtro por especialidade | Abrir **Especialidade** · digitar `cardio` · escolher `Cardiologia` | Opções sem repetição e em ordem alfabética, com **Todas** no topo; a lista mostra só o Dr. Bruno (item 47) |
+| REQ13 | Ordenar | **Ordenar por** `Especialidade A–Z` | Ordenada pela especialidade, ignorando maiúsculas e acentos |
+| REQ14 | Sem resultado e limpar | Buscar `zzz` | "Nenhum solicitante encontrado" com **Limpar filtros**, que volta busca, especialidade e ordenação ao padrão |
+| REQ15 | Especialidades não carregam | Parar o backend depois de abrir a página · recarregar e religar o backend | "Não foi possível carregar as especialidades." com **Tentar novamente**, que libera o select |
 
 ---
 
@@ -235,10 +246,14 @@ A página inicial `http://localhost:5173/` leva para `/rooms` quando há sessão
 | # | Cenário | Dados / ação | Resultado esperado |
 |---|---------|--------------|-------------------|
 | RES1 | Período padrão | Abrir a página | De **D** até **D+30**, mesmo depois das 21h (item 30) |
-| RES2 | Sem resultados | De `01/01/2020` · Até `31/01/2020` · **Buscar** | "Nenhuma reserva encontrada" |
-| RES3 | Período invertido | De **D+10** · Até **D** · **Buscar** | "A data final deve ser igual ou posterior à data inicial."; nada é enviado |
-| RES4 | Período só vale enviado | Buscar **D** a **D+60** · alterar as datas sem enviar · trocar de página | A lista continua no período enviado (item 30) |
+| RES2 | Sem resultados | De `01/01/2020` · Até `31/01/2020` | A lista atualiza ao completar a data: "Nenhuma reserva encontrada" com **Limpar filtros**, que volta ao período padrão (item 47) |
+| RES3 | Período invertido | Até **D** · De **D+10** · sair do campo | "A data final deve ser igual ou posterior à data inicial."; nada é enviado e a lista continua no último período válido |
+| RES4 | Período mantido ao paginar | Até **D+60** · próxima página · apagar um dígito do De | A lista continua em **D** a **D+60**; a data incompleta não é enviada (item 30) |
 | RES5 | Coluna de tipo | Kit C | Linhas **Pontual** e **Recorrente** corretas |
+| RES22 | Busca | Buscar reserva `cardio` · depois `ana` | Só reservas da `Cardio-01` (ou do setor Cardiologia); depois, as da Dra. Ana ou criadas por alguém com "ana" no nome |
+| RES23 | Setor e tipo | Setor `Cardiologia` · Tipo `Recorrente` · depois `Pontual` | Cada escolha atualiza na hora e volta para a primeira página |
+| RES24 | Ordenar | **Ordenar por** `Início mais próximo` · `Sala A–Z` · `Solicitante A–Z` | A ordem muda na hora; em empate, a ordem continua estável entre as páginas |
+| RES25 | Estado vazio do período padrão | Perfil A ou período padrão sem reservas | "Nenhuma reserva no período" com **Nova reserva** |
 
 ### Diálogo Nova reserva
 
@@ -304,6 +319,10 @@ A página inicial `http://localhost:5173/` leva para `/rooms` quando há sessão
 | AUS8 | Ordem da lista | Várias ausências | Ordenadas pelo início, da mais recente para a mais antiga (item 29) |
 | AUS9 | Excluir | **Excluir ausência** · confirmar | "Ausência removida." |
 | AUS10 | Impacto nas salas | Ausência cobrindo **D** para quem tem reserva agora · voltar a `/rooms` | A sala dessa reserva passa a contar como livre |
+| AUS11 | Busca pelo profissional | Buscar profissional `ANA` | Filtra enquanto digita, ignorando acentos e maiúsculas; a contagem mostra "X de N ausências" (item 47) |
+| AUS12 | Situação | Ausências passada, atual e futura · Situação `Em andamento`, `Próximas`, `Encerradas` | Cada opção mostra só as do grupo, em relação a hoje |
+| AUS13 | Ordenar | **Ordenar por** `Início mais antigo` · `Profissional A–Z` | A ordem muda na hora; **Início mais recente** volta à ordem do item 29 |
+| AUS14 | Sem resultado | Buscar `zzz` | "Nenhuma ausência encontrada" com **Limpar filtros** |
 
 ---
 
@@ -312,11 +331,13 @@ A página inicial `http://localhost:5173/` leva para `/rooms` quando há sessão
 | # | Cenário | Dados / ação | Resultado esperado |
 |---|---------|--------------|-------------------|
 | HIS1 | Eventos recentes | Depois dos cenários acima | Criações, edições e exclusões feitas no roteiro aparecem, com o login como "Login no sistema" |
-| HIS2 | Filtros só em "Filtrar" | Ação `Criação de sala` · trocar de página sem clicar **Filtrar** | A lista não muda até **Filtrar**, que mostra "Filtrando…" (item 36) |
-| HIS3 | Busca | Buscar `admin` ou o número de um registro · **Filtrar** | Só eventos daquele usuário ou registro (item 37) |
-| HIS4 | Período invertido | De **D** · Até uma data anterior · **Filtrar** | "A data final deve ser igual ou posterior à data inicial." |
-| HIS5 | Sem resultado | Buscar `zzz` · **Filtrar** | "Nenhum evento encontrado"; **Limpar filtros** volta à lista completa |
+| HIS2 | Filtros na hora | Ação `Criação de sala` · trocar de página | A lista atualiza ao escolher, volta para a primeira página e a paginação mantém o filtro (item 36) |
+| HIS3 | Busca | Buscar evento `admin` ou o número de um registro | Depois de parar de digitar, indicador girando no campo e só eventos daquele usuário ou registro (item 37) |
+| HIS4 | Período invertido | De **D** · Até uma data anterior · sair do campo | "A data final deve ser igual ou posterior à data inicial."; nada é enviado |
+| HIS5 | Sem resultado | Buscar evento `zzz` | "Nenhum evento encontrado"; **Limpar filtros** volta à lista completa |
 | HIS6 | Detalhes legíveis | Evento de reserva | Datas como `DD/MM/AAAA HH:mm`; séries como "Série #N" (item 38) |
+| HIS7 | Ordenar | **Ordenar por** `Mais antigos` | Do evento mais antigo para o mais recente; **Limpar filtros** volta a **Mais recentes** (item 47) |
+| HIS8 | Limpar filtros | Sem nada preenchido · depois digitar só `  ` na busca | Desabilitado no início; habilitado com qualquer campo alterado, inclusive uma data incompleta |
 
 ---
 

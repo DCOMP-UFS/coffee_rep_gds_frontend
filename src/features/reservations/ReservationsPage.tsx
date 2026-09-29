@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { ColumnDef } from "@tanstack/react-table";
-import { AlarmClock, CalendarX2, Loader2, Plus, Repeat, Search } from "lucide-react";
+import { AlarmClock, CalendarX2, Plus, Repeat } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { DataTable } from "@/components/data-table/DataTable";
@@ -8,17 +8,37 @@ import { PaginationBar } from "@/components/data-table/PaginationBar";
 import { PaginationSummary } from "@/components/data-table/PaginationSummary";
 import { RowActionButton } from "@/components/data-table/RowActionButton";
 import { EmptyState } from "@/components/feedback/EmptyState";
+import { ClearFiltersButton } from "@/components/filters/ClearFiltersButton";
+import { FilterBar } from "@/components/filters/FilterBar";
+import { FilterSelect } from "@/components/filters/FilterSelect";
+import { SearchInput } from "@/components/filters/SearchInput";
 import { FormField } from "@/components/form/FormField";
 import { MaskedInput } from "@/components/form/MaskedInput";
+import { SearchableSelect } from "@/components/form/SearchableSelect";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { StatusBadge } from "@/components/status/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { ALL_SECTIONS } from "@/features/rooms/types";
+import { useSections } from "@/features/sections/hooks";
 import { useClampPage } from "@/hooks/use-clamp-page";
+import { useDebouncedSearch } from "@/hooks/use-debounced-value";
+import { useFilteredPage } from "@/hooks/use-filtered-page";
+import { useValidFilterValues } from "@/hooks/use-valid-filter-values";
 import { formatIsoDateTimeBr } from "@/shared/format/br-format";
 import { maskDate } from "@/shared/format/masks";
 import { brDateToIsoDate } from "@/shared/validators/date";
 import { CancelReservationDialog } from "./CancelReservationDialog";
+import {
+	defaultReservationFilters,
+	hasActiveReservationFilters,
+	RESERVATION_SORT_OPTIONS,
+	RESERVATION_TYPE_OPTIONS,
+	type ReservationFilters,
+	type ReservationSort,
+	type ReservationTypeFilter,
+	toReservationListFilters,
+} from "./filters";
 import { useReservations } from "./hooks";
 import { ReservationFormDialog } from "./ReservationFormDialog";
 import {
@@ -31,34 +51,46 @@ import type { Reservation } from "./types";
 const PAGE_SIZE_OPTIONS = [5, 10] as const;
 const DEFAULT_PAGE_SIZE = PAGE_SIZE_OPTIONS[0];
 
-interface AppliedPeriod {
-	inicio: string;
-	fim: string;
+/** Período e filtros padrão calculados a partir do mesmo instante, para não divergirem à meia-noite. */
+function initialDefaults() {
+	const now = new Date();
+	return { period: defaultReservationPeriod(now), filters: defaultReservationFilters(now) };
 }
 
-const toAppliedPeriod = ({ inicio, fim }: ReservationPeriodInput): AppliedPeriod => ({
-	inicio: brDateToIsoDate(inicio),
-	fim: brDateToIsoDate(fim),
-});
-
 export function ReservationsPage() {
-	// O período digitado só vale depois de enviado: a paginação e a recarga após cancelar usam
-	// sempre o último período aplicado.
-	const [initialPeriod] = useState(defaultReservationPeriod);
-	const [period, setPeriod] = useState(() => toAppliedPeriod(initialPeriod));
-	const [page, setPage] = useState(0);
+	const [defaults] = useState(initialDefaults);
+	const [searchInput, setSearchInput] = useState(defaults.filters.search);
+	const [sectionId, setSectionId] = useState(defaults.filters.sectionId);
+	const [type, setType] = useState<ReservationTypeFilter>(defaults.filters.type);
+	const [sort, setSort] = useState<ReservationSort>(defaults.filters.sort);
 	const [size, setSize] = useState<number>(DEFAULT_PAGE_SIZE);
-
-	const reservations = useReservations({ ...period, page, size });
+	const search = useDebouncedSearch(searchInput);
 
 	const {
 		register,
-		handleSubmit,
-		formState: { errors },
+		control,
+		reset,
+		formState: { errors, isDirty },
 	} = useForm<ReservationPeriodInput>({
 		resolver: zodResolver(reservationPeriodSchema),
-		defaultValues: initialPeriod,
+		defaultValues: defaults.period,
+		// O erro aparece ao sair do campo e, depois, a cada mudança, já que não há botão de enviar.
+		mode: "onTouched",
 	});
+	// Enquanto o período digitado é inválido, a lista continua com o último período válido.
+	const period = useValidFilterValues(control, reservationPeriodSchema);
+
+	const sections = useSections();
+	const filters: ReservationFilters = {
+		search: search.applied,
+		inicio: brDateToIsoDate(period.inicio),
+		fim: brDateToIsoDate(period.fim),
+		sectionId,
+		type,
+		sort,
+	};
+	const [page, setPage] = useFilteredPage(filters);
+	const reservations = useReservations(toReservationListFilters(filters, page, size));
 
 	// O alvo é mantido após fechar para o conteúdo não mudar durante a animação de saída.
 	const [formOpen, setFormOpen] = useState(false);
@@ -67,19 +99,29 @@ export function ReservationsPage() {
 
 	const pageInfo = reservations.data?.page;
 	const data = reservations.data?.content ?? [];
-	const isSearching = reservations.isFetching && !reservations.isPending;
+	const hasFilters = hasActiveReservationFilters(filters, defaults.filters);
+	const canClear =
+		hasActiveReservationFilters({ ...filters, search: searchInput }, defaults.filters) ||
+		isDirty ||
+		sort !== defaults.filters.sort;
 
 	useClampPage({ page, pageInfo, isPlaceholderData: reservations.isPlaceholderData, setPage });
 
-	const applyPeriod = handleSubmit((values) => {
-		const next = toAppliedPeriod(values);
-		if (next.inicio === period.inicio && next.fim === period.fim && page === 0) {
-			reservations.refetch();
-			return;
-		}
-		setPeriod(next);
-		setPage(0);
-	});
+	const clearFilters = () => {
+		setSearchInput(defaults.filters.search);
+		reset(defaults.period);
+		setSectionId(defaults.filters.sectionId);
+		setType(defaults.filters.type);
+		setSort(defaults.filters.sort);
+	};
+
+	const sectionOptions = useMemo(
+		() => [
+			{ value: ALL_SECTIONS, label: "Todos" },
+			...(sections.data ?? []).map((section) => ({ value: section.id, label: section.nome })),
+		],
+		[sections.data],
+	);
 
 	const askCancel = useCallback((reservation: Reservation) => {
 		setCancelling(reservation);
@@ -167,29 +209,55 @@ export function ReservationsPage() {
 			/>
 
 			<Card className="gap-0 overflow-hidden py-0">
-				<search className="border-b p-4">
-					<form
-						noValidate
-						aria-label="Período das reservas"
-						className="flex flex-col gap-3 sm:flex-row sm:items-start"
-						onSubmit={applyPeriod}
-					>
-						<FormField label="De" error={errors.inicio?.message} className="sm:w-40">
-							<MaskedInput mask={maskDate} placeholder="DD/MM/AAAA" {...register("inicio")} />
+				<FilterBar
+					label="Filtros das reservas"
+					search={
+						<FormField
+							label="Buscar reserva"
+							hint="Busque pela sala, pelo setor, pelo solicitante ou por quem criou a reserva"
+						>
+							<SearchInput
+								value={searchInput}
+								onChange={(event) => setSearchInput(event.target.value)}
+								placeholder="Ex.: Consultório 3, Ambulatório ou Ana"
+								isBusy={search.isPending || reservations.isPlaceholderData}
+							/>
 						</FormField>
-						<FormField label="Até" error={errors.fim?.message} className="sm:w-40">
-							<MaskedInput mask={maskDate} placeholder="DD/MM/AAAA" {...register("fim")} />
-						</FormField>
-						<Button type="submit" variant="outline" className="sm:mt-5" disabled={isSearching}>
-							{isSearching ? (
-								<Loader2 className="animate-spin" aria-hidden="true" />
-							) : (
-								<Search aria-hidden="true" />
-							)}
-							{isSearching ? "Buscando…" : "Buscar"}
-						</Button>
-					</form>
-				</search>
+					}
+					onClear={clearFilters}
+					canClear={canClear}
+				>
+					<FormField label="De" error={errors.inicio?.message} className="w-full sm:w-36">
+						<MaskedInput
+							mask={maskDate}
+							placeholder="DD/MM/AAAA"
+							{...register("inicio", { deps: "fim" })}
+						/>
+					</FormField>
+					<FormField label="Até" error={errors.fim?.message} className="w-full sm:w-36">
+						<MaskedInput mask={maskDate} placeholder="DD/MM/AAAA" {...register("fim")} />
+					</FormField>
+					<FormField label="Setor" className="w-full sm:w-56">
+						<SearchableSelect
+							options={sectionOptions}
+							value={sectionId}
+							onChange={setSectionId}
+							placeholder="Selecione o setor"
+							searchPlaceholder="Pesquisar setor..."
+						/>
+					</FormField>
+					<FormField label="Tipo" className="w-full sm:w-36">
+						<FilterSelect
+							value={type}
+							onChange={setType}
+							options={RESERVATION_TYPE_OPTIONS}
+							allOptionLabel="Todas"
+						/>
+					</FormField>
+					<FormField label="Ordenar por" className="w-full sm:w-48">
+						<FilterSelect value={sort} onChange={setSort} options={RESERVATION_SORT_OPTIONS} />
+					</FormField>
+				</FilterBar>
 
 				<DataTable
 					caption="Reservas do período"
@@ -203,11 +271,19 @@ export function ReservationsPage() {
 					isPlaceholderData={reservations.isPlaceholderData}
 					skeletonRows={size}
 					emptyState={
-						<EmptyState
-							title="Nenhuma reserva encontrada"
-							description="Ajuste o período da busca ou crie uma nova reserva."
-							action={newReservationButton}
-						/>
+						hasFilters ? (
+							<EmptyState
+								title="Nenhuma reserva encontrada"
+								description="Nenhuma reserva corresponde aos filtros escolhidos. Ajuste os filtros ou crie uma nova reserva."
+								action={<ClearFiltersButton onClick={clearFilters} />}
+							/>
+						) : (
+							<EmptyState
+								title="Nenhuma reserva no período"
+								description="Não há reservas de hoje até os próximos 30 dias. Crie uma nova reserva ou escolha outro período."
+								action={newReservationButton}
+							/>
+						)
 					}
 					header={pageInfo && data.length > 0 && <PaginationSummary page={pageInfo} />}
 					footer={
