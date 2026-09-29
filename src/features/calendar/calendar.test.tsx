@@ -11,6 +11,7 @@ import type { Room } from "@/features/rooms/types";
 import type { Section } from "@/features/sections/types";
 import { GENERIC_ERROR_MESSAGE } from "@/lib/api/error-handler";
 import { CALENDAR_LOAD_ERRORS } from "./CalendarPage";
+import { DAY_EVENTS_EMPTY_MESSAGE, DAY_EVENTS_SEARCH_LABEL } from "./DayEventsPopover";
 
 type User = ReturnType<typeof renderApp>["user"];
 
@@ -267,6 +268,61 @@ describe("Calendário", () => {
 		);
 	});
 
+	it("salta para qualquer mês e ano pelos selects, sincronizados com as setas e o Hoje", async () => {
+		const backend = mockBackend();
+		const { user } = renderCalendar();
+		await waitForEvents();
+		const monthSelect = screen.getByRole("combobox", { name: "Mês" });
+		const yearSelect = screen.getByRole("combobox", { name: "Ano" });
+		expect(monthSelect).toHaveTextContent("Setembro");
+		expect(yearSelect).toHaveTextContent("2026");
+
+		await selectOption(user, monthSelect, "Março");
+		expect(screen.getByRole("heading", { level: 2, name: "março de 2026" })).toBeInTheDocument();
+
+		await selectOption(user, yearSelect, "2028");
+		expect(screen.getByRole("heading", { level: 2, name: "março de 2028" })).toBeInTheDocument();
+		await waitFor(() =>
+			expect(backend.lastList()).toMatchObject({
+				inicio: "2028-02-27T00:00:00",
+				fim: "2028-04-08T23:59:59",
+			}),
+		);
+		expect(screen.getByRole("button", { name: "Hoje" })).toBeEnabled();
+
+		await user.click(screen.getByRole("button", { name: "Próximo mês" }));
+		expect(screen.getByRole("heading", { level: 2, name: "abril de 2028" })).toBeInTheDocument();
+		expect(monthSelect).toHaveTextContent("Abril");
+		expect(yearSelect).toHaveTextContent("2028");
+
+		await user.click(screen.getByRole("button", { name: "Hoje" }));
+		expect(screen.getByRole("heading", { level: 2, name: "setembro de 2026" })).toBeInTheDocument();
+		expect(monthSelect).toHaveTextContent("Setembro");
+		expect(yearSelect).toHaveTextContent("2026");
+	});
+
+	it("mostra o carregamento ao saltar de mês pelos selects", async () => {
+		mockBackend();
+		const { user } = renderCalendar();
+		await waitForEvents();
+		let release = () => {};
+		const gate = new Promise<void>((resolve) => {
+			release = resolve;
+		});
+		server.use(
+			http.get(apiUrl("reservation"), async () => {
+				await gate;
+				return undefined;
+			}),
+		);
+
+		await selectOption(user, screen.getByRole("combobox", { name: "Ano" }), "2030");
+
+		expect(await screen.findByText("Carregando…")).toBeInTheDocument();
+		release();
+		await waitFor(() => expect(screen.queryByText("Carregando…")).not.toBeInTheDocument());
+	});
+
 	it("filtra por setor e já traz o setor escolhido na nova reserva", async () => {
 		const backend = mockBackend();
 		const { user } = renderCalendar();
@@ -326,6 +382,47 @@ describe("Calendário", () => {
 				screen.queryByRole("dialog", { name: /Eventos de quinta-feira/ }),
 			).not.toBeInTheDocument(),
 		);
+	});
+
+	it("busca entre os eventos do dia no +N mais e reabre com a lista completa", async () => {
+		mockBackend();
+		const { user } = renderCalendar();
+		await waitForEvents();
+		const busy = day("quinta-feira, 10 de setembro de 2026");
+		const popoverName = "Eventos de quinta-feira, 10 de setembro de 2026";
+
+		await user.click(within(busy).getByRole("button", { name: "+3 mais em 10/09/2026" }));
+		let popover = await screen.findByRole("dialog", { name: popoverName });
+		const search = within(popover).getByRole("searchbox", { name: DAY_EVENTS_SEARCH_LABEL });
+		expect(search).toHaveFocus();
+
+		await user.type(search, "sala 24");
+		expect(within(popover).getAllByRole("button")).toHaveLength(1);
+		expect(
+			within(popover).getByRole("button", {
+				name: "12:00 às 13:00, Sala 24 - Ambulatório, Pontual",
+			}),
+		).toBeInTheDocument();
+		expect(within(popover).getByText("1 de 5 eventos")).toBeInTheDocument();
+
+		await user.clear(search);
+		await user.type(search, "cardiologia");
+		expect(within(popover).queryAllByRole("button")).toHaveLength(0);
+		expect(within(popover).getByText(DAY_EVENTS_EMPTY_MESSAGE)).toBeInTheDocument();
+		expect(within(popover).getByText("0 de 5 eventos")).toBeInTheDocument();
+
+		await user.keyboard("{Escape}");
+		await waitFor(() =>
+			expect(screen.queryByRole("dialog", { name: popoverName })).not.toBeInTheDocument(),
+		);
+
+		await user.click(within(busy).getByRole("button", { name: "+3 mais em 10/09/2026" }));
+		popover = await screen.findByRole("dialog", { name: popoverName });
+		expect(within(popover).getByRole("searchbox", { name: DAY_EVENTS_SEARCH_LABEL })).toHaveValue(
+			"",
+		);
+		expect(within(popover).getAllByRole("button")).toHaveLength(5);
+		expect(within(popover).getByText("5 eventos")).toBeInTheDocument();
 	});
 
 	it("mostra os detalhes da reserva e da ausência", async () => {

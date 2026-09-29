@@ -4,6 +4,7 @@ import {
 	datePart,
 	eventDescription,
 	groupEventsByDay,
+	matchesEventSearch,
 	reservationKind,
 	reservationTimeRange,
 } from "./events";
@@ -65,6 +66,60 @@ describe("datas e horários", () => {
 		expect(
 			eventDescription({ type: "absence", key: "a", kind: "livre", absence: absence(1) }),
 		).toBe("Bruno Lima: ausência/férias");
+	});
+});
+
+describe("matchesEventSearch", () => {
+	const reservationEvent = (overrides: Partial<Reservation> = {}) =>
+		({
+			type: "reservation",
+			key: "r",
+			kind: "pontual",
+			reservation: reservation(17, {
+				sala: "SALA 17",
+				setor: "Clínica Médica 1",
+				horaInicio: "2026-11-02T07:00:00",
+				horaFim: "2026-11-02T12:00:00",
+				criador: "Maria Admin",
+				...overrides,
+			}),
+		}) as const;
+	const absenceEvent = { type: "absence", key: "a", kind: "livre", absence: absence(1) } as const;
+
+	it("aceita tudo com a busca vazia ou só com espaços", () => {
+		expect(matchesEventSearch(reservationEvent(), "")).toBe(true);
+		expect(matchesEventSearch(reservationEvent(), "   ")).toBe(true);
+		expect(matchesEventSearch(absenceEvent, "")).toBe(true);
+	});
+
+	it.each([
+		["sala", "sala 17"],
+		["setor", "clínica médica"],
+		["sala e setor juntos, como na lista", "sala 17 - clinica"],
+		["horário", "07:00"],
+		["solicitante", "ana souza"],
+		["quem criou", "maria"],
+		["tipo", "pontual"],
+	])("encontra a reserva pelo(a) %s", (_, term) => {
+		expect(matchesEventSearch(reservationEvent(), term)).toBe(true);
+	});
+
+	it("ignora acentos e maiúsculas", () => {
+		expect(matchesEventSearch(reservationEvent(), "CLINICA MEDICA")).toBe(true);
+	});
+
+	it("não encontra quando nenhum campo contém o termo", () => {
+		expect(matchesEventSearch(reservationEvent(), "cardiologia")).toBe(false);
+	});
+
+	it("não quebra quando a reserva não informa quem criou", () => {
+		expect(matchesEventSearch(reservationEvent({ criador: null }), "maria")).toBe(false);
+	});
+
+	it("encontra a ausência pelo profissional ou pelo tipo", () => {
+		expect(matchesEventSearch(absenceEvent, "bruno")).toBe(true);
+		expect(matchesEventSearch(absenceEvent, "férias")).toBe(true);
+		expect(matchesEventSearch(absenceEvent, "sala")).toBe(false);
 	});
 });
 

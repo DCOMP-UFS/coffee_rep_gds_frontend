@@ -17,6 +17,8 @@ const ALL_OPTIONS_VALUE = "__todas__";
 interface FilterSelectProps<TValue extends string> {
 	id?: string;
 	"aria-describedby"?: string;
+	/** Nome acessível quando o select não tem um rótulo visível associado. */
+	"aria-label"?: string;
 	value: TValue;
 	onChange: (value: TValue) => void;
 	options: readonly FilterOption<TValue>[];
@@ -40,7 +42,9 @@ export function FilterSelect<TValue extends string>({
 			<SelectTrigger className="w-full" {...triggerProps}>
 				<SelectValue />
 			</SelectTrigger>
-			<SelectContent>
+			{/* No modo padrão ("item-aligned"), o item selecionado fica sobre o campo e, perto do topo da
+			tela, os itens anteriores eram cortados; "popper" abre a lista inteira abaixo do campo. */}
+			<SelectContent position="popper">
 				{allOptionLabel !== undefined && (
 					<SelectItem value={ALL_OPTIONS_VALUE}>{allOptionLabel}</SelectItem>
 				)}

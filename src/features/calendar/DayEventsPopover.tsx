@@ -1,5 +1,6 @@
 import { Repeat } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { SearchInput } from "@/components/filters/SearchInput";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { EVENT_KIND_STYLES } from "./constants";
@@ -7,8 +8,12 @@ import {
 	type CalendarEvent,
 	EVENT_KIND_LABELS,
 	eventDescription,
+	matchesEventSearch,
 	reservationTimeRange,
 } from "./events";
+
+export const DAY_EVENTS_SEARCH_LABEL = "Buscar eventos do dia";
+export const DAY_EVENTS_EMPTY_MESSAGE = "Nenhum evento encontrado.";
 
 interface DayEventsPopoverProps {
 	dayLabel: string;
@@ -27,10 +32,26 @@ export function DayEventsPopover({
 	onSelectEvent,
 }: DayEventsPopoverProps) {
 	const [open, setOpen] = useState(false);
+	const [search, setSearch] = useState("");
 	const text = `+${hiddenCount} mais`;
 
+	const filtered = useMemo(
+		() => events.filter((event) => matchesEventSearch(event, search)),
+		[events, search],
+	);
+	const isSearching = search.trim() !== "";
+	const countLabel = isSearching
+		? `${filtered.length} de ${events.length} eventos`
+		: `${events.length} eventos`;
+
+	// A busca é zerada ao abrir, e não ao fechar, para a lista não mudar durante a animação.
+	const handleOpenChange = (next: boolean) => {
+		if (next) setSearch("");
+		setOpen(next);
+	};
+
 	return (
-		<Popover open={open} onOpenChange={setOpen}>
+		<Popover open={open} onOpenChange={handleOpenChange}>
 			<PopoverTrigger asChild>
 				<button
 					type="button"
@@ -47,21 +68,38 @@ export function DayEventsPopover({
 			>
 				<div className="flex items-baseline justify-between gap-2 border-b px-3 py-2">
 					<p className="text-sm font-semibold first-letter:uppercase">{dayLabel}</p>
-					<p className="shrink-0 text-xs text-muted-foreground">{events.length} eventos</p>
+					<p aria-live="polite" className="shrink-0 text-xs text-muted-foreground">
+						{countLabel}
+					</p>
 				</div>
-				<ul className="flex max-h-[min(24rem,60vh)] flex-col gap-0.5 overflow-y-auto p-1.5">
-					{events.map((event) => (
-						<li key={event.key}>
-							<DayEventItem
-								event={event}
-								onSelect={(selected) => {
-									setOpen(false);
-									onSelectEvent(selected);
-								}}
-							/>
-						</li>
-					))}
-				</ul>
+				<div className="border-b p-2">
+					<SearchInput
+						aria-label={DAY_EVENTS_SEARCH_LABEL}
+						placeholder="Buscar sala, setor, solicitante ou horário"
+						value={search}
+						onChange={(event) => setSearch(event.target.value)}
+						className="h-8"
+					/>
+				</div>
+				{filtered.length === 0 ? (
+					<p className="px-3 py-6 text-center text-sm text-muted-foreground">
+						{DAY_EVENTS_EMPTY_MESSAGE}
+					</p>
+				) : (
+					<ul className="flex max-h-[min(24rem,60vh)] flex-col gap-0.5 overflow-y-auto p-1.5">
+						{filtered.map((event) => (
+							<li key={event.key}>
+								<DayEventItem
+									event={event}
+									onSelect={(selected) => {
+										setOpen(false);
+										onSelectEvent(selected);
+									}}
+								/>
+							</li>
+						))}
+					</ul>
+				)}
 			</PopoverContent>
 		</Popover>
 	);
