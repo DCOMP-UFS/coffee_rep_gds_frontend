@@ -63,6 +63,7 @@ export function SectionsPage() {
 	);
 
 	const data = sections.data ?? [];
+	const total = data.length === 1 ? "1 setor" : `${data.length} setores`;
 	const newSectionButton = (
 		<Button onClick={() => openForm()}>
 			<Plus aria-hidden="true" />
@@ -96,11 +97,10 @@ export function SectionsPage() {
 							action={newSectionButton}
 						/>
 					}
+					header={data.length > 0 && <p>{total}</p>}
 					footer={
 						data.length > 0 && (
-							<p className="border-t px-4 py-3 text-sm text-muted-foreground">
-								{data.length === 1 ? "1 setor" : `${data.length} setores`}
-							</p>
+							<p className="border-t px-4 py-3 text-sm text-muted-foreground">{total}</p>
 						)
 					}
 				/>

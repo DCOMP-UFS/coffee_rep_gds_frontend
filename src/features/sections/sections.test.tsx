@@ -92,7 +92,8 @@ describe("Setores", () => {
 		expect(row).not.toBeNull();
 		expect(within(row as HTMLElement).getByText("—")).toBeInTheDocument();
 		expect(screen.getByText("2º andar")).toBeInTheDocument();
-		expect(screen.getByText("2 setores")).toBeInTheDocument();
+		// Acima e abaixo da tabela.
+		expect(screen.getAllByText("2 setores")).toHaveLength(2);
 		expect(calls.unpagedParam).toEqual(["true"]);
 	});
 
