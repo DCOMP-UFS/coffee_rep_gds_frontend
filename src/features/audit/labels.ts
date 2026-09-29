@@ -1,3 +1,4 @@
+import type { FilterOption } from "@/components/filters/FilterSelect";
 import type { AuditEvent } from "./types";
 
 export const AUDIT_ACTION_LABELS: Record<string, string> = {
@@ -28,11 +29,6 @@ export const AUDIT_ENTITY_LABELS: Record<string, string> = {
 	reservation: "Reserva",
 	user: "Usuário",
 };
-
-export interface FilterOption {
-	value: string;
-	label: string;
-}
 
 const toOptions = (labels: Record<string, string>): FilterOption[] =>
 	Object.entries(labels).map(([value, label]) => ({ value, label }));

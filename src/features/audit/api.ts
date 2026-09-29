@@ -5,9 +5,9 @@ import type { AuditEvent, AuditListParams } from "./types";
 const filledOrUndefined = (value: string) => value.trim() || undefined;
 
 export const auditApi = {
-	/** Eventos do mais recente ao mais antigo; filtros vazios não são enviados. */
+	/** Eventos do mais recente ao mais antigo, salvo outra ordem; filtros vazios não são enviados. */
 	list: (
-		{ q, action, entityType, createdFrom, createdTo, page, size }: AuditListParams,
+		{ q, action, entityType, createdFrom, createdTo, sort, page, size }: AuditListParams,
 		signal?: AbortSignal,
 	) =>
 		api.get<PagedResponse<AuditEvent>>(
@@ -20,6 +20,7 @@ export const auditApi = {
 				entityType: filledOrUndefined(entityType),
 				createdFrom: filledOrUndefined(createdFrom),
 				createdTo: filledOrUndefined(createdTo),
+				sort,
 			},
 			signal,
 		),
