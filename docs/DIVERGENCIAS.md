@@ -460,3 +460,15 @@ tudo: horário de início e fim, sala, setor e tipo. As cores e a legenda são a
 também aparece no texto e, nas recorrentes, num ícone, para não depender só da cor. Os detalhes
 seguem o Angular: Solicitante, Criado por (em reservas) e Horário ou Período. Coberto por testes em
 `src/features/calendar/`.
+
+## Tabelas
+
+### 46. Total de registros acima e abaixo das tabelas
+
+**Angular:** Salas, Solicitantes, Reservas e Histórico mostravam o total acima e abaixo da tabela,
+no formato "12 sala(s) — página 1 de 3". Setores e Ausências não mostravam total.
+
+**Agora:** as tabelas paginadas continuam com o total acima e abaixo, no formato "Mostrando 1–5 de
+12", que diz também quais registros estão na tela. Setores e Ausências, que não são paginadas,
+mostram a contagem ("2 setores", "3 ausências") nas mesmas duas posições. Coberto pelos testes de
+cada tela.

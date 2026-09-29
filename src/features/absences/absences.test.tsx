@@ -116,7 +116,8 @@ describe("Ausências", () => {
 		const firstRow = screen.getByRole("cell", { name: "Bruno Lima" }).closest("tr") as HTMLElement;
 		expect(within(firstRow).getByText("01/03/2026")).toBeInTheDocument();
 		expect(within(firstRow).getByText("15/03/2026")).toBeInTheDocument();
-		expect(screen.getByText("3 ausências")).toBeInTheDocument();
+		// Acima e abaixo da tabela.
+		expect(screen.getAllByText("3 ausências")).toHaveLength(2);
 		expect(backend.requesterRequests).toEqual(["?unpaged=true"]);
 	});
 
@@ -140,7 +141,7 @@ describe("Ausências", () => {
 				body: { solicitanteId: 2, dataInicio: "2026-01-05", dataFim: "2026-01-10" },
 			},
 		]);
-		expect(await screen.findByText("4 ausências")).toBeInTheDocument();
+		expect(await screen.findAllByText("4 ausências")).toHaveLength(2);
 	});
 
 	// Regressão: no Angular, início depois do fim fazia o "Salvar" não fazer nada, sem mensagem.
@@ -333,7 +334,7 @@ describe("Ausências", () => {
 
 		expect(await screen.findByText(ABSENCE_DELETED_MESSAGE)).toBeInTheDocument();
 		expect(backend.writes).toEqual([{ method: "DELETE", url: apiUrl("requester-absence/11") }]);
-		expect(await screen.findByText("2 ausências")).toBeInTheDocument();
+		expect(await screen.findAllByText("2 ausências")).toHaveLength(2);
 	});
 
 	// Regressão: no Angular, a falha na exclusão aparecia num aviso com estilo de sucesso.

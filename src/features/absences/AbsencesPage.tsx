@@ -103,6 +103,7 @@ export function AbsencesPage() {
 	);
 
 	const data = absences.data ?? [];
+	const total = data.length === 1 ? "1 ausência" : `${data.length} ausências`;
 	const newAbsenceButton = (
 		<Button onClick={() => openForm()}>
 			<Plus aria-hidden="true" />
@@ -137,11 +138,10 @@ export function AbsencesPage() {
 							action={newAbsenceButton}
 						/>
 					}
+					header={data.length > 0 && <p>{total}</p>}
 					footer={
 						data.length > 0 && (
-							<p className="border-t px-4 py-3 text-sm text-muted-foreground">
-								{data.length === 1 ? "1 ausência" : `${data.length} ausências`}
-							</p>
+							<p className="border-t px-4 py-3 text-sm text-muted-foreground">{total}</p>
 						)
 					}
 				/>
