@@ -1,0 +1,131 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Tokens da marca (Ambulatório HU-UFS). As cores vêm do frontend Angular:
+ * azul-marinho #00305A (menu), azul #0168a6 (links e foco) e verde #7faa1b (ações).
+ *
+ * O verde original tem contraste 2,9:1 com branco, abaixo do mínimo AA (4,5:1) para texto.
+ * Por isso ele fica como cor decorativa (--brand-green), e botões e textos de sucesso usam
+ * uma variação mais escura (--success), que passa no AA.
+ */
+:root {
+	--radius: 0.75rem;
+
+	--brand-navy: #00305a;
+	--brand-blue: #0168a6;
+	--brand-green: #7faa1b;
+
+	--background: #f3f6fa;
+	--foreground: #0f1b2d;
+	--card: #ffffff;
+	--card-foreground: #0f1b2d;
+	--popover: #ffffff;
+	--popover-foreground: #0f1b2d;
+
+	--primary: #00305a;
+	--primary-foreground: #ffffff;
+	--secondary: #e8eef5;
+	--secondary-foreground: #0f2a47;
+	--muted: #eef2f7;
+	--muted-foreground: #56657a;
+	--accent: #e6f1f9;
+	--accent-foreground: #01497a;
+
+	--destructive: #c62828;
+	--destructive-foreground: #ffffff;
+	--success: #4a7a0c;
+	--success-foreground: #ffffff;
+	--success-soft: #eef6dc;
+	--warning: #9a4b06;
+	--warning-soft: #fdf1dc;
+
+	--border: #dae2ec;
+	--input: #cfd9e5;
+	--ring: #0168a6;
+
+	--sidebar: #00305a;
+	--sidebar-foreground: #d6e4f2;
+	--sidebar-primary: #7faa1b;
+	--sidebar-primary-foreground: #ffffff;
+	--sidebar-accent: #0b4577;
+	--sidebar-accent-foreground: #ffffff;
+	--sidebar-border: #0d406d;
+	--sidebar-ring: #7faa1b;
+}
+
+@theme inline {
+	--font-sans: "Plus Jakarta Sans Variable", ui-sans-serif, system-ui, sans-serif;
+
+	--radius-sm: calc(var(--radius) - 4px);
+	--radius-md: calc(var(--radius) - 2px);
+	--radius-lg: var(--radius);
+	--radius-xl: calc(var(--radius) + 4px);
+
+	--color-brand-navy: var(--brand-navy);
+	--color-brand-blue: var(--brand-blue);
+	--color-brand-green: var(--brand-green);
+
+	--color-background: var(--background);
+	--color-foreground: var(--foreground);
+	--color-card: var(--card);
+	--color-card-foreground: var(--card-foreground);
+	--color-popover: var(--popover);
+	--color-popover-foreground: var(--popover-foreground);
+	--color-primary: var(--primary);
+	--color-primary-foreground: var(--primary-foreground);
+	--color-secondary: var(--secondary);
+	--color-secondary-foreground: var(--secondary-foreground);
+	--color-muted: var(--muted);
+	--color-muted-foreground: var(--muted-foreground);
+	--color-accent: var(--accent);
+	--color-accent-foreground: var(--accent-foreground);
+	--color-destructive: var(--destructive);
+	--color-destructive-foreground: var(--destructive-foreground);
+	--color-success: var(--success);
+	--color-success-foreground: var(--success-foreground);
+	--color-success-soft: var(--success-soft);
+	--color-warning: var(--warning);
+	--color-warning-soft: var(--warning-soft);
+	--color-border: var(--border);
+	--color-input: var(--input);
+	--color-ring: var(--ring);
+
+	--color-sidebar: var(--sidebar);
+	--color-sidebar-foreground: var(--sidebar-foreground);
+	--color-sidebar-primary: var(--sidebar-primary);
+	--color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+	--color-sidebar-accent: var(--sidebar-accent);
+	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+	--color-sidebar-border: var(--sidebar-border);
+	--color-sidebar-ring: var(--sidebar-ring);
+
+	--animate-progress: progress 1.2s ease-in-out infinite;
+
+	@keyframes progress {
+		0% {
+			transform: translateX(-100%);
+		}
+		100% {
+			transform: translateX(250%);
+		}
+	}
+}
+
+@layer base {
+	* {
+		@apply border-border outline-ring/50;
+	}
+
+	body {
+		@apply bg-background text-foreground font-sans antialiased;
+	}
+
+	h1,
+	h2,
+	h3 {
+		@apply tracking-tight;
+	}
+}
