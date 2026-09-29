@@ -15,8 +15,12 @@ export interface RequesterWriteDto {
 }
 
 export interface RequesterListFilters {
-	/** Termo já enviado pelo usuário; vazio lista todos. */
+	/** Nome, especialidade ou telefone; vazio lista todos. */
 	search: string;
+	/** Especialidade exata, sem diferenciar maiúsculas; vazio lista todas. */
+	specialty: string;
+	/** `campo,direção`; ausente mantém a ordem padrão, dos mais recentes. */
+	sort?: string;
 	/** Base 0. */
 	page: number;
 	size: number;

@@ -3,11 +3,17 @@ import type { PagedResponse } from "@/shared/types/pagination";
 import type { Requester, RequesterListFilters, RequesterWriteDto } from "./types";
 
 export const requestersApi = {
-	/** Busca por nome, especialidade ou telefone; `busca` só vai quando há termo. */
-	list: ({ search, page, size }: RequesterListFilters, signal?: AbortSignal) =>
+	/** Busca por nome, especialidade ou telefone; cada filtro só vai quando preenchido. */
+	list: ({ search, specialty, sort, page, size }: RequesterListFilters, signal?: AbortSignal) =>
 		api.get<PagedResponse<Requester>>(
 			"requester",
-			{ size, page, busca: search.trim() || undefined },
+			{
+				size,
+				page,
+				busca: search.trim() || undefined,
+				especialidade: specialty.trim() || undefined,
+				sort,
+			},
 			signal,
 		),
 
