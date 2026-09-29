@@ -138,8 +138,9 @@ concluído avisava no canto e levava ao login sem nenhuma indicação na tela.
 
 **Angular:** era preciso clicar em "Buscar" depois de escolher setor ou status.
 
-**Agora:** a lista é atualizada ao escolher o filtro, voltando para a primeira página. Um botão
-"Limpar filtros" aparece quando há filtro ativo.
+**Agora:** a lista é atualizada ao escolher o filtro, voltando para a primeira página. O botão
+"Limpar filtros" fica sempre visível, desabilitado quando não há filtro ativo. A busca pelo nome
+da sala e a ordenação vieram depois; veja o item 47.
 
 ### 15. Excluir o último item da última página volta para a página anterior
 
@@ -213,15 +214,17 @@ também estão em português.
 
 ## Solicitantes
 
-### 22. A busca só vale depois de enviada, inclusive ao paginar
+### 22. A busca vale 300 ms depois da digitação, inclusive ao paginar
 
 **Angular:** a busca era aplicada ao pressionar Enter ou clicar em "Buscar", mas trocar de
 página ou de quantidade por página usava o termo que estivesse digitado, mesmo sem ter sido
 enviado.
 
-**Agora:** a lista usa sempre o último termo enviado. O botão mostra "Buscando…" enquanto a
-resposta não chega, e "Limpar busca" aparece quando há busca ativa. A busca continua sendo feita
-ao enviar, não a cada tecla, para não gerar uma requisição por letra.
+**Agora:** não há botão "Buscar". A busca é aplicada 300 ms depois de parar de digitar, o que
+evita uma requisição por letra, e volta para a primeira página. A paginação usa sempre o termo
+aplicado. Enquanto a busca espera ou a resposta não chega, o campo mostra um indicador de
+carregamento e anuncia "Buscando…" a leitores de tela. "Limpar filtros" substitui "Limpar busca".
+Veja o item 47.
 
 ### 23. Validação de nome, especialidade e telefone
 
@@ -295,17 +298,20 @@ Coberto por testes em `src/features/absences/absences.test.tsx`.
 
 ## Reservas
 
-### 30. Período padrão no horário local e aplicado só ao enviar
+### 30. Período padrão no horário local e aplicado quando é válido
 
 **Angular:** o período padrão (hoje a hoje + 30) era calculado em UTC, então depois das 21h
 começava no dia seguinte. A paginação usava o período digitado mesmo sem ter sido enviado, e depois
 de cancelar a lista voltava para o período e o tamanho de página fixos, ignorando o filtro do
 usuário. Um período inválido fazia "Buscar" não fazer nada, sem mensagem.
 
-**Agora:** o período padrão usa o horário local. A lista usa sempre o último período enviado,
-inclusive ao paginar e ao recarregar depois de cancelar. "Buscar" mostra "Buscando…" enquanto a
-resposta não chega. Datas inválidas mostram as mensagens do item 26, e fim antes do início mostra
-"A data final deve ser igual ou posterior à data inicial.".
+**Agora:** o período padrão usa o horário local. Não há botão "Buscar": o período é aplicado
+assim que as duas datas estão completas e válidas, voltando para a primeira página. Enquanto uma
+data está incompleta ou inválida, nenhuma consulta é feita e a lista continua com o último período
+válido, inclusive ao paginar e ao recarregar depois de cancelar. Os erros aparecem ao sair do
+campo e, depois, a cada mudança: as mensagens do item 26 e, com fim antes do início, "A data final
+deve ser igual ou posterior à data inicial.". "Limpar filtros" volta ao período padrão. Veja o
+item 47.
 
 ### 31. Nova reserva começa como Pontual
 
@@ -361,16 +367,18 @@ página anterior, mantendo o período. Coberto por testes em
 
 ## Histórico
 
-### 36. Filtros aplicados só em "Filtrar", inclusive ao paginar
+### 36. Filtros aplicados na hora, inclusive ao paginar
 
 **Angular:** trocar de página usava os filtros digitados mesmo sem "Filtrar", e a tabela piscava
 o esqueleto a cada troca de página.
 
-**Agora:** todos os filtros valem só depois de "Filtrar", que mostra "Filtrando…". A paginação usa
-sempre os filtros aplicados, e a página anterior continua na tela, esmaecida, enquanto a próxima
-carrega. "Limpar filtros" aparece quando há filtro aplicado. "De" e "Até" são opcionais, digitados
-como `DD/MM/AAAA`, e Até antes de De mostra "A data final deve ser igual ou posterior à data
-inicial.". O histórico é sempre consultado de novo ao abrir a tela.
+**Agora:** não há botão "Filtrar". Ação e Entidade valem ao escolher; a busca, 300 ms depois de
+parar de digitar; e as datas, quando estão completas e válidas. Qualquer mudança volta para a
+primeira página. A paginação usa sempre os filtros aplicados, e a página anterior continua na
+tela, esmaecida, enquanto a próxima carrega. "Limpar filtros" fica sempre visível, desabilitado
+sem filtro. "De" e "Até" são opcionais, digitados como `DD/MM/AAAA`, e Até antes de De mostra "A
+data final deve ser igual ou posterior à data inicial."; enquanto isso, nenhuma consulta é feita.
+O histórico é sempre consultado de novo ao abrir a tela. Veja o item 47.
 
 ### 37. Busca descreve o que realmente encontra
 
@@ -472,3 +480,36 @@ no formato "12 sala(s) — página 1 de 3". Setores e Ausências não mostravam 
 12", que diz também quais registros estão na tela. Setores e Ausências, que não são paginadas,
 mostram a contagem ("2 setores", "3 ausências") nas mesmas duas posições. Coberto pelos testes de
 cada tela.
+
+### 47. Busca, filtros e ordenação nas tabelas
+
+**Angular:** cada tela filtrava de um jeito. Salas tinha setor e status; Solicitantes, uma busca;
+Reservas, o período; Histórico, busca, ação, entidade e datas. Setores e Ausências não tinham
+filtro, e nenhuma tela permitia ordenar.
+
+**Agora:** as seis telas com tabela têm a mesma área de filtros:
+
+- **Primeira linha:** a busca livre, sozinha, na largura toda, aplicada 300 ms depois de parar de
+  digitar, com indicador de carregamento e "Buscando…" para leitores de tela.
+- **Segunda linha:** os filtros, o "Ordenar por" e o botão "Limpar filtros", sempre visível e
+  desabilitado quando nada está ativo. Selects valem na hora; datas, quando são válidas.
+- **Qualquer mudança** volta para a primeira página, e a lista anterior fica esmaecida enquanto a
+  nova carrega.
+- **Estado vazio:** "nenhum resultado para os filtros", com a ação "Limpar filtros", é diferente
+  de "nenhum registro".
+
+| Tela | Busca | Filtros | Ordenar por |
+| --- | --- | --- | --- |
+| Setores | Nome ou observação, ignorando acentos | — | Mais recentes, Nome A–Z, Nome Z–A |
+| Salas | Nome da sala | Setor, Status | Mais recentes, Nome A–Z, Nome Z–A, Setor A–Z |
+| Solicitantes | Nome, especialidade ou telefone | Especialidade | Mais recentes, Nome A–Z, Nome Z–A, Especialidade A–Z |
+| Reservas | Sala, setor, solicitante ou quem criou | De, Até, Setor, Tipo | Mais recentes, Início mais próximo, Início mais distante, Sala A–Z, Solicitante A–Z |
+| Ausências | Nome do profissional, ignorando acentos | Situação | Início mais recente, Início mais antigo, Profissional A–Z, Profissional Z–A |
+| Histórico | Nome de quem fez a ação ou número do registro | Ação, Entidade, De, Até | Mais recentes, Mais antigos |
+
+Setores e Ausências já recebem a lista inteira, então filtram e ordenam no navegador. Nas demais,
+o filtro e a ordenação são feitos pelo backend, com os parâmetros opcionais `sort`, `especialidade`
+(solicitantes), `busca` e `recorrente` (reservas), descritos no README do backend. Sem eles, o
+backend responde exatamente como antes. As opções de Especialidade vêm dos solicitantes ativos,
+sem repetir grafias que só diferem nas maiúsculas. Coberto pelos testes de cada tela e pelos
+testes de `filters.ts` de cada funcionalidade.
