@@ -49,7 +49,7 @@ backend publicado, defina `VITE_API_URL=https://api-gestao-salas.vercel.app/api`
 
 | Variável | Obrigatória | Descrição |
 | --- | --- | --- |
-| `VITE_API_URL` | Não (padrão: backend local) | URL base da API, terminando em `/api` |
+| `VITE_API_URL` | Não (padrão: backend local em `pnpm dev`; API publicada em `pnpm build`) | URL base da API, terminando em `/api` |
 
 ## Scripts
 
@@ -107,11 +107,12 @@ requisição. Requisições sem handler reprovam o teste.
 
 O projeto na Vercel é o mesmo da versão Angular. O `vercel.json` define o framework (Vite), a
 pasta de saída (`dist`), a reescrita de rotas para o `index.html` e o cache longo de `/assets`.
-Esses valores prevalecem sobre o painel, que ainda guarda a pasta de saída do Angular. No painel
-do projeto:
+Esses valores prevalecem sobre o painel, que ainda guarda a pasta de saída do Angular.
 
-1. Defina `VITE_API_URL=https://api-gestao-salas.vercel.app/api` nas variáveis de ambiente.
-2. Confira que o domínio do frontend está em `CORS_ORIGINS` do backend.
+Sem `VITE_API_URL`, o build de produção usa `https://api-gestao-salas.vercel.app/api`, a mesma
+API do Angular. Para apontar para outra, defina `VITE_API_URL` nas variáveis de ambiente do
+projeto e faça um novo deploy: o valor entra no código durante o build. O domínio do frontend
+precisa estar em `CORS_ORIGINS` do backend.
 
 O workflow em `.github/workflows/ci.yml` roda lint, tipos, testes e build em cada push na `main`
 e em cada pull request.
