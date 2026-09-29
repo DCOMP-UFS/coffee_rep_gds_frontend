@@ -21,6 +21,7 @@ import {
 	groupEventsByDay,
 } from "./events";
 import { MonthGrid } from "./MonthGrid";
+import { MonthYearPicker } from "./MonthYearPicker";
 import { buildMonthWeeks, monthTitle, toIsoDate, visibleRange } from "./month-grid";
 
 export const CALENDAR_LOAD_ERRORS = {
@@ -133,6 +134,7 @@ export function CalendarPage() {
 						>
 							<ChevronRight aria-hidden="true" />
 						</Button>
+						<MonthYearPicker month={month} onChange={setMonth} />
 						<h2 className="ml-2 min-w-44 text-lg font-semibold first-letter:uppercase">{title}</h2>
 						<p
 							role="status"
