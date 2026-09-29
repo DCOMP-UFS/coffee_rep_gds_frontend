@@ -1,6 +1,7 @@
 import { eachDayOfInterval, parseISO } from "date-fns";
 import type { Absence } from "@/features/absences/types";
 import type { Reservation } from "@/features/reservations/types";
+import { matchesSearch } from "@/shared/format/search";
 import { toIsoDate } from "./month-grid";
 
 /** Tipo visual do evento, que define a cor e o selo. */
@@ -46,6 +47,27 @@ export function eventDescription(event: CalendarEvent): string {
 	if (event.type === "absence") return `${event.absence.solicitanteNome}: ausência/férias`;
 	const { reservation } = event;
 	return `${reservationTimeRange(reservation)}, ${reservation.sala} - ${reservation.setor}, ${EVENT_KIND_LABELS[event.kind]}`;
+}
+
+/**
+ * Se o evento corresponde à busca, ignorando acentos e maiúsculas. Reservas são encontradas pelo
+ * horário, sala, setor, solicitante, quem criou ou tipo; ausências, pelo profissional ou tipo.
+ * A sala e o setor também são comparados juntos, como aparecem na lista ("Sala 17 - Clínica").
+ */
+export function matchesEventSearch(event: CalendarEvent, term: string): boolean {
+	const kindLabel = EVENT_KIND_LABELS[event.kind];
+	if (event.type === "absence") {
+		return matchesSearch(term, event.absence.solicitanteNome, kindLabel);
+	}
+	const { reservation } = event;
+	return matchesSearch(
+		term,
+		reservationTimeRange(reservation),
+		`${reservation.sala} - ${reservation.setor}`,
+		reservation.solicitante,
+		reservation.criador,
+		kindLabel,
+	);
 }
 
 /** Dias da ausência que caem no período visível, em datas ISO. */
