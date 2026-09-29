@@ -387,4 +387,99 @@ describe("Ausências", () => {
 
 		expect(await screen.findByRole("cell", { name: "Ana Souza" })).toBeInTheDocument();
 	});
+
+	describe("busca, situação e ordenação", () => {
+		async function chooseOption(
+			user: ReturnType<typeof renderApp>["user"],
+			field: string,
+			option: string,
+		) {
+			await user.click(screen.getByRole("combobox", { name: field }));
+			await user.click(await screen.findByRole("option", { name: option }));
+		}
+
+		it("busca pelo profissional depois da digitação", async () => {
+			mockBackend();
+			const { user } = renderAbsences();
+			await screen.findByRole("cell", { name: "Ana Souza" });
+
+			await user.type(screen.getByRole("searchbox", { name: "Buscar profissional" }), "bruno");
+
+			expect(await screen.findByText("Buscando…")).toBeInTheDocument();
+			await waitFor(() => expect(professionalColumn()).toEqual(["Bruno Lima"]));
+			expect(screen.getAllByText("1 de 3 ausências")).toHaveLength(2);
+		});
+
+		describe("com a data de hoje fixada", () => {
+			beforeEach(() => {
+				// Só o relógio é simulado, para não travar os atrasos do user-event.
+				vi.useFakeTimers({ toFake: ["Date"] });
+				vi.setSystemTime(new Date(2026, 2, 10, 23, 30));
+			});
+
+			afterEach(() => {
+				vi.useRealTimers();
+			});
+
+			it("filtra pela situação em relação ao dia local", async () => {
+				mockBackend({
+					absences: [
+						...ABSENCES,
+						{
+							id: 13,
+							solicitanteId: 1,
+							solicitanteNome: "Ana Souza",
+							dataInicio: "2026-04-01",
+							dataFim: "2026-04-05",
+						},
+					],
+				});
+				const { user } = renderAbsences();
+				await screen.findByRole("cell", { name: "Bruno Lima" });
+
+				await chooseOption(user, "Situação", "Em andamento");
+				expect(professionalColumn()).toEqual(["Bruno Lima"]);
+
+				await chooseOption(user, "Situação", "Próximas");
+				expect(screen.getByText("01/04/2026")).toBeInTheDocument();
+				expect(professionalColumn()).toEqual(["Ana Souza"]);
+
+				await chooseOption(user, "Situação", "Encerradas");
+				expect(professionalColumn()).toEqual(["Ana Souza", "Carla Inativa"]);
+				expect(screen.getAllByText("2 de 4 ausências")).toHaveLength(2);
+			});
+		});
+
+		it("ordena pelo início mais antigo e pelo profissional", async () => {
+			mockBackend();
+			const { user } = renderAbsences();
+			await screen.findByRole("cell", { name: "Ana Souza" });
+
+			await chooseOption(user, "Ordenar por", "Início mais antigo");
+			expect(professionalColumn()).toEqual(["Carla Inativa", "Ana Souza", "Bruno Lima"]);
+
+			await chooseOption(user, "Ordenar por", "Profissional Z–A");
+			expect(professionalColumn()).toEqual(["Carla Inativa", "Bruno Lima", "Ana Souza"]);
+		});
+
+		it("distingue os filtros sem resultado e limpa tudo pelo estado vazio", async () => {
+			mockBackend();
+			const { user } = renderAbsences();
+			await screen.findByRole("cell", { name: "Ana Souza" });
+			expect(screen.getByRole("button", { name: "Limpar filtros" })).toBeDisabled();
+
+			await chooseOption(user, "Ordenar por", "Profissional A–Z");
+			await user.type(screen.getByRole("searchbox", { name: "Buscar profissional" }), "Daniel");
+
+			expect(await screen.findByText("Nenhuma ausência encontrada")).toBeInTheDocument();
+			expect(screen.queryByText("Nenhuma ausência cadastrada")).not.toBeInTheDocument();
+
+			const [, emptyStateClear] = screen.getAllByRole("button", { name: "Limpar filtros" });
+			await user.click(emptyStateClear as HTMLElement);
+
+			await screen.findByRole("cell", { name: "Ana Souza" });
+			expect(professionalColumn()).toEqual(["Bruno Lima", "Ana Souza", "Carla Inativa"]);
+			expect(screen.getByRole("button", { name: "Limpar filtros" })).toBeDisabled();
+		});
+	});
 });
