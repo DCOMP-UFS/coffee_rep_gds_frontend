@@ -302,6 +302,12 @@ A página inicial `http://localhost:5173/` leva para `/rooms` quando há sessão
 | CAL13 | Evento na lista do dia | Em CAL12, clicar numa linha | A lista fecha e abrem os detalhes do evento |
 | CAL14 | Todas as reservas do mês | Perfil D · comparar um dia cheio com `/reservation` no mesmo período | Nenhuma reserva fica de fora (item 41) |
 | CAL15 | Falha ao carregar | Parar o backend · **Próximo mês** | "Não foi possível carregar as reservas deste período." com **Tentar novamente**, uma única vez e sem aviso no canto |
+| CAL16 | Salto de mês e ano | Selects **Mês** `Março` e **Ano** `2028` | Título "Março de 2028" direto, sem passar mês a mês; "Carregando…" durante a troca; **Hoje** habilitado (item 48) |
+| CAL17 | Selects acompanham as setas | Depois de CAL16, **Próximo mês** e depois **Hoje** | Os selects mostram Abril/2028 e depois o mês e o ano atuais |
+| CAL18 | Anos oferecidos | Abrir o select **Ano** | De 5 anos antes a 5 depois do atual; se as setas passarem disso, o ano exibido também aparece |
+| CAL19 | Busca no "+N mais" | Perfil D · abrir **+N mais** num dia cheio · digitar o número de uma sala, um setor ou um horário (`07:00`) | O campo já vem focado; a lista filtra na hora, ignorando acentos e maiúsculas, e o topo mostra "X de N eventos" (item 48) |
+| CAL20 | Busca sem resultado | Em CAL19, digitar `zzz` | "Nenhum evento encontrado." e "0 de N eventos" |
+| CAL21 | Reabrir a lista | Fechar com **Esc** e abrir o **+N mais** de novo | Campo de busca vazio e a lista completa |
 
 ---
 

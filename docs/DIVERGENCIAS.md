@@ -469,6 +469,20 @@ também aparece no texto e, nas recorrentes, num ícone, para não depender só 
 seguem o Angular: Solicitante, Criado por (em reservas) e Horário ou Período. Coberto por testes em
 `src/features/calendar/`.
 
+### 48. Salto direto de mês e ano, e busca no "+N mais"
+
+**Angular:** o mês só mudava de um em um, pelas setas do FullCalendar, e a lista de eventos
+excedentes do dia só podia ser percorrida rolando.
+
+**Agora:** ao lado das setas e do "Hoje", os selects "Mês" e "Ano" levam direto a qualquer mês,
+de 5 anos antes a 5 depois do ano atual (o ano exibido entra na lista se as setas passarem desse
+intervalo). Os selects, as setas e o "Hoje" mudam o mesmo mês, e a troca mostra o mesmo
+"Carregando…" das setas. A lista do "+N mais" ganhou um campo de busca, já focado ao abrir, que
+filtra na hora por horário, sala, setor, solicitante, quem criou ou tipo, ignorando acentos e
+maiúsculas; o topo mostra "X de N eventos" e, sem resultado, "Nenhum evento encontrado.". A busca
+é feita no navegador, sobre os eventos já carregados, e zera a cada abertura. Coberto por testes
+em `src/features/calendar/`.
+
 ## Tabelas
 
 ### 46. Total de registros acima e abaixo das tabelas
