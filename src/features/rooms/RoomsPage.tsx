@@ -1,6 +1,6 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import { DoorClosed, DoorOpen, FilterX, Plus } from "lucide-react";
-import { useCallback, useId, useMemo, useState } from "react";
+import { DoorClosed, DoorOpen, Plus } from "lucide-react";
+import { useCallback, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { DataTable } from "@/components/data-table/DataTable";
@@ -9,23 +9,29 @@ import { PaginationSummary } from "@/components/data-table/PaginationSummary";
 import { RowActions } from "@/components/data-table/RowActions";
 import { ConfirmDialog } from "@/components/feedback/ConfirmDialog";
 import { EmptyState } from "@/components/feedback/EmptyState";
+import { ClearFiltersButton } from "@/components/filters/ClearFiltersButton";
+import { FilterBar } from "@/components/filters/FilterBar";
+import { FilterSelect } from "@/components/filters/FilterSelect";
+import { SearchInput } from "@/components/filters/SearchInput";
+import { FormField } from "@/components/form/FormField";
 import { SearchableSelect } from "@/components/form/SearchableSelect";
-import { SelectPlaceholderItem } from "@/components/form/SelectPlaceholderItem";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { StatusBadge } from "@/components/status/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
 import { useSections } from "@/features/sections/hooks";
 import { useClampPage } from "@/hooks/use-clamp-page";
+import { useDebouncedSearch } from "@/hooks/use-debounced-value";
+import { useFilteredPage } from "@/hooks/use-filtered-page";
 import { getHttpErrorMessage } from "@/lib/api/errors";
+import {
+	DEFAULT_ROOM_FILTERS,
+	hasActiveRoomFilters,
+	ROOM_SORT_OPTIONS,
+	type RoomFilters,
+	type RoomSort,
+	toRoomListFilters,
+} from "./filters";
 import { ROOM_ERROR_MESSAGES, useDeleteRoom, useRooms } from "./hooks";
 import { RoomFormDialog } from "./RoomFormDialog";
 import { RoomsSummary } from "./RoomsSummary";
@@ -36,14 +42,15 @@ export const ROOM_DELETED_MESSAGE = "Sala excluída com sucesso.";
 export const PAGE_SIZE_OPTIONS = [5, 10] as const;
 const DEFAULT_PAGE_SIZE = PAGE_SIZE_OPTIONS[0];
 
-export function RoomsPage() {
-	const sectionFilterId = useId();
-	const statusFilterId = useId();
+const STATUS_OPTIONS = ROOM_STATUS_FILTERS.map((option) => ({ value: option, label: option }));
 
+export function RoomsPage() {
 	const [searchParams, setSearchParams] = useSearchParams();
-	const [status, setStatus] = useState<RoomStatusFilter>("Todas");
-	const [page, setPage] = useState(0);
+	const [searchInput, setSearchInput] = useState(DEFAULT_ROOM_FILTERS.search);
+	const [status, setStatus] = useState<RoomStatusFilter>(DEFAULT_ROOM_FILTERS.status);
+	const [sort, setSort] = useState<RoomSort>(DEFAULT_ROOM_FILTERS.sort);
 	const [size, setSize] = useState<number>(DEFAULT_PAGE_SIZE);
+	const search = useDebouncedSearch(searchInput);
 
 	const sections = useSections();
 	// O setor vem da URL para o filtro poder ser aberto por link; setor inexistente vira "Todas".
@@ -54,7 +61,9 @@ export function RoomsPage() {
 		!sections.data.some((section) => section.id === requestedSectionId);
 	const sectionId = isUnknownSection ? ALL_SECTIONS : requestedSectionId;
 
-	const rooms = useRooms({ sectionId, status, page, size });
+	const filters: RoomFilters = { search: search.applied, sectionId, status, sort };
+	const [page, setPage] = useFilteredPage(filters);
+	const rooms = useRooms(toRoomListFilters(filters, page, size));
 	const deleteRoom = useDeleteRoom();
 
 	// O alvo é mantido após fechar para o conteúdo não mudar durante a animação de saída.
@@ -65,7 +74,9 @@ export function RoomsPage() {
 
 	const pageInfo = rooms.data?.page;
 	const data = rooms.data?.content ?? [];
-	const hasFilters = sectionId !== ALL_SECTIONS || status !== "Todas";
+	const hasFilters = hasActiveRoomFilters(filters);
+	const canClear =
+		hasActiveRoomFilters({ ...filters, search: searchInput }) || sort !== DEFAULT_ROOM_FILTERS.sort;
 
 	useClampPage({ page, pageInfo, isPlaceholderData: rooms.isPlaceholderData, setPage });
 
@@ -83,20 +94,11 @@ export function RoomsPage() {
 			{ replace: true },
 		);
 
-	const changeSection = (value: number) => {
-		setSectionParam(value);
-		setPage(0);
-	};
-
-	const changeStatus = (value: RoomStatusFilter) => {
-		setStatus(value);
-		setPage(0);
-	};
-
 	const clearFilters = () => {
-		setSectionParam(ALL_SECTIONS);
-		setStatus("Todas");
-		setPage(0);
+		setSearchInput(DEFAULT_ROOM_FILTERS.search);
+		setSectionParam(DEFAULT_ROOM_FILTERS.sectionId);
+		setStatus(DEFAULT_ROOM_FILTERS.status);
+		setSort(DEFAULT_ROOM_FILTERS.sort);
 	};
 
 	const openForm = useCallback((room?: Room) => {
@@ -196,44 +198,37 @@ export function RoomsPage() {
 			<RoomsSummary />
 
 			<Card className="gap-0 overflow-hidden py-0">
-				<div className="flex flex-col gap-3 border-b p-4 sm:flex-row sm:items-end">
-					<div className="grid gap-1.5 sm:w-64">
-						<Label htmlFor={sectionFilterId}>Setor</Label>
+				<FilterBar
+					label="Filtros das salas"
+					search={
+						<FormField label="Buscar sala" hint="Busque pelo nome da sala">
+							<SearchInput
+								value={searchInput}
+								onChange={(event) => setSearchInput(event.target.value)}
+								placeholder="Ex.: Consultório 3"
+								isBusy={search.isPending || rooms.isPlaceholderData}
+							/>
+						</FormField>
+					}
+					onClear={clearFilters}
+					canClear={canClear}
+				>
+					<FormField label="Setor" className="w-full sm:w-64">
 						<SearchableSelect
-							id={sectionFilterId}
 							options={sectionOptions}
 							value={sectionId}
-							onChange={changeSection}
+							onChange={setSectionParam}
 							placeholder="Selecione o setor"
 							searchPlaceholder="Pesquisar setor..."
 						/>
-					</div>
-					<div className="grid gap-1.5 sm:w-44">
-						<Label htmlFor={statusFilterId}>Status</Label>
-						<Select
-							value={status}
-							onValueChange={(value) => changeStatus(value as RoomStatusFilter)}
-						>
-							<SelectTrigger id={statusFilterId} className="w-full">
-								<SelectValue placeholder="Selecione o status" />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectPlaceholderItem>Selecione o status</SelectPlaceholderItem>
-								{ROOM_STATUS_FILTERS.map((option) => (
-									<SelectItem key={option} value={option}>
-										{option}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
-					</div>
-					{hasFilters && (
-						<Button variant="ghost" onClick={clearFilters} className="sm:ml-auto">
-							<FilterX aria-hidden="true" />
-							Limpar filtros
-						</Button>
-					)}
-				</div>
+					</FormField>
+					<FormField label="Status" className="w-full sm:w-40">
+						<FilterSelect value={status} onChange={setStatus} options={STATUS_OPTIONS} />
+					</FormField>
+					<FormField label="Ordenar por" className="w-full sm:w-44">
+						<FilterSelect value={sort} onChange={setSort} options={ROOM_SORT_OPTIONS} />
+					</FormField>
+				</FilterBar>
 
 				<DataTable
 					caption="Salas cadastradas"
@@ -251,12 +246,7 @@ export function RoomsPage() {
 							<EmptyState
 								title="Nenhuma sala encontrada"
 								description="Nenhuma sala corresponde aos filtros escolhidos. Ajuste os filtros ou cadastre uma nova sala."
-								action={
-									<Button variant="outline" onClick={clearFilters}>
-										<FilterX aria-hidden="true" />
-										Limpar filtros
-									</Button>
-								}
+								action={<ClearFiltersButton onClick={clearFilters} />}
 							/>
 						) : (
 							<EmptyState
