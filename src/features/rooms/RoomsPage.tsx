@@ -5,6 +5,7 @@ import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { DataTable } from "@/components/data-table/DataTable";
 import { PaginationBar } from "@/components/data-table/PaginationBar";
+import { PaginationSummary } from "@/components/data-table/PaginationSummary";
 import { RowActions } from "@/components/data-table/RowActions";
 import { ConfirmDialog } from "@/components/feedback/ConfirmDialog";
 import { EmptyState } from "@/components/feedback/EmptyState";
@@ -265,6 +266,7 @@ export function RoomsPage() {
 							/>
 						)
 					}
+					header={pageInfo && data.length > 0 && <PaginationSummary page={pageInfo} />}
 					footer={
 						pageInfo &&
 						data.length > 0 && (

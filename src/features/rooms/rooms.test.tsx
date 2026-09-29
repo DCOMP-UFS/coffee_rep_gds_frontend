@@ -119,7 +119,11 @@ describe("Salas", () => {
 		const firstRow = screen.getByRole("cell", { name: "Sala 01" }).closest("tr") as HTMLElement;
 		expect(within(firstRow).getByText("Ocupada")).toBeInTheDocument();
 		expect(within(firstRow).getByText("Cardiologia")).toBeInTheDocument();
-		expect(screen.getByText(/Mostrando/)).toHaveTextContent("Mostrando 1–5 de 12");
+		// Acima e abaixo da tabela, como no Angular.
+		expect(screen.getAllByText(/Mostrando/).map((summary) => summary.textContent)).toEqual([
+			"Mostrando 1–5 de 12",
+			"Mostrando 1–5 de 12",
+		]);
 	});
 
 	it("mostra o resumo com total, ocupadas e livres de todas as salas", async () => {
