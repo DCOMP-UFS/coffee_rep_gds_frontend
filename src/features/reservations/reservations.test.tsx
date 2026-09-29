@@ -62,9 +62,17 @@ interface ListRequest {
 	fim: string | null;
 	page: string | null;
 	size: string | null;
+	/** Ausentes quando não enviados, para não pesarem nas comparações com `toEqual`. */
+	busca?: string;
+	setorId?: string;
+	recorrente?: string;
+	sort?: string;
 }
 
-/** Backend em memória: lista paginada, criação e os dois tipos de cancelamento. */
+/**
+ * Backend em memória: lista paginada com busca, setor e tipo (o período não é filtrado), criação
+ * e os dois tipos de cancelamento.
+ */
 function mockBackend({ reservations = RESERVATIONS }: { reservations?: Reservation[] } = {}) {
 	let current = [...reservations];
 	const listRequests: ListRequest[] = [];
@@ -74,14 +82,31 @@ function mockBackend({ reservations = RESERVATIONS }: { reservations?: Reservati
 	server.use(
 		http.get(apiUrl("reservation"), ({ request }) => {
 			const params = new URL(request.url).searchParams;
+			const busca = params.get("busca") ?? undefined;
+			const setorId = params.get("setorId") ?? undefined;
+			const recorrente = params.get("recorrente") ?? undefined;
 			listRequests.push({
 				inicio: params.get("inicio"),
 				fim: params.get("fim"),
 				page: params.get("page"),
 				size: params.get("size"),
+				busca,
+				setorId,
+				recorrente,
+				sort: params.get("sort") ?? undefined,
 			});
+			const term = busca?.toLowerCase();
+			const filtered = current.filter(
+				(item) =>
+					(!term ||
+						[item.sala, item.setor, item.solicitante, item.criador ?? ""].some((text) =>
+							text.toLowerCase().includes(term),
+						)) &&
+					(!setorId || item.setorId === Number(setorId)) &&
+					(!recorrente || Boolean(item.recorrenciaId) === (recorrente === "true")),
+			);
 			return HttpResponse.json(
-				paged(current, Number(params.get("page")), Number(params.get("size"))),
+				paged(filtered, Number(params.get("page")), Number(params.get("size"))),
 			);
 		}),
 		http.post(apiUrl("reservation"), async ({ request }) => {
@@ -197,25 +222,15 @@ describe("Reservas", () => {
 		expect(single.getByText("Pontual")).toBeInTheDocument();
 	});
 
-	// Regressão: no Angular, a paginação usava o período digitado e ainda não enviado.
-	it("aplica o período só ao enviar, inclusive ao paginar", async () => {
+	// Regressão: no Angular, a paginação usava um período que não estava valendo.
+	it("aplica o período assim que ele fica válido e o mantém ao paginar", async () => {
 		const backend = mockBackend();
 		const { user } = renderReservations();
 		await screen.findByRole("cell", { name: "Sala 01" });
+		expect(screen.getByRole("button", { name: "Limpar filtros" })).toBeDisabled();
 
 		await replaceValue(user, screen.getByLabelText("De"), "01102026");
-		await user.click(screen.getByRole("button", { name: "Próxima página" }));
 
-		await waitFor(() =>
-			expect(backend.lastList()).toEqual({
-				inicio: "2026-09-29T00:00:00",
-				fim: "2026-10-29T23:59:59",
-				page: "1",
-				size: "5",
-			}),
-		);
-
-		await user.click(screen.getByRole("button", { name: "Buscar" }));
 		await waitFor(() =>
 			expect(backend.lastList()).toEqual({
 				inicio: "2026-10-01T00:00:00",
@@ -224,9 +239,24 @@ describe("Reservas", () => {
 				size: "5",
 			}),
 		);
+		// A data incompleta, durante a digitação, não chega ao backend.
+		expect(new Set(backend.listRequests.map((request) => request.inicio))).toEqual(
+			new Set(["2026-09-29T00:00:00", "2026-10-01T00:00:00"]),
+		);
+		expect(screen.getByRole("button", { name: "Limpar filtros" })).toBeEnabled();
+
+		await user.click(await screen.findByRole("button", { name: "Próxima página" }));
+		await waitFor(() =>
+			expect(backend.lastList()).toEqual({
+				inicio: "2026-10-01T00:00:00",
+				fim: "2026-10-29T23:59:59",
+				page: "1",
+				size: "5",
+			}),
+		);
 	});
 
-	it("mostra Buscando… enquanto a busca carrega, mantendo a lista anterior", async () => {
+	it("mostra Buscando… enquanto a lista carrega, mantendo a lista anterior", async () => {
 		mockBackend();
 		let release = () => {};
 		const gate = new Promise<void>((resolve) => {
@@ -242,30 +272,135 @@ describe("Reservas", () => {
 			}),
 		);
 		await replaceValue(user, screen.getByLabelText("De"), "01102026");
-		await user.click(screen.getByRole("button", { name: "Buscar" }));
 
-		expect(await screen.findByRole("button", { name: "Buscando…" })).toBeDisabled();
+		expect(await screen.findByText("Buscando…")).toBeInTheDocument();
 		expect(screen.getByRole("cell", { name: "Sala 01" })).toBeInTheDocument();
 
 		release();
-		expect(await screen.findByRole("button", { name: "Buscar" })).toBeEnabled();
+		await waitFor(() => expect(screen.queryByText("Buscando…")).not.toBeInTheDocument());
+		expect(screen.getByRole("cell", { name: "Sala 01" })).toBeInTheDocument();
 	});
 
 	// Regressão: no Angular, um período inválido fazia o "Buscar" não fazer nada, sem mensagem.
-	it("avisa sobre período inválido sem consultar o backend", async () => {
+	it("avisa sobre período inválido sem consultar o backend e restaura o padrão ao limpar", async () => {
 		const backend = mockBackend();
 		const { user } = renderReservations();
 		await screen.findByRole("cell", { name: "Sala 01" });
 
 		await replaceValue(user, screen.getByLabelText("Até"), "01092026");
-		await user.click(screen.getByRole("button", { name: "Buscar" }));
+		await user.tab();
 		expect(await screen.findByText(PERIOD_END_BEFORE_START_MESSAGE)).toBeInTheDocument();
 		expect(screen.getByLabelText("Até")).toHaveAttribute("aria-invalid", "true");
 
 		await user.clear(screen.getByLabelText("De"));
-		await user.click(screen.getByRole("button", { name: "Buscar" }));
+		await user.tab();
 		expect(await screen.findByText("Informe a data inicial.")).toBeInTheDocument();
 		expect(backend.listRequests).toHaveLength(1);
+		expect(screen.getByRole("cell", { name: "Sala 01" })).toBeInTheDocument();
+
+		await user.click(screen.getByRole("button", { name: "Limpar filtros" }));
+		expect(screen.getByLabelText("De")).toHaveValue("29/09/2026");
+		expect(screen.getByLabelText("Até")).toHaveValue("29/10/2026");
+		expect(screen.queryByText(PERIOD_END_BEFORE_START_MESSAGE)).not.toBeInTheDocument();
+		expect(screen.queryByText("Informe a data inicial.")).not.toBeInTheDocument();
+		expect(screen.getByRole("button", { name: "Limpar filtros" })).toBeDisabled();
+		expect(backend.listRequests).toHaveLength(1);
+	});
+
+	it("atualiza o erro do fim quando o início muda", async () => {
+		mockBackend();
+		const { user } = renderReservations();
+		await screen.findByRole("cell", { name: "Sala 01" });
+
+		await replaceValue(user, screen.getByLabelText("De"), "01112026");
+		await user.tab();
+		expect(await screen.findByText(PERIOD_END_BEFORE_START_MESSAGE)).toBeInTheDocument();
+
+		await replaceValue(user, screen.getByLabelText("De"), "01102026");
+		await waitFor(() =>
+			expect(screen.queryByText(PERIOD_END_BEFORE_START_MESSAGE)).not.toBeInTheDocument(),
+		);
+	});
+
+	it("busca, filtra por setor e tipo e volta à primeira página a cada mudança", async () => {
+		const backend = mockBackend();
+		const { user } = renderReservations();
+		await screen.findByRole("cell", { name: "Sala 01" });
+		await user.click(screen.getByRole("button", { name: "Próxima página" }));
+		await waitFor(() => expect(backend.lastList()?.page).toBe("1"));
+
+		await user.type(screen.getByLabelText("Buscar reserva"), " ana ");
+		await waitFor(() =>
+			expect(backend.lastList()).toEqual({
+				inicio: "2026-09-29T00:00:00",
+				fim: "2026-10-29T23:59:59",
+				page: "0",
+				size: "5",
+				busca: "ana",
+			}),
+		);
+
+		await user.click(screen.getByRole("combobox", { name: "Setor" }));
+		await user.click(await screen.findByRole("option", { name: "Ambulatório" }));
+		await waitFor(() => expect(backend.lastList()?.setorId).toBe("1"));
+
+		await user.click(screen.getByRole("combobox", { name: "Tipo" }));
+		await user.click(await screen.findByRole("option", { name: "Recorrente" }));
+		await waitFor(() =>
+			expect(backend.lastList()).toEqual({
+				inicio: "2026-09-29T00:00:00",
+				fim: "2026-10-29T23:59:59",
+				page: "0",
+				size: "5",
+				busca: "ana",
+				setorId: "1",
+				recorrente: "true",
+			}),
+		);
+		await waitFor(() =>
+			expect(screen.queryByRole("cell", { name: "Sala 02" })).not.toBeInTheDocument(),
+		);
+		expect(screen.getByRole("cell", { name: "Sala 01" })).toBeInTheDocument();
+
+		await user.click(screen.getByRole("combobox", { name: "Tipo" }));
+		await user.click(await screen.findByRole("option", { name: "Pontual" }));
+		await waitFor(() => expect(backend.lastList()?.recorrente).toBe("false"));
+	});
+
+	it("ordena enviando sort", async () => {
+		const backend = mockBackend();
+		const { user } = renderReservations();
+		await screen.findByRole("cell", { name: "Sala 01" });
+
+		await user.click(screen.getByRole("combobox", { name: "Ordenar por" }));
+		await user.click(await screen.findByRole("option", { name: "Início mais próximo" }));
+
+		await waitFor(() => expect(backend.lastList()?.sort).toBe("horaInicio,asc"));
+		expect(screen.getByRole("button", { name: "Limpar filtros" })).toBeEnabled();
+	});
+
+	it("distingue o estado vazio com filtros e restaura os padrões ao limpar", async () => {
+		const backend = mockBackend();
+		const { user } = renderReservations();
+		await screen.findByRole("cell", { name: "Sala 01" });
+
+		await replaceValue(user, screen.getByLabelText("Até"), "31122026");
+		await user.type(screen.getByLabelText("Buscar reserva"), "Inexistente");
+
+		expect(await screen.findByText("Nenhuma reserva encontrada")).toBeInTheDocument();
+		expect(screen.queryByText("Nenhuma reserva no período")).not.toBeInTheDocument();
+
+		const [, emptyStateClear] = screen.getAllByRole("button", { name: "Limpar filtros" });
+		await user.click(emptyStateClear as HTMLElement);
+
+		// A lista do período padrão volta do cache, sem precisar de outra requisição.
+		expect(await screen.findByRole("cell", { name: "Sala 01" })).toBeInTheDocument();
+		expect(screen.getAllByText(/Mostrando/)[0]).toHaveTextContent("Mostrando 1–5 de 7");
+		expect(screen.getByLabelText("Buscar reserva")).toHaveValue("");
+		expect(screen.getByLabelText("Até")).toHaveValue("29/10/2026");
+		expect(screen.getAllByRole("button", { name: "Limpar filtros" })).toHaveLength(1);
+		expect(screen.getByRole("button", { name: "Limpar filtros" })).toBeDisabled();
+		expect(backend.listRequests.some((request) => request.busca === "Inexistente")).toBe(true);
 	});
 
 	it("cria uma reserva pontual, com o corpo exato, aviso de sucesso e recarga", async () => {
@@ -614,7 +749,6 @@ describe("Reservas", () => {
 		await screen.findByRole("cell", { name: "Sala 01" });
 
 		await replaceValue(user, screen.getByLabelText("Até"), "31122026");
-		await user.click(screen.getByRole("button", { name: "Buscar" }));
 		await waitFor(() => expect(backend.lastList()?.fim).toBe("2026-12-31T23:59:59"));
 		await user.click(screen.getByRole("button", { name: "Última página" }));
 		await user.click(
@@ -635,11 +769,11 @@ describe("Reservas", () => {
 		expect(screen.queryByText("Nenhuma reserva encontrada")).not.toBeInTheDocument();
 	});
 
-	it("mostra o estado vazio com ação de nova reserva", async () => {
+	it("mostra o estado vazio do período padrão com ação de nova reserva", async () => {
 		mockBackend({ reservations: [] });
 		renderReservations();
 
-		expect(await screen.findByText("Nenhuma reserva encontrada")).toBeInTheDocument();
+		expect(await screen.findByText("Nenhuma reserva no período")).toBeInTheDocument();
 		expect(screen.getAllByRole("button", { name: "Nova reserva" })).toHaveLength(2);
 	});
 

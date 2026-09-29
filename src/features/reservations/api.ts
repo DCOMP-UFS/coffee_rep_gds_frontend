@@ -17,10 +17,21 @@ const periodQuery = (inicio: string, fim: string) => ({
 
 export const reservationsApi = {
 	/** Reservas que tocam o período, do início do primeiro dia ao fim do último. */
-	list: ({ inicio, fim, page, size }: ReservationListFilters, signal?: AbortSignal) =>
+	list: (
+		{ inicio, fim, search, setorId, recorrente, sort, page, size }: ReservationListFilters,
+		signal?: AbortSignal,
+	) =>
 		api.get<PagedResponse<Reservation>>(
 			"reservation",
-			{ size, page, ...periodQuery(inicio, fim) },
+			{
+				size,
+				page,
+				...periodQuery(inicio, fim),
+				busca: search.trim() || undefined,
+				setorId,
+				recorrente,
+				sort,
+			},
 			signal,
 		),
 
