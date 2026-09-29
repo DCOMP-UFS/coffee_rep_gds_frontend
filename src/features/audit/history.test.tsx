@@ -99,7 +99,11 @@ describe("Histórico", () => {
 
 		expect(await screen.findByText("Consultório 10", { exact: false })).toBeInTheDocument();
 		expect(audit.requests).toEqual([{ size: "10", page: "0" }]);
-		expect(screen.getByText(/Mostrando/)).toHaveTextContent("Mostrando 1–10 de 12");
+		// Acima e abaixo da tabela, como no Angular.
+		expect(screen.getAllByText(/Mostrando/).map((summary) => summary.textContent)).toEqual([
+			"Mostrando 1–10 de 12",
+			"Mostrando 1–10 de 12",
+		]);
 		expect(screen.getByRole("heading", { name: "Histórico" })).toBeInTheDocument();
 	});
 
