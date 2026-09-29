@@ -5,6 +5,7 @@ import { useCallback, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { DataTable } from "@/components/data-table/DataTable";
 import { PaginationBar } from "@/components/data-table/PaginationBar";
+import { PaginationSummary } from "@/components/data-table/PaginationSummary";
 import { RowActionButton } from "@/components/data-table/RowActionButton";
 import { EmptyState } from "@/components/feedback/EmptyState";
 import { FormField } from "@/components/form/FormField";
@@ -208,6 +209,7 @@ export function ReservationsPage() {
 							action={newReservationButton}
 						/>
 					}
+					header={pageInfo && data.length > 0 && <PaginationSummary page={pageInfo} />}
 					footer={
 						pageInfo &&
 						data.length > 0 && (

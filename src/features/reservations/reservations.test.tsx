@@ -174,7 +174,11 @@ describe("Reservas", () => {
 		]);
 		expect(screen.getByLabelText("De")).toHaveValue("29/09/2026");
 		expect(screen.getByLabelText("Até")).toHaveValue("29/10/2026");
-		expect(screen.getByText(/Mostrando/)).toHaveTextContent("Mostrando 1–5 de 7");
+		// Acima e abaixo da tabela, como no Angular.
+		expect(screen.getAllByText(/Mostrando/).map((summary) => summary.textContent)).toEqual([
+			"Mostrando 1–5 de 7",
+			"Mostrando 1–5 de 7",
+		]);
 	});
 
 	it("mostra horários, criador e tipo de cada reserva", async () => {
