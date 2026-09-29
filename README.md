@@ -106,12 +106,12 @@ requisição. Requisições sem handler reprovam o teste.
 ## Deploy (Vercel)
 
 O projeto na Vercel é o mesmo da versão Angular. O `vercel.json` define o framework (Vite), a
-reescrita de rotas para o `index.html` e o cache longo de `/assets`. No painel do projeto:
+pasta de saída (`dist`), a reescrita de rotas para o `index.html` e o cache longo de `/assets`.
+Esses valores prevalecem sobre o painel, que ainda guarda a pasta de saída do Angular. No painel
+do projeto:
 
-1. Confira que "Framework Preset" e "Output Directory" não estão fixados para Angular: o build
-   do React sai em `dist/`, e não em `dist/gds_frontend/browser`.
-2. Defina `VITE_API_URL=https://api-gestao-salas.vercel.app/api` nas variáveis de ambiente.
-3. Confira que o domínio do frontend está em `CORS_ORIGINS` do backend.
+1. Defina `VITE_API_URL=https://api-gestao-salas.vercel.app/api` nas variáveis de ambiente.
+2. Confira que o domínio do frontend está em `CORS_ORIGINS` do backend.
 
 O workflow em `.github/workflows/ci.yml` roda lint, tipos, testes e build em cada push na `main`
 e em cada pull request.
