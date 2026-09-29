@@ -36,6 +36,9 @@ export default defineConfig({
 		setupFiles: ["./test/setup.ts"],
 		include: ["src/**/*.test.{ts,tsx}"],
 		css: false,
+		// Testes de tela digitam e navegam com o user-event; com todos os arquivos em paralelo, os
+		// 5 s padrão não bastam em máquinas mais lentas.
+		testTimeout: 15_000,
 		// A URL da API nos testes é fixa: os handlers do MSW a usam para casar as requisições.
 		env: {
 			VITE_API_URL: "http://api.test/api",
