@@ -385,4 +385,90 @@ describe("Setores", () => {
 		expect(await screen.findByText(SESSION_EXPIRED_MESSAGE)).toBeInTheDocument();
 		await waitFor(() => expect(location()).toBe("/login"));
 	});
+
+	describe("busca e ordenação", () => {
+		/** Na ordem do backend: da mais recente para a mais antiga. */
+		const MANY: Section[] = [
+			{ id: 5, nome: "Pediatria", observacoes: "Ala infantil" },
+			{ id: 4, nome: "Clínica Médica", observacoes: null },
+			{ id: 3, nome: "Cardiologia", observacoes: "2º andar" },
+		];
+
+		const names = () =>
+			screen
+				.getAllByRole("row")
+				.slice(1)
+				.map((row) => within(row).getAllByRole("cell")[0]?.textContent);
+
+		async function chooseSort(user: ReturnType<typeof renderApp>["user"], option: string) {
+			await user.click(screen.getByRole("combobox", { name: "Ordenar por" }));
+			await user.click(await screen.findByRole("option", { name: option }));
+		}
+
+		it("busca por nome ou observação, ignorando acentos, depois da digitação", async () => {
+			mockSections(MANY);
+			const { user } = renderSections();
+			await screen.findByRole("cell", { name: "Pediatria" });
+
+			await user.type(screen.getByRole("searchbox", { name: "Buscar setor" }), "clinica");
+
+			expect(await screen.findByText("Buscando…")).toBeInTheDocument();
+			await waitFor(() => expect(names()).toEqual(["Clínica Médica"]));
+			expect(screen.queryByText("Buscando…")).not.toBeInTheDocument();
+			expect(screen.getAllByText("1 de 3 setores")).toHaveLength(2);
+
+			await user.clear(screen.getByRole("searchbox", { name: "Buscar setor" }));
+			await user.type(screen.getByRole("searchbox", { name: "Buscar setor" }), "INFANTIL");
+			await waitFor(() => expect(names()).toEqual(["Pediatria"]));
+		});
+
+		it("mantém a ordem do backend e ordena por nome quando escolhido", async () => {
+			mockSections(MANY);
+			const { user } = renderSections();
+			await screen.findByRole("cell", { name: "Pediatria" });
+			expect(names()).toEqual(["Pediatria", "Clínica Médica", "Cardiologia"]);
+
+			await chooseSort(user, "Nome A–Z");
+			expect(names()).toEqual(["Cardiologia", "Clínica Médica", "Pediatria"]);
+
+			await chooseSort(user, "Nome Z–A");
+			expect(names()).toEqual(["Pediatria", "Clínica Médica", "Cardiologia"]);
+		});
+
+		it("habilita Limpar filtros só com algo diferente do padrão e restaura tudo", async () => {
+			mockSections(MANY);
+			const { user } = renderSections();
+			await screen.findByRole("cell", { name: "Pediatria" });
+			const clear = screen.getByRole("button", { name: "Limpar filtros" });
+			expect(clear).toBeDisabled();
+
+			await chooseSort(user, "Nome A–Z");
+			expect(clear).toBeEnabled();
+
+			await user.click(clear);
+			expect(clear).toBeDisabled();
+			expect(screen.getByRole("combobox", { name: "Ordenar por" })).toHaveTextContent(
+				"Mais recentes",
+			);
+			expect(names()).toEqual(["Pediatria", "Clínica Médica", "Cardiologia"]);
+		});
+
+		it("distingue a busca sem resultado e limpa a busca pelo estado vazio", async () => {
+			mockSections(MANY);
+			const { user } = renderSections();
+			await screen.findByRole("cell", { name: "Pediatria" });
+
+			await user.type(screen.getByRole("searchbox", { name: "Buscar setor" }), "Neurologia");
+
+			expect(await screen.findByText("Nenhum setor encontrado")).toBeInTheDocument();
+			expect(screen.queryByText("Nenhum setor cadastrado")).not.toBeInTheDocument();
+
+			const [, emptyStateClear] = screen.getAllByRole("button", { name: "Limpar filtros" });
+			await user.click(emptyStateClear as HTMLElement);
+
+			expect(await screen.findByRole("cell", { name: "Pediatria" })).toBeInTheDocument();
+			expect(screen.getByRole("searchbox", { name: "Buscar setor" })).toHaveValue("");
+			expect(screen.getAllByText("3 setores")).toHaveLength(2);
+		});
+	});
 });
