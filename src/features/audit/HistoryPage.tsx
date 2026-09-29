@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { DataTable } from "@/components/data-table/DataTable";
 import { PaginationBar } from "@/components/data-table/PaginationBar";
+import { PaginationSummary } from "@/components/data-table/PaginationSummary";
 import { EmptyState } from "@/components/feedback/EmptyState";
 import { FormField } from "@/components/form/FormField";
 import { MaskedInput } from "@/components/form/MaskedInput";
@@ -248,6 +249,7 @@ export function HistoryPage() {
 							description="Ações do sistema aparecerão aqui. Ajuste os filtros ou aguarde novas operações."
 						/>
 					}
+					header={pageInfo && data.length > 0 && <PaginationSummary page={pageInfo} />}
 					footer={
 						pageInfo &&
 						data.length > 0 && (

@@ -96,7 +96,11 @@ describe("Solicitantes", () => {
 		expect(await screen.findByRole("cell", { name: "Profissional 01" })).toBeInTheDocument();
 		expect(screen.getAllByRole("row")).toHaveLength(6);
 		expect(backend.listRequests).toEqual([{ size: "5", page: "0", busca: null }]);
-		expect(screen.getByText(/Mostrando/)).toHaveTextContent("Mostrando 1–5 de 12");
+		// Acima e abaixo da tabela, como no Angular.
+		expect(screen.getAllByText(/Mostrando/).map((summary) => summary.textContent)).toEqual([
+			"Mostrando 1–5 de 12",
+			"Mostrando 1–5 de 12",
+		]);
 	});
 
 	it("formata o telefone e mostra — quando não há telefone", async () => {

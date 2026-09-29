@@ -38,6 +38,8 @@ interface DataTableProps<TData> {
 	/** Indica que os dados na tela são da consulta anterior e uma nova está a caminho. */
 	isPlaceholderData?: boolean;
 	skeletonRows?: number;
+	/** Faixa acima da tabela, como o total de registros (o rodapé costuma repeti-lo). */
+	header?: ReactNode;
 	footer?: ReactNode;
 	caption: string;
 }
@@ -57,6 +59,7 @@ export function DataTable<TData>({
 	emptyState,
 	isPlaceholderData = false,
 	skeletonRows = 5,
+	header,
 	footer,
 	caption,
 }: DataTableProps<TData>) {
@@ -77,6 +80,7 @@ export function DataTable<TData>({
 
 	return (
 		<>
+			{header && <div className="border-b px-4 py-3 text-sm text-muted-foreground">{header}</div>}
 			<Table
 				aria-busy={isLoading || isPlaceholderData}
 				className={cn("transition-opacity", isPlaceholderData && "opacity-60")}
