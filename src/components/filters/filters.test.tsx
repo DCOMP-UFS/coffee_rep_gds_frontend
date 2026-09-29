@@ -84,6 +84,28 @@ describe("FilterSelect", () => {
 		expect(await screen.findAllByRole("option")).toHaveLength(2);
 		expect(screen.queryByRole("option", { name: "Todas" })).not.toBeInTheDocument();
 	});
+
+	// Regressão: alinhada ao item selecionado, a lista de meses abria cortada perto do topo da tela.
+	it("abre a lista ancorada abaixo do campo, e não alinhada ao item selecionado", async () => {
+		const user = userEvent.setup();
+		render(
+			<FilterSelect
+				aria-label="Mês"
+				value="8"
+				onChange={() => {}}
+				options={Array.from({ length: 12 }, (_, index) => ({
+					value: String(index),
+					label: `Mês ${index + 1}`,
+				}))}
+			/>,
+		);
+
+		await user.click(screen.getByRole("combobox", { name: "Mês" }));
+
+		const listbox = await screen.findByRole("listbox");
+		expect(listbox.closest("[data-radix-popper-content-wrapper]")).not.toBeNull();
+		expect(screen.getAllByRole("option")).toHaveLength(12);
+	});
 });
 
 describe("FilterBar", () => {
