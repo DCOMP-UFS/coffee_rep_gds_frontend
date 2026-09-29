@@ -1,4 +1,13 @@
-import { buildMonthWeeks, longDayLabel, monthTitle, visibleRange } from "./month-grid";
+import {
+	buildMonthWeeks,
+	longDayLabel,
+	MONTH_OPTIONS,
+	monthTitle,
+	visibleRange,
+	withMonth,
+	withYear,
+	yearOptions,
+} from "./month-grid";
 
 const isoDays = (month: Date) =>
 	buildMonthWeeks(month)
@@ -78,5 +87,70 @@ describe("rótulos", () => {
 	it("escreve o mês e o dia em português", () => {
 		expect(monthTitle(new Date(2026, 8, 1))).toBe("setembro de 2026");
 		expect(longDayLabel(new Date(2026, 8, 29))).toBe("terça-feira, 29 de setembro de 2026");
+	});
+});
+
+describe("MONTH_OPTIONS", () => {
+	it("lista os 12 meses em português, com o índice do Date como valor", () => {
+		expect(MONTH_OPTIONS).toHaveLength(12);
+		expect(MONTH_OPTIONS[0]).toEqual({ value: "0", label: "Janeiro" });
+		expect(MONTH_OPTIONS[2]).toEqual({ value: "2", label: "Março" });
+		expect(MONTH_OPTIONS[11]).toEqual({ value: "11", label: "Dezembro" });
+	});
+});
+
+describe("yearOptions", () => {
+	const years = (options: { value: string }[]) => options.map((option) => option.value);
+
+	it("vai de 5 anos antes a 5 anos depois do ano atual", () => {
+		expect(years(yearOptions(2026, 2026))).toEqual([
+			"2021",
+			"2022",
+			"2023",
+			"2024",
+			"2025",
+			"2026",
+			"2027",
+			"2028",
+			"2029",
+			"2030",
+			"2031",
+		]);
+	});
+
+	it("inclui o ano exibido quando as setas passam do fim do intervalo", () => {
+		const options = years(yearOptions(2033, 2026));
+
+		expect(options[0]).toBe("2021");
+		expect(options.at(-1)).toBe("2033");
+		expect(options).toHaveLength(13);
+	});
+
+	it("inclui o ano exibido quando as setas passam do início do intervalo", () => {
+		const options = years(yearOptions(2018, 2026));
+
+		expect(options[0]).toBe("2018");
+		expect(options.at(-1)).toBe("2031");
+	});
+
+	it("usa o próprio ano como rótulo", () => {
+		expect(yearOptions(2026, 2026)[0]).toEqual({ value: "2021", label: "2021" });
+	});
+});
+
+describe("withMonth e withYear", () => {
+	it("troca o mês mantendo o ano, sempre no dia 1", () => {
+		expect(withMonth(new Date(2026, 8, 1), 2)).toEqual(new Date(2026, 2, 1));
+	});
+
+	it("troca o ano mantendo o mês, sempre no dia 1", () => {
+		expect(withYear(new Date(2026, 8, 1), 2028)).toEqual(new Date(2028, 8, 1));
+	});
+
+	it("não pula de mês quando a data de entrada está no fim de um mês longo", () => {
+		// 31 de janeiro com mês de fevereiro não pode virar março.
+		expect(withMonth(new Date(2026, 0, 31), 1)).toEqual(new Date(2026, 1, 1));
+		// 29 de fevereiro de ano bissexto em ano comum continua em fevereiro.
+		expect(withYear(new Date(2028, 1, 29), 2026)).toEqual(new Date(2026, 1, 1));
 	});
 });
