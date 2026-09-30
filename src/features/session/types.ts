@@ -13,7 +13,6 @@ export type Permission =
 	| "reservation.recurring.manage"
 	| "reservation.single.manage"
 	| "absence.manage"
-	| "audit.read"
 	| "users.manage"
 	| "roleRequests.review";
 
