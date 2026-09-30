@@ -39,7 +39,7 @@ export const NAVIGATION_ITEMS: readonly NavigationItem[] = [
 	{ label: "Solicitante", path: "/requester", icon: UserRound },
 	{ label: "Reservas", path: "/reservation", icon: AlarmClock },
 	{ label: "Ausências", path: "/absences", icon: CalendarX2 },
-	{ label: "Histórico", path: "/historico", icon: History, permission: "audit.read" },
+	{ label: "Histórico", path: "/historico", icon: History },
 	{ label: "Meu acesso", path: "/meu-acesso", icon: KeyRound },
 	{ label: "Administração", path: "/admin", icon: ShieldCheck, permission: "users.manage" },
 ];
