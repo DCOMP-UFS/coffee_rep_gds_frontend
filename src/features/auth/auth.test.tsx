@@ -1,10 +1,11 @@
-import { paged } from "@test/msw/fixtures";
+import { currentUser, paged } from "@test/msw/fixtures";
 import { apiUrl, server } from "@test/msw/server";
 import { renderApp } from "@test/render-app";
-import { screen, waitFor } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import { HttpResponse, http } from "msw";
 import { getToken, setToken } from "@/lib/auth/token";
 import { LOGIN_ERROR_MESSAGE, SIGN_UP_SUCCESS_MESSAGE } from "./LoginPage";
+import { SIGN_UP_ACCESS_NOTICE } from "./SignUpPage";
 
 describe("login", () => {
 	it("envia CPF só com dígitos, sem token, grava o accessToken e vai para /rooms", async () => {
@@ -14,6 +15,7 @@ describe("login", () => {
 				request = { body: await req.json(), authorization: req.headers.get("Authorization") };
 				return HttpResponse.json({ accessToken: "novo-token", expiresIn: 3600 });
 			}),
+			http.get(apiUrl("auth/me"), () => HttpResponse.json(currentUser("VIEWER"))),
 			// Chamadas da tela de Salas, destino do login.
 			http.get(apiUrl("room"), () => HttpResponse.json(paged([], 0, 5))),
 			http.get(apiUrl("section"), () => HttpResponse.json([])),
@@ -25,6 +27,7 @@ describe("login", () => {
 		await user.click(screen.getByRole("button", { name: "Entrar" }));
 
 		await waitFor(() => expect(location()).toBe("/rooms"));
+		expect(await screen.findByRole("heading", { level: 1, name: "Salas" })).toBeInTheDocument();
 		expect(request).toEqual({
 			body: { cpf: "52998224725", password: "minha senha " },
 			authorization: null,
@@ -98,6 +101,17 @@ describe("cadastro", () => {
 		await user.type(screen.getByLabelText("CPF (obrigatório)"), "52998224725");
 		await user.type(screen.getByLabelText("Senha (obrigatório)"), "segredo");
 	}
+
+	it("avisa que a conta começa como Visualizador e mostra os níveis de acesso", () => {
+		renderApp("/cadastro");
+
+		expect(screen.getByRole("heading", { name: SIGN_UP_ACCESS_NOTICE })).toBeInTheDocument();
+		const levels = within(screen.getByRole("list", { name: "Níveis de acesso" }));
+		expect(levels.getAllByRole("listitem")).toHaveLength(3);
+		expect(levels.getByText("Visualizador")).toBeInTheDocument();
+		expect(levels.getByText("Assistente administrativo")).toBeInTheDocument();
+		expect(levels.getByText("Coordenação")).toBeInTheDocument();
+	});
 
 	it("envia o corpo no formato do backend e volta ao login", async () => {
 		let body: unknown;

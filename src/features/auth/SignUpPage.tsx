@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { ChevronLeft, Loader2 } from "lucide-react";
+import { ChevronLeft, Info, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { FormErrorAlert } from "@/components/feedback/FormErrorAlert";
@@ -9,6 +9,7 @@ import { MaskedInput } from "@/components/form/MaskedInput";
 import { PasswordInput } from "@/components/form/PasswordInput";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { RoleHierarchy } from "@/features/session/RoleHierarchy";
 import { getSignUpErrorMessage } from "@/lib/api/errors";
 import { maskCpf, maskDate, maskPhone } from "@/shared/format/masks";
 import { authApi } from "./api";
@@ -19,6 +20,8 @@ import {
 	signUpSchema,
 	toSignUpRequest,
 } from "./schemas";
+
+export const SIGN_UP_ACCESS_NOTICE = "Sua conta começa com o perfil Visualizador.";
 
 export function SignUpPage() {
 	const navigate = useNavigate();
@@ -58,6 +61,22 @@ export function SignUpPage() {
 					Preencha seus dados. Depois, é só entrar com seu CPF e senha.
 				</p>
 			</header>
+
+			<section aria-labelledby="sign-up-access-title" className="grid gap-3">
+				<div className="flex gap-3 rounded-lg border border-brand-blue/20 bg-accent/60 p-3 text-sm">
+					<Info className="mt-0.5 size-4 shrink-0 text-brand-blue" aria-hidden="true" />
+					<div className="grid gap-1">
+						<h2 id="sign-up-access-title" className="font-semibold text-foreground">
+							{SIGN_UP_ACCESS_NOTICE}
+						</h2>
+						<p className="text-muted-foreground">
+							Ele permite consultar o sistema, sem alterar nada. Se o seu trabalho exigir mais, peça
+							um nível maior em “Meu acesso” depois de entrar; o administrador analisa o pedido.
+						</p>
+					</div>
+				</div>
+				<RoleHierarchy compact />
+			</section>
 
 			<form
 				noValidate
