@@ -25,7 +25,7 @@ export const PERMISSION_REQUIREMENTS: Record<Permission, AccessRequirement> = {
 	"roleRequests.review": { minimumRole: "ADMIN", requestable: false },
 };
 
-export const ADMIN_ONLY_REASON = "Exclusivo do administrador do sistema";
+export const ADMIN_ONLY_REASON = "Exclusivo do administrador de tecnologia";
 
 /** Texto curto do tooltip de uma ação bloqueada. */
 export function lockedReason(requirement: AccessRequirement): string {
@@ -41,5 +41,5 @@ export function lockedReason(requirement: AccessRequirement): string {
 export function accessSummary(feature: string, requirement: AccessRequirement): string {
 	return requirement.requestable
 		? `${feature} exige o perfil ${ROLE_LABELS[requirement.minimumRole]} ou superior.`
-		: `${feature} é exclusivo do administrador do sistema.`;
+		: `${feature} é exclusivo do administrador de tecnologia.`;
 }

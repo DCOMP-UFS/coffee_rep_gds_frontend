@@ -25,7 +25,7 @@ describe("requisitos de acesso", () => {
 			"Disponível a partir de Coordenação",
 		);
 		expect(lockedReason(PERMISSION_REQUIREMENTS["users.manage"])).toBe(
-			"Exclusivo do administrador do sistema",
+			"Exclusivo do administrador de tecnologia",
 		);
 	});
 
@@ -34,7 +34,7 @@ describe("requisitos de acesso", () => {
 			"Cadastrar setores exige o perfil Coordenação ou superior.",
 		);
 		expect(accessSummary("Acessar a Administração", PERMISSION_REQUIREMENTS["users.manage"])).toBe(
-			"Acessar a Administração é exclusivo do administrador do sistema.",
+			"Acessar a Administração é exclusivo do administrador de tecnologia.",
 		);
 	});
 });

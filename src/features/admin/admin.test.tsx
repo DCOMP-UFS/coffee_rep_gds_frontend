@@ -256,7 +256,7 @@ describe("Administração", () => {
 				.slice(1)
 				.map((row) => row.querySelector("td")?.textContent);
 			expect(names).toEqual(["Admin", "Bruno Viewer", "Carla Coordenadora"]);
-			expect(within(rowOf("Admin")).getByText("Administrador do sistema")).toBeInTheDocument();
+			expect(within(rowOf("Admin")).getByText("Administrador de tecnologia")).toBeInTheDocument();
 			expect(within(rowOf("Admin")).queryByRole("combobox")).not.toBeInTheDocument();
 			expect(
 				screen.getByRole("combobox", { name: "Perfil de Carla Coordenadora" }),

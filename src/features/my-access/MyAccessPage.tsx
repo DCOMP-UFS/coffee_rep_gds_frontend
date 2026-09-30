@@ -102,7 +102,7 @@ function AdminNotice() {
 					Você já tem todas as permissões
 				</CardTitle>
 				<CardDescription>
-					Como administrador do sistema, você não precisa pedir acesso. Os pedidos dos outros
+					Como administrador de tecnologia, você não precisa pedir acesso. Os pedidos dos outros
 					usuários chegam em Administração, onde você também pode alterar perfis.
 				</CardDescription>
 			</CardHeader>
@@ -147,7 +147,7 @@ function RequestAccessCard({ role }: { role: Role }) {
 		content = (
 			<p className="text-sm text-muted-foreground">
 				Você já está no maior nível da hierarquia. Se precisar de algo além disso, fale com o
-				administrador do sistema.
+				administrador de tecnologia.
 			</p>
 		);
 	} else {
@@ -159,7 +159,7 @@ function RequestAccessCard({ role }: { role: Role }) {
 			<CardHeader>
 				<CardTitle>Pedir mais acesso</CardTitle>
 				<CardDescription>
-					O pedido vai para o administrador do sistema. Quando ele aprovar, o novo perfil vale na
+					O pedido vai para o administrador de tecnologia. Quando ele aprovar, o novo perfil vale na
 					hora, sem precisar entrar de novo.
 				</CardDescription>
 			</CardHeader>

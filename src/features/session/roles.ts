@@ -4,7 +4,7 @@ export const ROLE_LABELS: Record<Role, string> = {
 	VIEWER: "Visualizador",
 	ASSISTANT: "Assistente administrativo",
 	COORDINATOR: "Coordenação",
-	ADMIN: "Administrador do sistema",
+	ADMIN: "Administrador de tecnologia",
 };
 
 /** Perfil anterior à hierarquia; o backend o trata como Coordenação até a migração. */

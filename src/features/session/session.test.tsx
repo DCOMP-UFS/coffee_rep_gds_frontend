@@ -93,7 +93,7 @@ describe("sessão", () => {
 			expect(screen.getByRole("link", { name: "Histórico" })).toBeInTheDocument();
 			expect(
 				screen.getByRole("link", {
-					name: /^Administração\s*, exclusivo do administrador do sistema$/,
+					name: /^Administração\s*, exclusivo do administrador de tecnologia$/,
 				}),
 			).toHaveAttribute("href", "/admin");
 		});
@@ -151,10 +151,10 @@ describe("sessão", () => {
 			const heading = await screen.findByRole("heading", { level: 1, name: FORBIDDEN_TITLE });
 			const page = heading.closest("section") as HTMLElement;
 			expect(page).toHaveTextContent(
-				"Administrar usuários e pedidos de acesso é exclusivo do administrador do sistema.",
+				"Administrar usuários e pedidos de acesso é exclusivo do administrador de tecnologia.",
 			);
 			expect(page).toHaveTextContent("Seu perfilVisualizador");
-			expect(page).toHaveTextContent("Perfil necessárioAdministrador do sistema");
+			expect(page).toHaveTextContent("Perfil necessárioAdministrador de tecnologia");
 			expect(page).toHaveTextContent("Esse perfil não pode ser pedido");
 			expect(screen.queryByRole("link", { name: "Pedir acesso" })).not.toBeInTheDocument();
 			expect(screen.getByRole("link", { name: "Ver meu acesso" })).toHaveAttribute(

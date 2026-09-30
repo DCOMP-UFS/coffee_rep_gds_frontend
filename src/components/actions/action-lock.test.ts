@@ -8,8 +8,8 @@ describe("rótulos de ação bloqueada", () => {
 	});
 
 	it("junta o nome da ação e o motivo entre parênteses", () => {
-		expect(lockedLabel("Novo setor", "Exclusivo do administrador do sistema")).toBe(
-			"Novo setor (exclusivo do administrador do sistema)",
+		expect(lockedLabel("Novo setor", "Exclusivo do administrador de tecnologia")).toBe(
+			"Novo setor (exclusivo do administrador de tecnologia)",
 		);
 	});
 });

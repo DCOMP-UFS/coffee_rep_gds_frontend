@@ -5,7 +5,7 @@ describe("perfis", () => {
 		expect(roleLabel("VIEWER")).toBe("Visualizador");
 		expect(roleLabel("ASSISTANT")).toBe("Assistente administrativo");
 		expect(roleLabel("COORDINATOR")).toBe("Coordenação");
-		expect(roleLabel("ADMIN")).toBe("Administrador do sistema");
+		expect(roleLabel("ADMIN")).toBe("Administrador de tecnologia");
 		expect(roleLabel("BASIC")).toBe("Básico (legado)");
 		expect(roleLabel("OUTRO")).toBe("OUTRO");
 		expect(roleLabel("constructor")).toBe("constructor");
