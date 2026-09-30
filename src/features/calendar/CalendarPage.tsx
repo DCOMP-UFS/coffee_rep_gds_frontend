@@ -1,6 +1,7 @@
 import { addMonths, format, isSameMonth, parseISO, startOfMonth } from "date-fns";
 import { CalendarDays, ChevronLeft, ChevronRight, Loader2, Plus } from "lucide-react";
 import { useMemo, useState } from "react";
+import { LockableButton } from "@/components/actions/LockableButton";
 import { LoadErrorAlert } from "@/components/feedback/LoadErrorAlert";
 import { FormField } from "@/components/form/FormField";
 import { SearchableSelect } from "@/components/form/SearchableSelect";
@@ -11,7 +12,7 @@ import { useAbsences } from "@/features/absences/hooks";
 import { useCalendarReservations } from "@/features/reservations/hooks";
 import { ReservationFormDialog } from "@/features/reservations/ReservationFormDialog";
 import { useSections } from "@/features/sections/hooks";
-import { usePermission } from "@/features/session/hooks";
+import { useAccess } from "@/features/session/access-dialog/useAccess";
 import { cn } from "@/lib/utils";
 import { EVENT_KIND_STYLES } from "./constants";
 import { EventDetailsDialog } from "./EventDetailsDialog";
@@ -36,7 +37,10 @@ const ALL_SECTIONS = 0;
 const LEGEND: CalendarEventKind[] = ["pontual", "recorrente", "livre"];
 
 export function CalendarPage() {
-	const canReserve = usePermission("reservation.single.manage");
+	const { allowed: canReserve, lock: reserveLock } = useAccess(
+		"reservation.single.manage",
+		"Criar reservas pelo calendário",
+	);
 	const [month, setMonth] = useState(() => startOfMonth(new Date()));
 	const [sectionId, setSectionId] = useState(ALL_SECTIONS);
 
@@ -96,12 +100,12 @@ export function CalendarPage() {
 						: "Reservas e ausências do mês."
 				}
 				actions={
-					canReserve && (
-						<Button onClick={() => openNewReservation(new Date())}>
-							<Plus aria-hidden="true" />
-							Nova reserva
-						</Button>
-					)
+					<LockableButton
+						icon={Plus}
+						label="Nova reserva"
+						lock={reserveLock}
+						onClick={() => openNewReservation(new Date())}
+					/>
 				}
 			/>
 

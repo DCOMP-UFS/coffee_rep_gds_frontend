@@ -1,3 +1,4 @@
+import { getLockedButton, mockMyRoleRequests, openAccessDialog } from "@test/access";
 import { paged } from "@test/msw/fixtures";
 import { apiUrl, server } from "@test/msw/server";
 import { renderApp } from "@test/render-app";
@@ -555,10 +556,21 @@ describe("Calendário", () => {
 
 	it("visualizador vê os eventos, mas não reserva pelo calendário", async () => {
 		mockBackend();
+		mockMyRoleRequests();
 		const { user } = renderApp("/calendar", { authenticated: true, role: "VIEWER" });
 		await waitForEvents();
 
-		expect(screen.queryByRole("button", { name: "Nova reserva" })).not.toBeInTheDocument();
+		const accessDialog = await openAccessDialog(
+			user,
+			getLockedButton(/^Nova reserva \(disponível a partir de Assistente administrativo\)$/),
+		);
+		expect(accessDialog).toHaveTextContent(
+			"Criar reservas pelo calendário exige o perfil Assistente administrativo ou superior.",
+		);
+		expect(screen.queryByRole("dialog", { name: "Nova reserva" })).not.toBeInTheDocument();
+		await user.click(within(accessDialog).getByRole("button", { name: "Entendi" }));
+		await waitFor(() => expect(accessDialog).not.toBeInTheDocument());
+
 		expect(screen.queryByRole("button", { name: /^Nova reserva em/ })).not.toBeInTheDocument();
 		expect(within(day("terça-feira, 29 de setembro de 2026")).getByText("29")).toHaveAttribute(
 			"aria-current",
