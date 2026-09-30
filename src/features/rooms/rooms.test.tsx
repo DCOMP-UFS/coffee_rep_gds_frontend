@@ -1,3 +1,9 @@
+import {
+	getLockedButton,
+	getLockedButtons,
+	mockMyRoleRequests,
+	openAccessDialog,
+} from "@test/access";
 import { paged } from "@test/msw/fixtures";
 import { apiUrl, server } from "@test/msw/server";
 import { renderApp } from "@test/render-app";
@@ -518,4 +524,28 @@ describe("Salas", () => {
 		expect(await screen.findByRole("cell", { name: "Sala 01" })).toBeInTheDocument();
 		expect(backend.listRequests).toHaveLength(1);
 	});
+
+	it.each([["VIEWER"], ["ASSISTANT"]] as const)(
+		"%s vê as ações de cadastro bloqueadas e a explicação, sem gravar nada",
+		async (role) => {
+			const backend = mockBackend();
+			mockMyRoleRequests();
+			const { user } = renderApp("/rooms", { authenticated: true, role });
+			await screen.findByRole("cell", { name: "Sala 01" });
+
+			expect(
+				getLockedButtons(/^Editar sala .* \(disponível a partir de Coordenação\)$/).length,
+			).toBeGreaterThan(0);
+			expect(getLockedButtons(/^Excluir sala /).length).toBeGreaterThan(0);
+			expect(getLockedButton(/^Nova sala \(/)).toBeInTheDocument();
+
+			const dialog = await openAccessDialog(user, getLockedButton(/^Excluir sala Sala 01 \(/));
+
+			expect(dialog).toHaveTextContent(
+				"Cadastrar, editar e excluir salas exige o perfil Coordenação ou superior.",
+			);
+			expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
+			expect(backend.writes).toEqual([]);
+		},
+	);
 });

@@ -1,3 +1,10 @@
+import {
+	getLockedButton,
+	getLockedButtons,
+	mockMyRoleRequests,
+	openAccessDialog,
+	recordWrites,
+} from "@test/access";
 import { apiUrl, server } from "@test/msw/server";
 import { renderApp } from "@test/render-app";
 import { screen, waitFor, within } from "@testing-library/react";
@@ -489,21 +496,37 @@ describe("Ausências", () => {
 			renderApp("/absences", { authenticated: true, role: "ASSISTANT" });
 
 			await screen.findByRole("cell", { name: "Ana Souza" });
-			expect(screen.getByRole("button", { name: "Nova ausência" })).toBeInTheDocument();
-			expect(screen.getAllByRole("button", { name: /^Editar ausência/ }).length).toBeGreaterThan(0);
-			expect(screen.getAllByRole("button", { name: /^Excluir ausência/ }).length).toBeGreaterThan(
-				0,
+			expect(screen.getByRole("button", { name: "Nova ausência" })).not.toHaveAttribute(
+				"aria-disabled",
 			);
+			for (const button of screen.getAllByRole("button", { name: /^(Editar|Excluir) ausência/ })) {
+				expect(button).not.toHaveAttribute("aria-disabled");
+			}
 		});
 
-		it("visualizador só consulta as ausências", async () => {
+		it("visualizador vê as ações bloqueadas e a explicação de como pedir acesso", async () => {
 			mockBackend();
-			renderApp("/absences", { authenticated: true, role: "VIEWER" });
+			mockMyRoleRequests();
+			const writes = recordWrites();
+			const { user } = renderApp("/absences", { authenticated: true, role: "VIEWER" });
 
 			await screen.findByRole("cell", { name: "Ana Souza" });
-			expect(screen.queryByRole("button", { name: "Nova ausência" })).not.toBeInTheDocument();
-			expect(screen.queryByRole("button", { name: /^Editar ausência/ })).not.toBeInTheDocument();
-			expect(screen.queryByRole("button", { name: /^Excluir ausência/ })).not.toBeInTheDocument();
+			expect(
+				getLockedButtons(/^Editar ausência .* \(disponível a partir de Assistente/),
+			).toHaveLength(ABSENCES.length);
+			expect(getLockedButtons(/^Excluir ausência/)).toHaveLength(ABSENCES.length);
+
+			const dialog = await openAccessDialog(user, getLockedButton(/^Nova ausência \(/));
+
+			expect(dialog).toHaveTextContent(
+				"Registrar, editar e remover ausências exige o perfil Assistente administrativo ou superior.",
+			);
+			expect(within(dialog).getByRole("link", { name: "Pedir acesso" })).toHaveAttribute(
+				"href",
+				"/meu-acesso?perfil=ASSISTANT",
+			);
+			expect(screen.queryByRole("dialog", { name: /ausência/i })).not.toBeInTheDocument();
+			expect(writes).toEqual([]);
 		});
 	});
 });
