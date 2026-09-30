@@ -527,3 +527,27 @@ o filtro e a ordenação são feitos pelo backend, com os parâmetros opcionais 
 backend responde exatamente como antes. As opções de Especialidade vêm dos solicitantes ativos,
 sem repetir grafias que só diferem nas maiúsculas. Coberto pelos testes de cada tela e pelos
 testes de `filters.ts` de cada funcionalidade.
+
+## Perfis
+
+### 49. Telas e ações conforme o perfil, com pedido de acesso
+
+**Angular:** havia só `ADMIN` e `BASIC`, e todo usuário logado via e usava todas as telas.
+
+**Agora:** o app lê o perfil em `GET auth/me` antes de abrir qualquer tela protegida e mostra
+só o que o perfil permite (tabela de permissões no README do backend):
+
+- **Visualizador** consulta tudo, mas não vê botões de criar, editar, excluir ou cancelar. No
+  calendário, o número do dia deixa de abrir uma nova reserva.
+- **Assistente administrativo** cria e cancela reservas pontuais e gerencia ausências. O
+  formulário de reserva troca a escolha "Pontual/Recorrente" por um aviso de que recorrentes são
+  feitas pela coordenação, e ocorrências de séries não têm o botão de cancelar.
+- **Coordenação** tem tudo o que o Angular oferecia, inclusive o Histórico, que sai do menu dos
+  demais perfis.
+- **Administrador** ganha a tela Administração, com os pedidos de acesso e a troca de perfil.
+
+Abrir pela URL uma tela sem permissão mostra "Sem permissão", com links para Meu acesso e para
+o início. O cadastro avisa que a conta começa como Visualizador e explica os níveis, e a tela
+Meu acesso permite pedir um nível acima com justificativa. Quem era `BASIC` vira Coordenação, então
+nenhum usuário atual perde acesso. Coberto por `src/features/session/`, `src/features/my-access/`,
+`src/features/admin/` e pelos testes "por perfil" de cada tela.
