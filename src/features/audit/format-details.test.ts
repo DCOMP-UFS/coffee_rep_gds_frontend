@@ -47,7 +47,7 @@ describe("formatAuditDetails", () => {
 		expect(formatAuditDetails({ cancelada: false, reativado: true })).toBe(
 			"Cancelada: não · Reativado: sim",
 		);
-		expect(formatAuditDetails({ role: "ADMIN" })).toBe("Perfil: Administrador do sistema");
+		expect(formatAuditDetails({ role: "ADMIN" })).toBe("Perfil: Administrador de tecnologia");
 		expect(formatAuditDetails({ role: "BASIC" })).toBe("Perfil: Básico (legado)");
 		expect(formatAuditDetails({ role: "OUTRO" })).toBe("Perfil: OUTRO");
 	});
