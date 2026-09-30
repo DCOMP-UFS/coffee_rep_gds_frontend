@@ -471,4 +471,28 @@ describe("Setores", () => {
 			expect(screen.getAllByText("3 setores")).toHaveLength(2);
 		});
 	});
+
+	describe("por perfil", () => {
+		it.each([["VIEWER"], ["ASSISTANT"]] as const)(
+			"%s consulta os setores sem criar, editar ou excluir",
+			async (role) => {
+				mockSections();
+				renderApp("/sections", { authenticated: true, role });
+
+				expect(await screen.findByRole("cell", { name: "Cardiologia" })).toBeInTheDocument();
+				expect(screen.queryByRole("button", { name: "Novo setor" })).not.toBeInTheDocument();
+				expect(screen.queryByRole("button", { name: /Editar setor/ })).not.toBeInTheDocument();
+				expect(screen.queryByRole("button", { name: /Excluir setor/ })).not.toBeInTheDocument();
+				expect(screen.queryByRole("columnheader", { name: "Ações" })).not.toBeInTheDocument();
+			},
+		);
+
+		it("sem permissão, o estado vazio não oferece cadastro", async () => {
+			mockSections([]);
+			renderApp("/sections", { authenticated: true, role: "VIEWER" });
+
+			expect(await screen.findByText("Nenhum setor cadastrado")).toBeInTheDocument();
+			expect(screen.queryByRole("button", { name: "Novo setor" })).not.toBeInTheDocument();
+		});
+	});
 });

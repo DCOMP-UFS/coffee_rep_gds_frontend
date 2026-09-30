@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { DataTable } from "@/components/data-table/DataTable";
 import { PaginationBar } from "@/components/data-table/PaginationBar";
 import { PaginationSummary } from "@/components/data-table/PaginationSummary";
-import { RowActions } from "@/components/data-table/RowActions";
+import { actionsColumn, RowActions } from "@/components/data-table/RowActions";
 import { ConfirmDialog } from "@/components/feedback/ConfirmDialog";
 import { EmptyState } from "@/components/feedback/EmptyState";
 import { ClearFiltersButton } from "@/components/filters/ClearFiltersButton";
@@ -17,6 +17,7 @@ import { SearchableSelect } from "@/components/form/SearchableSelect";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { usePermission } from "@/features/session/hooks";
 import { useClampPage } from "@/hooks/use-clamp-page";
 import { useDebouncedSearch } from "@/hooks/use-debounced-value";
 import { useFilteredPage } from "@/hooks/use-filtered-page";
@@ -47,6 +48,7 @@ const PAGE_SIZE_OPTIONS = [5, 10] as const;
 const DEFAULT_PAGE_SIZE = PAGE_SIZE_OPTIONS[0];
 
 export function RequestersPage() {
+	const canManage = usePermission("catalog.manage");
 	const [searchInput, setSearchInput] = useState(DEFAULT_REQUESTER_FILTERS.search);
 	const [specialty, setSpecialty] = useState(DEFAULT_REQUESTER_FILTERS.specialty);
 	const [sort, setSort] = useState<RequesterSort>(DEFAULT_REQUESTER_FILTERS.sort);
@@ -133,24 +135,19 @@ export function RequestersPage() {
 					<span className="text-muted-foreground">{row.original.especialidade || "—"}</span>
 				),
 			},
-			{
-				id: "actions",
-				header: () => <span className="sr-only md:not-sr-only">Ações</span>,
-				meta: { className: "w-28 text-right" },
-				cell: ({ row }) => (
-					<RowActions
-						editLabel={`Editar solicitante ${row.original.nome}`}
-						deleteLabel={`Excluir solicitante ${row.original.nome}`}
-						onEdit={() => openForm(row.original)}
-						onDelete={() => askDelete(row.original)}
-					/>
-				),
-			},
+			...actionsColumn<Requester>(canManage, (requester) => (
+				<RowActions
+					editLabel={`Editar solicitante ${requester.nome}`}
+					deleteLabel={`Excluir solicitante ${requester.nome}`}
+					onEdit={() => openForm(requester)}
+					onDelete={() => askDelete(requester)}
+				/>
+			)),
 		],
-		[openForm, askDelete],
+		[canManage, openForm, askDelete],
 	);
 
-	const newRequesterButton = (
+	const newRequesterButton = canManage && (
 		<Button onClick={() => openForm()}>
 			<Plus aria-hidden="true" />
 			Novo solicitante

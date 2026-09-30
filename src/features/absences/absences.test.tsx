@@ -482,4 +482,28 @@ describe("Ausências", () => {
 			expect(screen.getByRole("button", { name: "Limpar filtros" })).toBeDisabled();
 		});
 	});
+
+	describe("por perfil", () => {
+		it("assistente registra, edita e remove ausências", async () => {
+			mockBackend();
+			renderApp("/absences", { authenticated: true, role: "ASSISTANT" });
+
+			await screen.findByRole("cell", { name: "Ana Souza" });
+			expect(screen.getByRole("button", { name: "Nova ausência" })).toBeInTheDocument();
+			expect(screen.getAllByRole("button", { name: /^Editar ausência/ }).length).toBeGreaterThan(0);
+			expect(screen.getAllByRole("button", { name: /^Excluir ausência/ }).length).toBeGreaterThan(
+				0,
+			);
+		});
+
+		it("visualizador só consulta as ausências", async () => {
+			mockBackend();
+			renderApp("/absences", { authenticated: true, role: "VIEWER" });
+
+			await screen.findByRole("cell", { name: "Ana Souza" });
+			expect(screen.queryByRole("button", { name: "Nova ausência" })).not.toBeInTheDocument();
+			expect(screen.queryByRole("button", { name: /^Editar ausência/ })).not.toBeInTheDocument();
+			expect(screen.queryByRole("button", { name: /^Excluir ausência/ })).not.toBeInTheDocument();
+		});
+	});
 });
