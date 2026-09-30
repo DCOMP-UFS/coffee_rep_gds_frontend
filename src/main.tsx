@@ -2,6 +2,7 @@ import "@fontsource-variable/plus-jakarta-sans";
 import "./index.css";
 import "@/lib/zod";
 
+import { Analytics } from "@vercel/analytics/react";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { App } from "@/app/App";
@@ -15,5 +16,6 @@ if (!rootElement) {
 createRoot(rootElement).render(
 	<StrictMode>
 		<App />
+		<Analytics />
 	</StrictMode>,
 );
