@@ -19,6 +19,11 @@ export const AUDIT_ACTION_LABELS: Record<string, string> = {
 	"reservation.cancel_recurrence": "Cancelamento de série",
 	"auth.register": "Cadastro de usuário",
 	"auth.login": "Login no sistema",
+	"user.role_change": "Alteração de perfil",
+	"role_request.create": "Pedido de acesso",
+	"role_request.approve": "Aprovação de pedido de acesso",
+	"role_request.reject": "Recusa de pedido de acesso",
+	"role_request.cancel": "Cancelamento de pedido de acesso",
 };
 
 export const AUDIT_ENTITY_LABELS: Record<string, string> = {
@@ -28,6 +33,7 @@ export const AUDIT_ENTITY_LABELS: Record<string, string> = {
 	absence: "Ausência",
 	reservation: "Reserva",
 	user: "Usuário",
+	role_request: "Pedido de acesso",
 };
 
 const toOptions = (labels: Record<string, string>): FilterOption[] =>
