@@ -84,6 +84,10 @@ export function resolveRole(codes: readonly string[]): Role {
 	return resolved;
 }
 
+export function isRoleAtLeast(role: Role, minimum: Role): boolean {
+	return ROLE_RANK[role] >= ROLE_RANK[minimum];
+}
+
 /** Perfis que o usuário pode pedir: só os acima do atual, e nunca o de administrador. */
 export function requestableRoles(current: Role): RequestableRole[] {
 	return REQUESTABLE_ROLES.filter((role) => ROLE_RANK[role] > ROLE_RANK[current]);

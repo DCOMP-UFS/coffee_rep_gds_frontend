@@ -60,9 +60,15 @@ const PAGES: Record<NavigationPath, ReactNode> = {
 	"/admin": <AdminPage />,
 };
 
-function pageFor({ path, permission }: NavigationItem): ReactNode {
+function pageFor({ path, restriction }: NavigationItem): ReactNode {
 	const page = PAGES[path];
-	return permission ? <PermissionGate permission={permission}>{page}</PermissionGate> : page;
+	return restriction ? (
+		<PermissionGate permission={restriction.permission} feature={restriction.feature}>
+			{page}
+		</PermissionGate>
+	) : (
+		page
+	);
 }
 
 /** Mesmas rotas do `app.routes.ts` do Angular, mais a página 404. */

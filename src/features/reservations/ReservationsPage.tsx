@@ -3,6 +3,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { AlarmClock, CalendarX2, Plus, Repeat } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
+import { LockableButton } from "@/components/actions/LockableButton";
 import { DataTable } from "@/components/data-table/DataTable";
 import { PaginationBar } from "@/components/data-table/PaginationBar";
 import { PaginationSummary } from "@/components/data-table/PaginationSummary";
@@ -18,7 +19,6 @@ import { MaskedInput } from "@/components/form/MaskedInput";
 import { SearchableSelect } from "@/components/form/SearchableSelect";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { StatusBadge } from "@/components/status/StatusBadge";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ALL_SECTIONS } from "@/features/rooms/types";
 import { useSections } from "@/features/sections/hooks";
@@ -41,7 +41,7 @@ import {
 	toReservationListFilters,
 } from "./filters";
 import { useReservations } from "./hooks";
-import { canCancelReservation, useReservationPermissions } from "./permissions";
+import { cancelAccessFor, useReservationAccess } from "./permissions";
 import { ReservationFormDialog } from "./ReservationFormDialog";
 import {
 	defaultReservationPeriod,
@@ -60,7 +60,7 @@ function initialDefaults() {
 }
 
 export function ReservationsPage() {
-	const { canManageSingle, canManageRecurring } = useReservationPermissions();
+	const access = useReservationAccess();
 	const [defaults] = useState(initialDefaults);
 	const [searchInput, setSearchInput] = useState(defaults.filters.search);
 	const [sectionId, setSectionId] = useState(defaults.filters.sectionId);
@@ -176,30 +176,31 @@ export function ReservationsPage() {
 					),
 			},
 			...actionsColumn<Reservation>(
-				canManageSingle || canManageRecurring,
-				(reservation) =>
-					canCancelReservation(reservation, { canManageSingle, canManageRecurring }) && (
-						<div className="flex justify-end">
-							<RowActionButton
-								icon={CalendarX2}
-								label={`Cancelar reserva de ${reservation.sala} em ${formatIsoDateTimeBr(reservation.horaInicio)}`}
-								tooltip="Cancelar"
-								destructive
-								onClick={() => askCancel(reservation)}
-							/>
-						</div>
-					),
+				(reservation) => (
+					<div className="flex justify-end">
+						<RowActionButton
+							icon={CalendarX2}
+							label={`Cancelar reserva de ${reservation.sala} em ${formatIsoDateTimeBr(reservation.horaInicio)}`}
+							tooltip="Cancelar"
+							destructive
+							lock={cancelAccessFor(reservation, access).lock}
+							onClick={() => askCancel(reservation)}
+						/>
+					</div>
+				),
 				"w-20 text-right",
 			),
 		],
-		[canManageSingle, canManageRecurring, askCancel],
+		[access, askCancel],
 	);
 
-	const newReservationButton = canManageSingle && (
-		<Button onClick={() => setFormOpen(true)}>
-			<Plus aria-hidden="true" />
-			Nova reserva
-		</Button>
+	const newReservationButton = (
+		<LockableButton
+			icon={Plus}
+			label="Nova reserva"
+			lock={access.single.lock}
+			onClick={() => setFormOpen(true)}
+		/>
 	);
 
 	return (

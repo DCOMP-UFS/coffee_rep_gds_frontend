@@ -75,7 +75,7 @@ describe("sessão", () => {
 	});
 
 	describe("menu", () => {
-		it("visualizador vê o Histórico, mas não a Administração", () => {
+		it("visualizador vê todos os itens, com a Administração bloqueada", () => {
 			mockRoomsPage();
 			renderApp("/rooms", { authenticated: true, role: "VIEWER" });
 
@@ -88,15 +88,31 @@ describe("sessão", () => {
 				"Ausências",
 				"Histórico",
 				"Meu acesso",
+				"Administração",
 			]);
+			expect(screen.getByRole("link", { name: "Histórico" })).toBeInTheDocument();
+			expect(
+				screen.getByRole("link", {
+					name: /^Administração\s*, exclusivo do administrador do sistema$/,
+				}),
+			).toHaveAttribute("href", "/admin");
 		});
 
-		it("coordenação também não vê a Administração", () => {
+		it("coordenação também vê a Administração bloqueada, sem consultar os pedidos", () => {
 			mockRoomsPage();
+			let summaryCalls = 0;
+			server.use(
+				http.get(apiUrl("role-request/summary"), () => {
+					summaryCalls++;
+					return HttpResponse.json({ pending: 0 });
+				}),
+			);
 			renderApp("/rooms", { authenticated: true, role: "COORDINATOR" });
 
-			expect(screen.getByRole("link", { name: "Histórico" })).toBeInTheDocument();
-			expect(screen.queryByRole("link", { name: /Administração/ })).not.toBeInTheDocument();
+			expect(
+				screen.getByRole("link", { name: /^Administração\s*, exclusivo do administrador/ }),
+			).toBeInTheDocument();
+			expect(summaryCalls).toBe(0);
 		});
 
 		it("administrador vê a Administração com o número de pedidos pendentes", async () => {
@@ -132,10 +148,22 @@ describe("sessão", () => {
 		it("visualizador que abre a Administração vê Sem permissão, sem consultar o backend", async () => {
 			renderApp("/admin", { authenticated: true, role: "VIEWER" });
 
-			expect(await screen.findByRole("heading", { level: 1, name: FORBIDDEN_TITLE })).toBeVisible();
+			const heading = await screen.findByRole("heading", { level: 1, name: FORBIDDEN_TITLE });
+			const page = heading.closest("section") as HTMLElement;
+			expect(page).toHaveTextContent(
+				"Administrar usuários e pedidos de acesso é exclusivo do administrador do sistema.",
+			);
+			expect(page).toHaveTextContent("Seu perfilVisualizador");
+			expect(page).toHaveTextContent("Perfil necessárioAdministrador do sistema");
+			expect(page).toHaveTextContent("Esse perfil não pode ser pedido");
+			expect(screen.queryByRole("link", { name: "Pedir acesso" })).not.toBeInTheDocument();
 			expect(screen.getByRole("link", { name: "Ver meu acesso" })).toHaveAttribute(
 				"href",
 				"/meu-acesso",
+			);
+			expect(screen.getByRole("link", { name: "Voltar para o início" })).toHaveAttribute(
+				"href",
+				"/rooms",
 			);
 		});
 

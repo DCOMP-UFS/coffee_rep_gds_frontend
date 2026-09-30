@@ -2,6 +2,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { CalendarX2, Plus } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { LockableButton } from "@/components/actions/LockableButton";
 import { DataTable } from "@/components/data-table/DataTable";
 import { actionsColumn, RowActions } from "@/components/data-table/RowActions";
 import { ConfirmDialog } from "@/components/feedback/ConfirmDialog";
@@ -12,11 +13,10 @@ import { FilterSelect } from "@/components/filters/FilterSelect";
 import { SearchInput } from "@/components/filters/SearchInput";
 import { FormField } from "@/components/form/FormField";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { toIsoDate } from "@/features/calendar/month-grid";
 import { useAllRequesters } from "@/features/requesters/hooks";
-import { usePermission } from "@/features/session/hooks";
+import { useAccess } from "@/features/session/access-dialog/useAccess";
 import { useDebouncedSearch } from "@/hooks/use-debounced-value";
 import { getHttpErrorMessage } from "@/lib/api/errors";
 import { formatIsoDateBr } from "@/shared/format/br-format";
@@ -44,7 +44,7 @@ const describeAbsence = (absence: Absence) =>
 	`${absence.solicitanteNome} (${formatDate(absence.dataInicio)} a ${formatDate(absence.dataFim)})`;
 
 export function AbsencesPage() {
-	const canManage = usePermission("absence.manage");
+	const { lock } = useAccess("absence.manage", "Registrar, editar e remover ausências");
 	const absences = useAbsences();
 	const requesters = useAllRequesters();
 	const deleteAbsence = useDeleteAbsence();
@@ -110,16 +110,17 @@ export function AbsencesPage() {
 					<span className="text-muted-foreground">{formatDate(row.original.dataFim)}</span>
 				),
 			},
-			...actionsColumn<Absence>(canManage, (absence) => (
+			...actionsColumn<Absence>((absence) => (
 				<RowActions
 					editLabel={`Editar ausência de ${describeAbsence(absence)}`}
 					deleteLabel={`Excluir ausência de ${describeAbsence(absence)}`}
+					lock={lock}
 					onEdit={() => openForm(absence)}
 					onDelete={() => askDelete(absence)}
 				/>
 			)),
 		],
-		[canManage, openForm, askDelete],
+		[lock, openForm, askDelete],
 	);
 
 	const clearFilters = () => {
@@ -142,11 +143,8 @@ export function AbsencesPage() {
 		status !== DEFAULT_ABSENCE_FILTERS.status ||
 		sort !== DEFAULT_ABSENCE_FILTERS.sort;
 
-	const newAbsenceButton = canManage && (
-		<Button onClick={() => openForm()}>
-			<Plus aria-hidden="true" />
-			Nova ausência
-		</Button>
+	const newAbsenceButton = (
+		<LockableButton icon={Plus} label="Nova ausência" lock={lock} onClick={() => openForm()} />
 	);
 
 	return (

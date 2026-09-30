@@ -2,6 +2,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Plus, UserRound } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { LockableButton } from "@/components/actions/LockableButton";
 import { DataTable } from "@/components/data-table/DataTable";
 import { PaginationBar } from "@/components/data-table/PaginationBar";
 import { PaginationSummary } from "@/components/data-table/PaginationSummary";
@@ -17,7 +18,7 @@ import { SearchableSelect } from "@/components/form/SearchableSelect";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { usePermission } from "@/features/session/hooks";
+import { useAccess } from "@/features/session/access-dialog/useAccess";
 import { useClampPage } from "@/hooks/use-clamp-page";
 import { useDebouncedSearch } from "@/hooks/use-debounced-value";
 import { useFilteredPage } from "@/hooks/use-filtered-page";
@@ -48,7 +49,7 @@ const PAGE_SIZE_OPTIONS = [5, 10] as const;
 const DEFAULT_PAGE_SIZE = PAGE_SIZE_OPTIONS[0];
 
 export function RequestersPage() {
-	const canManage = usePermission("catalog.manage");
+	const { lock } = useAccess("catalog.manage", "Cadastrar, editar e excluir solicitantes");
 	const [searchInput, setSearchInput] = useState(DEFAULT_REQUESTER_FILTERS.search);
 	const [specialty, setSpecialty] = useState(DEFAULT_REQUESTER_FILTERS.specialty);
 	const [sort, setSort] = useState<RequesterSort>(DEFAULT_REQUESTER_FILTERS.sort);
@@ -135,23 +136,21 @@ export function RequestersPage() {
 					<span className="text-muted-foreground">{row.original.especialidade || "—"}</span>
 				),
 			},
-			...actionsColumn<Requester>(canManage, (requester) => (
+			...actionsColumn<Requester>((requester) => (
 				<RowActions
 					editLabel={`Editar solicitante ${requester.nome}`}
 					deleteLabel={`Excluir solicitante ${requester.nome}`}
+					lock={lock}
 					onEdit={() => openForm(requester)}
 					onDelete={() => askDelete(requester)}
 				/>
 			)),
 		],
-		[canManage, openForm, askDelete],
+		[lock, openForm, askDelete],
 	);
 
-	const newRequesterButton = canManage && (
-		<Button onClick={() => openForm()}>
-			<Plus aria-hidden="true" />
-			Novo solicitante
-		</Button>
+	const newRequesterButton = (
+		<LockableButton icon={Plus} label="Novo solicitante" lock={lock} onClick={() => openForm()} />
 	);
 
 	return (

@@ -27,11 +27,13 @@ const summaryOf = (role: RequestableRole) =>
 	ROLE_HIERARCHY.find((description) => description.role === role)?.summary;
 
 interface RoleRequestFormProps {
-	/** Perfis acima do atual, do menor para o maior; o primeiro vem marcado. */
+	/** Perfis acima do atual, do menor para o maior. */
 	roles: RequestableRole[];
+	/** Perfil que vem marcado; sem ele, o primeiro da lista. */
+	initialRole?: RequestableRole;
 }
 
-export function RoleRequestForm({ roles }: RoleRequestFormProps) {
+export function RoleRequestForm({ roles, initialRole }: RoleRequestFormProps) {
 	const create = useCreateRoleRequest();
 
 	const {
@@ -42,7 +44,7 @@ export function RoleRequestForm({ roles }: RoleRequestFormProps) {
 	} = useForm<RoleRequestFormInput, unknown, RoleRequestFormValues>({
 		resolver: zodResolver(roleRequestFormSchema),
 		mode: "onTouched",
-		defaultValues: { requestedRole: roles[0], justification: "" },
+		defaultValues: { requestedRole: initialRole ?? roles[0], justification: "" },
 	});
 	const justificationLength = useWatch({ control, name: "justification" }).trim().length;
 

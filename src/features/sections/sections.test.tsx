@@ -1,3 +1,10 @@
+import {
+	getLockedButton,
+	getLockedButtons,
+	mockMyRoleRequests,
+	openAccessDialog,
+	recordWrites,
+} from "@test/access";
 import { paged } from "@test/msw/fixtures";
 import { apiUrl, server } from "@test/msw/server";
 import { renderApp } from "@test/render-app";
@@ -474,25 +481,47 @@ describe("Setores", () => {
 
 	describe("por perfil", () => {
 		it.each([["VIEWER"], ["ASSISTANT"]] as const)(
-			"%s consulta os setores sem criar, editar ou excluir",
+			"%s vê as ações de cadastro bloqueadas, com o perfil necessário",
 			async (role) => {
 				mockSections();
 				renderApp("/sections", { authenticated: true, role });
 
 				expect(await screen.findByRole("cell", { name: "Cardiologia" })).toBeInTheDocument();
-				expect(screen.queryByRole("button", { name: "Novo setor" })).not.toBeInTheDocument();
-				expect(screen.queryByRole("button", { name: /Editar setor/ })).not.toBeInTheDocument();
-				expect(screen.queryByRole("button", { name: /Excluir setor/ })).not.toBeInTheDocument();
-				expect(screen.queryByRole("columnheader", { name: "Ações" })).not.toBeInTheDocument();
+				getLockedButton(/^Novo setor \(disponível a partir de Coordenação\)$/);
+				expect(
+					getLockedButtons(/^Editar setor \w+ \(disponível a partir de Coordenação\)$/),
+				).toHaveLength(2);
+				expect(
+					getLockedButtons(/^Excluir setor \w+ \(disponível a partir de Coordenação\)$/),
+				).toHaveLength(2);
+				expect(screen.getByRole("columnheader", { name: "Ações" })).toBeInTheDocument();
 			},
 		);
 
-		it("sem permissão, o estado vazio não oferece cadastro", async () => {
+		it("a ação bloqueada explica o acesso sem abrir o formulário nem gravar nada", async () => {
+			mockSections();
+			mockMyRoleRequests();
+			const writes = recordWrites();
+			const { user } = renderApp("/sections", { authenticated: true, role: "VIEWER" });
+			await screen.findByRole("cell", { name: "Cardiologia" });
+
+			const dialog = await openAccessDialog(user, getLockedButton(/^Editar setor Cardiologia/));
+
+			expect(dialog).toHaveTextContent(
+				"Cadastrar, editar e excluir setores exige o perfil Coordenação ou superior.",
+			);
+			expect(screen.queryByRole("dialog", { name: /setor/i })).not.toBeInTheDocument();
+			await user.click(within(dialog).getByRole("button", { name: "Entendi" }));
+			await waitFor(() => expect(dialog).not.toBeInTheDocument());
+			expect(writes).toEqual([]);
+		});
+
+		it("sem permissão, o estado vazio mostra o cadastro bloqueado", async () => {
 			mockSections([]);
 			renderApp("/sections", { authenticated: true, role: "VIEWER" });
 
 			expect(await screen.findByText("Nenhum setor cadastrado")).toBeInTheDocument();
-			expect(screen.queryByRole("button", { name: "Novo setor" })).not.toBeInTheDocument();
+			expect(getLockedButtons(/^Novo setor \(/)).toHaveLength(2);
 		});
 	});
 });

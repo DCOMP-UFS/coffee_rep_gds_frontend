@@ -16,10 +16,11 @@ export const ROLE_REQUEST_ERROR_MESSAGES = {
 	changeRole: "Não foi possível alterar o perfil.",
 } as const;
 
-export function useMyRoleRequests() {
+export function useMyRoleRequests({ enabled = true }: { enabled?: boolean } = {}) {
 	return useQuery({
 		queryKey: roleRequestKeys.mine(),
 		queryFn: ({ signal }) => roleRequestsApi.mine(signal),
+		enabled,
 		meta: { inlineError: true },
 	});
 }

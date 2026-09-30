@@ -1,3 +1,4 @@
+import type { RoleRequest } from "@/features/role-requests/types";
 import type { CurrentUser, Permission, Role } from "@/features/session/types";
 import type { PagedResponse } from "@/shared/types/pagination";
 
@@ -29,6 +30,22 @@ export function currentUser(role: Role, overrides: Partial<CurrentUser> = {}): C
 		email: "teste@hu.ufs.br",
 		role,
 		permissions: PERMISSIONS_BY_ROLE[role],
+		...overrides,
+	};
+}
+
+/** Pedido de acesso do usuário de `currentUser`; por padrão, visualizador pedindo Assistente. */
+export function roleRequest(id: number, overrides: Partial<RoleRequest> = {}): RoleRequest {
+	return {
+		id,
+		userId: 42,
+		userName: "Usuária de Teste",
+		userEmail: "teste@hu.ufs.br",
+		currentRole: "VIEWER",
+		requestedRole: "ASSISTANT",
+		justification: "Preciso marcar reservas da secretaria.",
+		status: "PENDING",
+		createdAt: "2026-09-28T14:30:00",
 		...overrides,
 	};
 }

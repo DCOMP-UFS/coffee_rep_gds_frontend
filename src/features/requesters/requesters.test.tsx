@@ -1,3 +1,9 @@
+import {
+	getLockedButton,
+	getLockedButtons,
+	mockMyRoleRequests,
+	openAccessDialog,
+} from "@test/access";
 import { paged } from "@test/msw/fixtures";
 import { apiUrl, server } from "@test/msw/server";
 import { renderApp } from "@test/render-app";
@@ -526,5 +532,25 @@ describe("Solicitantes", () => {
 
 		expect(await screen.findByRole("cell", { name: "Profissional 01" })).toBeInTheDocument();
 		expect(backend.listRequests).toHaveLength(1);
+	});
+
+	it("visualizador vê as ações de cadastro bloqueadas e a explicação, sem gravar nada", async () => {
+		const backend = mockBackend();
+		mockMyRoleRequests();
+		const { user } = renderApp("/requester", { authenticated: true, role: "VIEWER" });
+		await screen.findByRole("cell", { name: "Profissional 01" });
+
+		expect(
+			getLockedButtons(/^Editar solicitante .* \(disponível a partir de Coordenação\)$/).length,
+		).toBeGreaterThan(0);
+		expect(getLockedButtons(/^Excluir solicitante /).length).toBeGreaterThan(0);
+
+		const dialog = await openAccessDialog(user, getLockedButton(/^Novo solicitante \(/));
+
+		expect(dialog).toHaveTextContent(
+			"Cadastrar, editar e excluir solicitantes exige o perfil Coordenação ou superior.",
+		);
+		expect(screen.queryByRole("dialog", { name: /solicitante/i })).not.toBeInTheDocument();
+		expect(backend.writes).toEqual([]);
 	});
 });

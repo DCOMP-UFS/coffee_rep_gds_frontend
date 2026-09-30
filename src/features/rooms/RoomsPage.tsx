@@ -3,6 +3,7 @@ import { DoorClosed, DoorOpen, Plus } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
+import { LockableButton } from "@/components/actions/LockableButton";
 import { DataTable } from "@/components/data-table/DataTable";
 import { PaginationBar } from "@/components/data-table/PaginationBar";
 import { PaginationSummary } from "@/components/data-table/PaginationSummary";
@@ -17,10 +18,9 @@ import { FormField } from "@/components/form/FormField";
 import { SearchableSelect } from "@/components/form/SearchableSelect";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { StatusBadge } from "@/components/status/StatusBadge";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useSections } from "@/features/sections/hooks";
-import { usePermission } from "@/features/session/hooks";
+import { useAccess } from "@/features/session/access-dialog/useAccess";
 import { useClampPage } from "@/hooks/use-clamp-page";
 import { useDebouncedSearch } from "@/hooks/use-debounced-value";
 import { useFilteredPage } from "@/hooks/use-filtered-page";
@@ -46,7 +46,7 @@ const DEFAULT_PAGE_SIZE = PAGE_SIZE_OPTIONS[0];
 const STATUS_OPTIONS = ROOM_STATUS_FILTERS.map((option) => ({ value: option, label: option }));
 
 export function RoomsPage() {
-	const canManage = usePermission("catalog.manage");
+	const { lock } = useAccess("catalog.manage", "Cadastrar, editar e excluir salas");
 	const [searchParams, setSearchParams] = useSearchParams();
 	const [searchInput, setSearchInput] = useState(DEFAULT_ROOM_FILTERS.search);
 	const [status, setStatus] = useState<RoomStatusFilter>(DEFAULT_ROOM_FILTERS.status);
@@ -156,16 +156,17 @@ export function RoomsPage() {
 						</StatusBadge>
 					),
 			},
-			...actionsColumn<Room>(canManage, (room) => (
+			...actionsColumn<Room>((room) => (
 				<RowActions
 					editLabel={`Editar sala ${room.nome}`}
 					deleteLabel={`Excluir sala ${room.nome}`}
+					lock={lock}
 					onEdit={() => openForm(room)}
 					onDelete={() => askDelete(room)}
 				/>
 			)),
 		],
-		[canManage, openForm, askDelete],
+		[lock, openForm, askDelete],
 	);
 
 	const sectionOptions = useMemo(
@@ -176,11 +177,8 @@ export function RoomsPage() {
 		[sections.data],
 	);
 
-	const newRoomButton = canManage && (
-		<Button onClick={() => openForm()}>
-			<Plus aria-hidden="true" />
-			Nova sala
-		</Button>
+	const newRoomButton = (
+		<LockableButton icon={Plus} label="Nova sala" lock={lock} onClick={() => openForm()} />
 	);
 
 	return (

@@ -1,3 +1,9 @@
+import {
+	getLockedButton,
+	getLockedButtons,
+	mockMyRoleRequests,
+	openAccessDialog,
+} from "@test/access";
 import { paged } from "@test/msw/fixtures";
 import { apiUrl, server } from "@test/msw/server";
 import { renderApp } from "@test/render-app";
@@ -7,6 +13,7 @@ import type { Requester } from "@/features/requesters/types";
 import { roomKeys } from "@/features/rooms/query-keys";
 import type { Room } from "@/features/rooms/types";
 import type { Section } from "@/features/sections/types";
+import { ACCESS_REQUIRED_TITLE } from "@/features/session/access-dialog/AccessRequiredDialog";
 import { RESERVATION_CANCELLED_MESSAGE, SERIES_CANCELLED_MESSAGE } from "./CancelReservationDialog";
 import { RESERVATION_ERROR_MESSAGES } from "./hooks";
 import { RECURRING_RESERVATION_HINT } from "./permissions";
@@ -798,40 +805,71 @@ describe("Reservas", () => {
 	});
 
 	describe("por perfil", () => {
-		it("assistente cria só reservas pontuais e cancela só as que não são de série", async () => {
-			mockBackend();
+		it("assistente cancela as pontuais; a ocorrência de série fica bloqueada e explica", async () => {
+			const backend = mockBackend();
+			mockMyRoleRequests();
 			const { user } = renderApp("/reservation", { authenticated: true, role: "ASSISTANT" });
 			await screen.findByRole("cell", { name: "Sala 01" });
 
 			expect(
-				within(rowOf("Sala 01")).queryByRole("button", { name: /Cancelar reserva/ }),
-			).not.toBeInTheDocument();
-			expect(
-				within(rowOf("Sala 02")).getByRole("button", { name: /Cancelar reserva/ }),
-			).toBeInTheDocument();
+				within(rowOf("Sala 02")).getByRole("button", { name: /^Cancelar reserva/ }),
+			).not.toHaveAttribute("aria-disabled");
+			const locked = within(rowOf("Sala 01")).getByRole("button", {
+				name: /^Cancelar reserva de Sala 01 .* \(disponível a partir de Coordenação\)$/,
+			});
+			expect(locked).toHaveAttribute("aria-disabled", "true");
 
-			const dialog = await openNewReservation(user);
-			expect(within(dialog).queryByRole("radio", { name: "Recorrente" })).not.toBeInTheDocument();
-			expect(within(dialog).getByText(RECURRING_RESERVATION_HINT)).toBeInTheDocument();
-			expect(within(dialog).getByLabelText("Data da reserva (obrigatório)")).toBeInTheDocument();
+			const dialog = await openAccessDialog(user, locked);
+			expect(dialog).toHaveTextContent("exige o perfil Coordenação ou superior.");
+			expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
+			expect(backend.writes).toEqual([]);
 		});
 
-		it("visualizador só consulta: sem nova reserva e sem cancelar", async () => {
+		it("assistente vê a opção Recorrente bloqueada no formulário, com o Saiba mais", async () => {
 			mockBackend();
-			renderApp("/reservation", { authenticated: true, role: "VIEWER" });
+			mockMyRoleRequests();
+			const { user } = renderApp("/reservation", { authenticated: true, role: "ASSISTANT" });
+
+			const form = await openNewReservation(user);
+			expect(within(form).getByRole("radio", { name: "Pontual" })).toBeChecked();
+			expect(within(form).getByRole("radio", { name: "Recorrente" })).toBeDisabled();
+			expect(within(form).getByText(RECURRING_RESERVATION_HINT)).toBeInTheDocument();
+			expect(within(form).getByLabelText("Data da reserva (obrigatório)")).toBeInTheDocument();
+
+			await user.click(within(form).getByRole("button", { name: "Saiba mais" }));
+			const dialog = await screen.findByRole("dialog", { name: ACCESS_REQUIRED_TITLE });
+			expect(dialog).toHaveTextContent(
+				"Criar e cancelar reservas recorrentes, inclusive uma ocorrência da série exige o perfil Coordenação ou superior.",
+			);
+
+			await user.click(within(dialog).getByRole("button", { name: "Entendi" }));
+			await waitFor(() => expect(dialog).not.toBeInTheDocument());
+			expect(screen.getByRole("dialog", { name: "Nova reserva" })).toBeInTheDocument();
+		});
+
+		it("visualizador vê nova reserva e cancelar bloqueados, sem gravar nada", async () => {
+			const backend = mockBackend();
+			mockMyRoleRequests();
+			const { user } = renderApp("/reservation", { authenticated: true, role: "VIEWER" });
 			await screen.findByRole("cell", { name: "Sala 01" });
 
-			expect(screen.queryByRole("button", { name: "Nova reserva" })).not.toBeInTheDocument();
-			expect(screen.queryByRole("button", { name: /Cancelar reserva/ })).not.toBeInTheDocument();
-			expect(screen.queryByRole("columnheader", { name: "Ações" })).not.toBeInTheDocument();
+			expect(screen.getByRole("columnheader", { name: "Ações" })).toBeInTheDocument();
+			expect(getLockedButtons(/^Cancelar reserva/).length).toBeGreaterThan(0);
+
+			const dialog = await openAccessDialog(user, getLockedButton(/^Nova reserva \(/));
+			expect(dialog).toHaveTextContent(
+				"Criar e cancelar reservas pontuais exige o perfil Assistente administrativo ou superior.",
+			);
+			expect(screen.queryByRole("dialog", { name: "Nova reserva" })).not.toBeInTheDocument();
+			expect(backend.writes).toEqual([]);
 		});
 
-		it("visualizador vê o estado vazio sem o atalho de nova reserva", async () => {
+		it("visualizador vê o estado vazio com o atalho de nova reserva bloqueado", async () => {
 			mockBackend({ reservations: [] });
 			renderApp("/reservation", { authenticated: true, role: "VIEWER" });
 
 			expect(await screen.findByText("Nenhuma reserva no período")).toBeInTheDocument();
-			expect(screen.queryByRole("button", { name: "Nova reserva" })).not.toBeInTheDocument();
+			expect(getLockedButtons(/^Nova reserva \(/)).toHaveLength(2);
 		});
 	});
 });

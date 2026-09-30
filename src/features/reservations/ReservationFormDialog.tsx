@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Info, Loader2 } from "lucide-react";
+import { Info, Loader2, Lock } from "lucide-react";
 import { type ReactNode, useEffect, useMemo, useRef } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { Link } from "react-router-dom";
@@ -32,7 +32,7 @@ import { getHttpErrorMessage } from "@/lib/api/errors";
 import { cn } from "@/lib/utils";
 import { maskDate, maskTime } from "@/shared/format/masks";
 import { RESERVATION_ERROR_MESSAGES, useCreateReservation } from "./hooks";
-import { RECURRING_RESERVATION_HINT, useReservationPermissions } from "./permissions";
+import { RECURRING_RESERVATION_HINT, useReservationAccess } from "./permissions";
 import {
 	emptyReservationForm,
 	type ReservationFormInput,
@@ -120,7 +120,7 @@ function ReservationForm({
 }: ReservationFormProps) {
 	const sections = useSections();
 	const requesters = useAllRequesters();
-	const { canManageRecurring } = useReservationPermissions();
+	const recurringLock = useReservationAccess().recurring.lock;
 
 	const {
 		control,
@@ -326,43 +326,58 @@ function ReservationForm({
 					)}
 				/>
 
-				{canManageRecurring ? (
-					<Controller
-						control={control}
-						name="tipo"
-						render={({ field }) => (
-							<FieldsetField legend="Tipo de reserva" className="sm:col-span-2">
-								<RadioGroup
-									value={field.value}
-									onValueChange={(value) => {
-										clearSaveError();
-										// Os campos de data mudam de rótulo; erros antigos deixariam de fazer sentido.
-										clearErrors(["dataInicio", "dataFim", "dias"]);
-										field.onChange(value as ReservationType);
-									}}
-									className="flex flex-wrap gap-6"
-								>
-									{RESERVATION_TYPES.map((option) => (
+				<Controller
+					control={control}
+					name="tipo"
+					render={({ field }) => (
+						<FieldsetField legend="Tipo de reserva" className="sm:col-span-2">
+							<RadioGroup
+								value={field.value}
+								onValueChange={(value) => {
+									clearSaveError();
+									// Os campos de data mudam de rótulo; erros antigos deixariam de fazer sentido.
+									clearErrors(["dataInicio", "dataFim", "dias"]);
+									field.onChange(value as ReservationType);
+								}}
+								className="flex flex-wrap gap-6"
+							>
+								{RESERVATION_TYPES.map((option) => {
+									const locked = option.value === "recorrente" && recurringLock !== undefined;
+									return (
 										<div key={option.value} className="flex items-center gap-2">
 											<RadioGroupItem
 												value={option.value}
 												id={`reservation-type-${option.value}`}
+												disabled={locked}
 											/>
-											<Label htmlFor={`reservation-type-${option.value}`} className="font-normal">
+											<Label
+												htmlFor={`reservation-type-${option.value}`}
+												className={cn("font-normal", locked && "text-muted-foreground")}
+											>
+												{locked && <Lock className="size-3.5" aria-hidden="true" />}
 												{option.label}
 											</Label>
 										</div>
-									))}
-								</RadioGroup>
-							</FieldsetField>
-						)}
-					/>
-				) : (
-					<p className="flex items-center gap-2 text-sm text-muted-foreground sm:col-span-2">
-						<Info className="size-4 shrink-0" aria-hidden="true" />
-						{RECURRING_RESERVATION_HINT}
-					</p>
-				)}
+									);
+								})}
+							</RadioGroup>
+							{recurringLock && (
+								<p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
+									<Info className="size-4 shrink-0" aria-hidden="true" />
+									{RECURRING_RESERVATION_HINT}
+									<Button
+										type="button"
+										variant="link"
+										className="h-auto p-0"
+										onClick={recurringLock.explain}
+									>
+										Saiba mais
+									</Button>
+								</p>
+							)}
+						</FieldsetField>
+					)}
+				/>
 
 				<FormField
 					label={recurring ? "Data de início" : "Data da reserva"}

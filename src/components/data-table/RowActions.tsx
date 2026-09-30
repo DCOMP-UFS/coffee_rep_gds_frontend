@@ -1,6 +1,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Pencil, Trash2 } from "lucide-react";
 import type { ReactNode } from "react";
+import type { ActionLock } from "@/components/actions/action-lock";
 import { RowActionButton } from "./RowActionButton";
 
 interface RowActionsProps {
@@ -8,20 +9,29 @@ interface RowActionsProps {
 	editLabel: string;
 	/** Nome acessível do botão de excluir, ex.: "Excluir sala Sala 01". */
 	deleteLabel: string;
+	/** Presente quando o perfil não pode alterar o registro. */
+	lock?: ActionLock;
 	onEdit: () => void;
 	onDelete: () => void;
 }
 
 /** Botões Editar e Excluir da última coluna das tabelas de cadastro. */
-export function RowActions({ editLabel, deleteLabel, onEdit, onDelete }: RowActionsProps) {
+export function RowActions({ editLabel, deleteLabel, lock, onEdit, onDelete }: RowActionsProps) {
 	return (
 		<div className="flex justify-end gap-1">
-			<RowActionButton icon={Pencil} label={editLabel} tooltip="Editar" onClick={onEdit} />
+			<RowActionButton
+				icon={Pencil}
+				label={editLabel}
+				tooltip="Editar"
+				lock={lock}
+				onClick={onEdit}
+			/>
 			<RowActionButton
 				icon={Trash2}
 				label={deleteLabel}
 				tooltip="Excluir"
 				destructive
+				lock={lock}
 				onClick={onDelete}
 			/>
 		</div>
@@ -29,15 +39,13 @@ export function RowActions({ editLabel, deleteLabel, onEdit, onDelete }: RowActi
 }
 
 /**
- * Coluna "Ações" das tabelas de cadastro. Devolve uma lista para ser espalhada no fim das
- * colunas: vazia quando o perfil não pode alterar os registros, o que some com a coluna inteira.
+ * Coluna "Ações" das tabelas de cadastro, para ser espalhada no fim das colunas. Aparece para
+ * todos os perfis: quem não pode alterar os registros vê as ações bloqueadas.
  */
 export function actionsColumn<TData>(
-	enabled: boolean,
 	renderActions: (row: TData) => ReactNode,
 	className = "w-28 text-right",
 ): ColumnDef<TData>[] {
-	if (!enabled) return [];
 	return [
 		{
 			id: "actions",

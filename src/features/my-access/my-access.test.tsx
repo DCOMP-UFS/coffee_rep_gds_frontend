@@ -1,3 +1,4 @@
+import { roleRequest as request } from "@test/msw/fixtures";
 import { apiUrl, server } from "@test/msw/server";
 import { renderApp } from "@test/render-app";
 import { screen, waitFor, within } from "@testing-library/react";
@@ -9,19 +10,6 @@ import { MY_REQUESTS_LOAD_ERROR, ROLE_REQUEST_CANCELLED_MESSAGE } from "./MyAcce
 import { ROLE_REQUEST_SENT_MESSAGE } from "./RoleRequestForm";
 
 type User = ReturnType<typeof renderApp>["user"];
-
-const request = (id: number, overrides: Partial<RoleRequest> = {}): RoleRequest => ({
-	id,
-	userId: 42,
-	userName: "Usuária de Teste",
-	userEmail: "teste@hu.ufs.br",
-	currentRole: "VIEWER",
-	requestedRole: "ASSISTANT",
-	justification: "Preciso marcar reservas da secretaria.",
-	status: "PENDING",
-	createdAt: "2026-09-28T14:30:00",
-	...overrides,
-});
 
 /** Backend em memória dos pedidos do usuário logado: criar, listar e cancelar. */
 function mockRequests(initial: RoleRequest[] = []) {
@@ -105,6 +93,25 @@ describe("Meu acesso", () => {
 		expect(screen.queryByRole("button", { name: "Enviar pedido" })).not.toBeInTheDocument();
 		expect(screen.getByRole("cell", { name: "Pendente" })).toBeInTheDocument();
 	});
+
+	it.each([
+		["VIEWER", "COORDINATOR", /^Coordenação/],
+		["VIEWER", "ADMIN", /^Assistente administrativo/],
+		["VIEWER", "invalido", /^Assistente administrativo/],
+		["ASSISTANT", "ASSISTANT", /^Coordenação/],
+	] as const)(
+		"%s com ?perfil=%s abre o formulário com o perfil certo marcado",
+		async (role, param, checked) => {
+			mockRequests();
+			renderApp(`/meu-acesso?perfil=${param}`, { authenticated: true, role });
+
+			expect(await screen.findByRole("radio", { name: checked })).toBeChecked();
+			const checkedRadios = screen
+				.getAllByRole("radio")
+				.filter((radio) => radio.getAttribute("aria-checked") === "true");
+			expect(checkedRadios).toHaveLength(1);
+		},
+	);
 
 	it("valida a justificativa sem chamar o backend", async () => {
 		const backend = mockRequests();
