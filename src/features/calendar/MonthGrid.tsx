@@ -11,6 +11,13 @@ const NO_EVENTS: CalendarEvent[] = [];
 
 const brDate = (date: Date) => format(date, "dd/MM/yyyy");
 
+const dayNumberClasses = (day: CalendarDay) =>
+	cn(
+		"flex size-7 items-center justify-center rounded-full text-sm tabular-nums",
+		!day.inMonth && "text-muted-foreground",
+		day.isToday && "bg-primary font-semibold text-primary-foreground",
+	);
+
 interface MonthGridProps {
 	label: string;
 	weeks: CalendarDay[][];
@@ -19,7 +26,8 @@ interface MonthGridProps {
 	isLoading: boolean;
 	/** Nova consulta a caminho: a grade atual fica esmaecida até ela chegar. */
 	isUpdating: boolean;
-	onNewReservation: (day: Date) => void;
+	/** Ausente quando o perfil não pode reservar: o número do dia deixa de ser um botão. */
+	onNewReservation?: (day: Date) => void;
 	onSelectEvent: (event: CalendarEvent) => void;
 }
 
@@ -70,7 +78,7 @@ interface DayCellProps {
 	day: CalendarDay;
 	events: CalendarEvent[];
 	isLoading: boolean;
-	onNewReservation: (day: Date) => void;
+	onNewReservation?: (day: Date) => void;
 	onSelectEvent: (event: CalendarEvent) => void;
 }
 
@@ -89,20 +97,26 @@ function DayCell({ day, events, isLoading, onNewReservation, onSelectEvent }: Da
 			})}
 		>
 			<div className="flex justify-end">
-				<button
-					type="button"
-					aria-label={`Nova reserva em ${brDate(day.date)}`}
-					aria-current={day.isToday ? "date" : undefined}
-					title="Nova reserva neste dia"
-					onClick={() => onNewReservation(day.date)}
-					className={cn(
-						"flex size-7 items-center justify-center rounded-full text-sm tabular-nums transition-colors hover:bg-accent focus-visible:outline-2 focus-visible:outline-ring",
-						!day.inMonth && "text-muted-foreground",
-						day.isToday && "bg-primary font-semibold text-primary-foreground hover:bg-primary/90",
-					)}
-				>
-					{day.date.getDate()}
-				</button>
+				{onNewReservation ? (
+					<button
+						type="button"
+						aria-label={`Nova reserva em ${brDate(day.date)}`}
+						aria-current={day.isToday ? "date" : undefined}
+						title="Nova reserva neste dia"
+						onClick={() => onNewReservation(day.date)}
+						className={cn(
+							dayNumberClasses(day),
+							"transition-colors hover:bg-accent focus-visible:outline-2 focus-visible:outline-ring",
+							day.isToday && "hover:bg-primary/90",
+						)}
+					>
+						{day.date.getDate()}
+					</button>
+				) : (
+					<span aria-current={day.isToday ? "date" : undefined} className={dayNumberClasses(day)}>
+						{day.date.getDate()}
+					</span>
+				)}
 			</div>
 			{isLoading ? (
 				<Skeleton className="h-4 w-full" />

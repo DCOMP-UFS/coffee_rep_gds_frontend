@@ -552,4 +552,20 @@ describe("Calendário", () => {
 
 		await waitFor(() => expect(location()).toBe("/login"));
 	});
+
+	it("visualizador vê os eventos, mas não reserva pelo calendário", async () => {
+		mockBackend();
+		const { user } = renderApp("/calendar", { authenticated: true, role: "VIEWER" });
+		await waitForEvents();
+
+		expect(screen.queryByRole("button", { name: "Nova reserva" })).not.toBeInTheDocument();
+		expect(screen.queryByRole("button", { name: /^Nova reserva em/ })).not.toBeInTheDocument();
+		expect(within(day("terça-feira, 29 de setembro de 2026")).getByText("29")).toHaveAttribute(
+			"aria-current",
+			"date",
+		);
+
+		await user.click(screen.getByRole("button", { name: NIGHT_EVENT }));
+		expect(await screen.findByRole("dialog", { name: "Detalhes da reserva" })).toBeInTheDocument();
+	});
 });
