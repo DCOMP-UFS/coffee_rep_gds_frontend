@@ -537,13 +537,12 @@ testes de `filters.ts` de cada funcionalidade.
 **Agora:** o app lê o perfil em `GET auth/me` antes de abrir qualquer tela protegida e mostra
 só o que o perfil permite (tabela de permissões no README do backend):
 
-- **Visualizador** consulta tudo, mas não vê botões de criar, editar, excluir ou cancelar. No
-  calendário, o número do dia deixa de abrir uma nova reserva.
+- **Visualizador** consulta tudo, inclusive o Histórico, mas não vê botões de criar, editar,
+  excluir ou cancelar. No calendário, o número do dia deixa de abrir uma nova reserva.
 - **Assistente administrativo** cria e cancela reservas pontuais e gerencia ausências. O
   formulário de reserva troca a escolha "Pontual/Recorrente" por um aviso de que recorrentes são
   feitas pela coordenação, e ocorrências de séries não têm o botão de cancelar.
-- **Coordenação** tem tudo o que o Angular oferecia, inclusive o Histórico, que sai do menu dos
-  demais perfis.
+- **Coordenação** tem tudo o que o Angular oferecia.
 - **Administrador** ganha a tela Administração, com os pedidos de acesso e a troca de perfil.
 
 Abrir pela URL uma tela sem permissão mostra "Sem permissão", com links para Meu acesso e para
