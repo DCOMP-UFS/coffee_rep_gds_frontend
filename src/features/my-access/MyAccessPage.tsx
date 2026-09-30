@@ -1,7 +1,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Clock, Crown, KeyRound, ShieldCheck, X } from "lucide-react";
 import { type ReactNode, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { DataTable } from "@/components/data-table/DataTable";
 import { ConfirmDialog } from "@/components/feedback/ConfirmDialog";
@@ -30,6 +30,7 @@ import {
 import type { Role } from "@/features/session/types";
 import { getHttpErrorMessage } from "@/lib/api/errors";
 import { formatIsoDateTimeBr } from "@/shared/format/br-format";
+import { requestedRoleFrom } from "./links";
 import { RoleRequestForm } from "./RoleRequestForm";
 
 export const ROLE_REQUEST_CANCELLED_MESSAGE = "Pedido cancelado.";
@@ -118,6 +119,8 @@ function RequestAccessCard({ role }: { role: Role }) {
 	const requests = useMyRoleRequests();
 	const pending = requests.data?.find((request) => request.status === "PENDING");
 	const roles = requestableRoles(role);
+	const [searchParams] = useSearchParams();
+	const initialRole = requestedRoleFrom(searchParams, roles);
 
 	let content: ReactNode;
 	if (requests.isPending) {
@@ -148,7 +151,7 @@ function RequestAccessCard({ role }: { role: Role }) {
 			</p>
 		);
 	} else {
-		content = <RoleRequestForm roles={roles} />;
+		content = <RoleRequestForm key={initialRole} roles={roles} initialRole={initialRole} />;
 	}
 
 	return (
