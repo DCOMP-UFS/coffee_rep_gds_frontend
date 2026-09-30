@@ -534,19 +534,25 @@ testes de `filters.ts` de cada funcionalidade.
 
 **Angular:** havia só `ADMIN` e `BASIC`, e todo usuário logado via e usava todas as telas.
 
-**Agora:** o app lê o perfil em `GET auth/me` antes de abrir qualquer tela protegida e mostra
-só o que o perfil permite (tabela de permissões no README do backend):
+**Agora:** o app lê o perfil em `GET auth/me` antes de abrir qualquer tela protegida e libera
+só o que o perfil permite (tabela de permissões no README do backend). Nada é escondido: as
+ações que o perfil não pode usar aparecem bloqueadas, com cadeado e um tooltip com o perfil
+mínimo. O clique abre o modal "Acesso necessário", com o perfil atual, o necessário e o passo a
+passo para pedir acesso (ou o aviso de que já há um pedido em análise).
 
-- **Visualizador** consulta tudo, inclusive o Histórico, mas não vê botões de criar, editar,
-  excluir ou cancelar. No calendário, o número do dia deixa de abrir uma nova reserva.
-- **Assistente administrativo** cria e cancela reservas pontuais e gerencia ausências. O
-  formulário de reserva troca a escolha "Pontual/Recorrente" por um aviso de que recorrentes são
-  feitas pela coordenação, e ocorrências de séries não têm o botão de cancelar.
+- **Visualizador** consulta tudo, inclusive o Histórico. Criar, editar, excluir e cancelar
+  aparecem bloqueados. No calendário, o botão "Nova reserva" fica bloqueado e o número do dia deixa
+  de abrir uma nova reserva.
+- **Assistente administrativo** cria e cancela reservas pontuais e gerencia ausências. No
+  formulário de reserva, a opção "Recorrente" fica desabilitada, com um aviso de que recorrentes são
+  feitas pela coordenação e um "Saiba mais". O cancelar das ocorrências de série fica bloqueado.
 - **Coordenação** tem tudo o que o Angular oferecia.
-- **Administrador** ganha a tela Administração, com os pedidos de acesso e a troca de perfil.
+- **Administrador** ganha a tela Administração, com os pedidos de acesso e a troca de perfil. Para
+  os demais, o item aparece no menu com cadeado.
 
-Abrir pela URL uma tela sem permissão mostra "Sem permissão", com links para Meu acesso e para
-o início. O cadastro avisa que a conta começa como Visualizador e explica os níveis, e a tela
+Abrir uma tela sem permissão mostra "Sem permissão", com a mesma explicação do modal e links para
+Meu acesso e para o início. "Pedir acesso" abre Meu acesso com o perfil necessário já marcado. O
+cadastro avisa que a conta começa como Visualizador e explica os níveis, e a tela
 Meu acesso permite pedir um nível acima com justificativa. Quem era `BASIC` vira Coordenação, então
 nenhum usuário atual perde acesso. Coberto por `src/features/session/`, `src/features/my-access/`,
 `src/features/admin/` e pelos testes "por perfil" de cada tela.

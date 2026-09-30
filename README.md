@@ -103,17 +103,29 @@ Identificadores em inglês; textos de interface e documentação em português.
 
 Os perfis são Visualizador, Assistente administrativo, Coordenação e o Administrador único; a
 tabela de permissões está no README do backend, que é quem de fato as aplica. No frontend, elas
-só decidem o que aparece:
+decidem o que fica liberado; nenhuma funcionalidade é escondida:
 
 - **`useCurrentUser`** (`features/session/hooks.ts`) busca `GET auth/me`, que devolve o perfil e
-  a lista de permissões já calculada. O frontend não replica a matriz, só pergunta se uma
+  a lista de permissões já calculada. Para liberar ou bloquear, o frontend só pergunta se uma
   permissão está na lista.
 - **`ProtectedRoute`** espera essa resposta antes de montar qualquer tela, com esqueleto enquanto
   carrega e tela de erro com "Tentar novamente" e "Sair" se falhar. O login descarta a sessão
   anterior do cache, para um usuário nunca herdar as permissões de outro.
-- **`usePermission("catalog.manage")`** e **`<Can permission>`** escondem botões e colunas de ação;
-  o menu filtra os itens pelo campo `permission` de `components/layout/navigation.ts`.
-- **`PermissionGate`** protege a rota: quem abre uma tela sem permissão pela URL vê "Sem permissão".
+- **Ações bloqueadas:** cada tela chama `useAccess(permissão, funcionalidade)` uma vez e repassa o
+  `lock` a `LockableButton` (botões "Novo") e `RowActions`/`RowActionButton` (ações das linhas).
+  Sem permissão, o botão continua visível com cadeado, `aria-disabled` e um tooltip com o perfil
+  mínimo ("Disponível a partir de Coordenação"). O clique abre o modal "Acesso necessário", com o
+  perfil atual, o necessário e o passo a passo para pedir acesso. Enquanto verifica os pedidos do
+  usuário, o modal mostra "Verificando seus pedidos…"; se já existe um pedido em análise, avisa se ele
+  cobre a funcionalidade. O modal é único, montado pelo `AccessDialogProvider` no `AppLayout`.
+- **`PERMISSION_REQUIREMENTS`** (`features/session/access.ts`) diz o perfil mínimo de cada
+  permissão. É o único ponto que repete a matriz do backend, e um teste o compara com as permissões
+  de cada perfil nas fixtures.
+- **Menu:** mostra todos os itens; Administração aparece com cadeado para quem não é administrador.
+- **`PermissionGate`** protege a rota: quem abre uma tela sem permissão vê "Sem permissão", com a
+  mesma explicação do modal.
+- **"Pedir acesso"** leva a `/meu-acesso?perfil=COORDINATOR`, que abre o formulário com esse perfil
+  marcado. Um valor que o usuário não pode pedir é ignorado.
 - **Meu acesso** mostra o perfil atual, a hierarquia, o formulário de pedido (ou o pedido em
   análise, que pode ser cancelado) e o histórico de pedidos.
 - **Administração** tem as abas Pedidos, com a contagem de pendentes, e Usuários. A contagem também
@@ -129,7 +141,9 @@ requisição. Requisições sem handler reprovam o teste.
 `renderApp(rota, { role })` monta o app já com o `auth/me` do perfil informado no cache (padrão
 `COORDINATOR`, que vê tudo o que o Angular via). Os testes "por perfil" de cada tela usam
 `role: "VIEWER"` ou `"ASSISTANT"`; `role: null` deixa o cache vazio para o teste declarar o
-próprio handler de `auth/me`.
+próprio handler de `auth/me`. `test/access.ts` reúne os auxiliares desses testes:
+`getLockedButton` confere o `aria-disabled`, `openAccessDialog` abre o modal, `mockMyRoleRequests`
+responde os pedidos do usuário e `recordWrites` prova que nenhuma escrita foi feita.
 
 ## Deploy (Vercel)
 
