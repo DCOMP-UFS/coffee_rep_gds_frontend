@@ -23,12 +23,21 @@ export type NavigationPath =
 	| "/meu-acesso"
 	| "/admin";
 
+export interface NavigationRestriction {
+	permission: Permission;
+	/** O que a tela permite fazer, no infinitivo; abre a explicação de "Sem permissão". */
+	feature: string;
+}
+
 export interface NavigationItem {
 	label: string;
 	path: NavigationPath;
 	icon: LucideIcon;
-	/** Sem ela o item some do menu e a rota mostra "Sem permissão". Ausente, todos acessam. */
-	permission?: Permission;
+	/**
+	 * Sem a permissão, o item continua no menu com um cadeado e a rota explica como conseguir
+	 * acesso. Ausente, todos acessam.
+	 */
+	restriction?: NavigationRestriction;
 }
 
 /** Itens do menu lateral do Angular, mais os de acesso; "Sair" fica à parte, no rodapé. */
@@ -41,5 +50,13 @@ export const NAVIGATION_ITEMS: readonly NavigationItem[] = [
 	{ label: "Ausências", path: "/absences", icon: CalendarX2 },
 	{ label: "Histórico", path: "/historico", icon: History },
 	{ label: "Meu acesso", path: "/meu-acesso", icon: KeyRound },
-	{ label: "Administração", path: "/admin", icon: ShieldCheck, permission: "users.manage" },
+	{
+		label: "Administração",
+		path: "/admin",
+		icon: ShieldCheck,
+		restriction: {
+			permission: "users.manage",
+			feature: "Administrar usuários e pedidos de acesso",
+		},
+	},
 ];
