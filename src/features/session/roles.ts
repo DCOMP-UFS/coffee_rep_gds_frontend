@@ -29,7 +29,10 @@ export const ROLE_HIERARCHY: readonly RoleDescription[] = [
 	{
 		role: "VIEWER",
 		summary: "Consulta o sistema, sem alterar nada. É o perfil de toda conta nova.",
-		capabilities: ["Ver calendário, salas, setores, solicitantes, reservas e ausências"],
+		capabilities: [
+			"Ver calendário, salas, setores, solicitantes, reservas e ausências",
+			"Consultar o histórico de alterações",
+		],
 	},
 	{
 		role: "ASSISTANT",
@@ -47,7 +50,6 @@ export const ROLE_HIERARCHY: readonly RoleDescription[] = [
 			"Tudo o que o Assistente administrativo faz",
 			"Criar e cancelar reservas recorrentes",
 			"Cadastrar setores, salas e solicitantes",
-			"Consultar o histórico de alterações",
 		],
 	},
 ];

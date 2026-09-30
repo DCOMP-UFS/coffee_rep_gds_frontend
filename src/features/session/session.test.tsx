@@ -75,7 +75,7 @@ describe("sessão", () => {
 	});
 
 	describe("menu", () => {
-		it("visualizador não vê Histórico nem Administração", () => {
+		it("visualizador vê o Histórico, mas não a Administração", () => {
 			mockRoomsPage();
 			renderApp("/rooms", { authenticated: true, role: "VIEWER" });
 
@@ -86,11 +86,12 @@ describe("sessão", () => {
 				"Solicitante",
 				"Reservas",
 				"Ausências",
+				"Histórico",
 				"Meu acesso",
 			]);
 		});
 
-		it("coordenação vê o Histórico, mas não a Administração", () => {
+		it("coordenação também não vê a Administração", () => {
 			mockRoomsPage();
 			renderApp("/rooms", { authenticated: true, role: "COORDINATOR" });
 
@@ -128,8 +129,8 @@ describe("sessão", () => {
 	});
 
 	describe("rotas com permissão", () => {
-		it("visualizador que abre o Histórico vê Sem permissão, sem consultar o backend", async () => {
-			renderApp("/historico", { authenticated: true, role: "VIEWER" });
+		it("visualizador que abre a Administração vê Sem permissão, sem consultar o backend", async () => {
+			renderApp("/admin", { authenticated: true, role: "VIEWER" });
 
 			expect(await screen.findByRole("heading", { level: 1, name: FORBIDDEN_TITLE })).toBeVisible();
 			expect(screen.getByRole("link", { name: "Ver meu acesso" })).toHaveAttribute(
