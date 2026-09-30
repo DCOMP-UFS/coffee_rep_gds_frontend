@@ -1,12 +1,17 @@
 import { lazy, type ReactNode } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
-import { NAVIGATION_ITEMS, type NavigationPath } from "@/components/layout/navigation";
+import {
+	NAVIGATION_ITEMS,
+	type NavigationItem,
+	type NavigationPath,
+} from "@/components/layout/navigation";
 import { AuthLayout } from "@/features/auth/AuthLayout";
 import { LoginPage } from "@/features/auth/LoginPage";
 import { ProtectedRoute } from "@/features/auth/ProtectedRoute";
 import { SignUpPage } from "@/features/auth/SignUpPage";
 import { NotFoundPage } from "@/features/not-found/NotFoundPage";
+import { PermissionGate } from "@/features/session/PermissionGate";
 
 /** Telas autenticadas saem em arquivos próprios, baixados só na primeira visita à rota. */
 const RoomsPage = lazy(() =>
@@ -35,6 +40,12 @@ const HistoryPage = lazy(() =>
 const CalendarPage = lazy(() =>
 	import("@/features/calendar/CalendarPage").then((module) => ({ default: module.CalendarPage })),
 );
+const MyAccessPage = lazy(() =>
+	import("@/features/my-access/MyAccessPage").then((module) => ({ default: module.MyAccessPage })),
+);
+const AdminPage = lazy(() =>
+	import("@/features/admin/AdminPage").then((module) => ({ default: module.AdminPage })),
+);
 
 /** Tela de cada item do menu; o tipo obriga que nenhum item fique sem tela. */
 const PAGES: Record<NavigationPath, ReactNode> = {
@@ -45,7 +56,14 @@ const PAGES: Record<NavigationPath, ReactNode> = {
 	"/reservation": <ReservationsPage />,
 	"/historico": <HistoryPage />,
 	"/calendar": <CalendarPage />,
+	"/meu-acesso": <MyAccessPage />,
+	"/admin": <AdminPage />,
 };
+
+function pageFor({ path, permission }: NavigationItem): ReactNode {
+	const page = PAGES[path];
+	return permission ? <PermissionGate permission={permission}>{page}</PermissionGate> : page;
+}
 
 /** Mesmas rotas do `app.routes.ts` do Angular, mais a página 404. */
 export function AppRoutes() {
@@ -60,7 +78,7 @@ export function AppRoutes() {
 				<Route element={<AppLayout />}>
 					<Route index element={<Navigate to="/rooms" replace />} />
 					{NAVIGATION_ITEMS.map((item) => (
-						<Route key={item.path} path={item.path} element={PAGES[item.path]} />
+						<Route key={item.path} path={item.path} element={pageFor(item)} />
 					))}
 				</Route>
 			</Route>

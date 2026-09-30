@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CircleCheck, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
@@ -9,6 +9,7 @@ import { MaskedInput } from "@/components/form/MaskedInput";
 import { PasswordInput } from "@/components/form/PasswordInput";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { sessionKeys } from "@/features/session/query-keys";
 import { setToken } from "@/lib/auth/token";
 import { maskCpf } from "@/shared/format/masks";
 import { authApi } from "./api";
@@ -23,6 +24,7 @@ export const SIGN_UP_SUCCESS_MESSAGE = "Cadastro realizado. Faça login com seu 
 
 export function LoginPage() {
 	const navigate = useNavigate();
+	const queryClient = useQueryClient();
 	const [searchParams] = useSearchParams();
 	const justRegistered = searchParams.has(REGISTERED_PARAM);
 
@@ -40,6 +42,7 @@ export function LoginPage() {
 		mutationFn: authApi.login,
 		onSuccess: ({ accessToken }) => {
 			setToken(accessToken);
+			queryClient.removeQueries({ queryKey: sessionKeys.all });
 			navigate("/rooms");
 		},
 	});

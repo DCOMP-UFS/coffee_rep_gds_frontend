@@ -9,6 +9,7 @@ import type { Room } from "@/features/rooms/types";
 import type { Section } from "@/features/sections/types";
 import { RESERVATION_CANCELLED_MESSAGE, SERIES_CANCELLED_MESSAGE } from "./CancelReservationDialog";
 import { RESERVATION_ERROR_MESSAGES } from "./hooks";
+import { RECURRING_RESERVATION_HINT } from "./permissions";
 import { RESERVATION_CREATED_MESSAGE, RESERVATION_LOAD_ERRORS } from "./ReservationFormDialog";
 import { PERIOD_END_BEFORE_START_MESSAGE, RESERVATION_MESSAGES } from "./schemas";
 import type { Reservation } from "./types";
@@ -794,5 +795,43 @@ describe("Reservas", () => {
 		await user.click(await screen.findByRole("button", { name: "Tentar novamente" }));
 
 		expect(await screen.findByRole("cell", { name: "Sala 01" })).toBeInTheDocument();
+	});
+
+	describe("por perfil", () => {
+		it("assistente cria só reservas pontuais e cancela só as que não são de série", async () => {
+			mockBackend();
+			const { user } = renderApp("/reservation", { authenticated: true, role: "ASSISTANT" });
+			await screen.findByRole("cell", { name: "Sala 01" });
+
+			expect(
+				within(rowOf("Sala 01")).queryByRole("button", { name: /Cancelar reserva/ }),
+			).not.toBeInTheDocument();
+			expect(
+				within(rowOf("Sala 02")).getByRole("button", { name: /Cancelar reserva/ }),
+			).toBeInTheDocument();
+
+			const dialog = await openNewReservation(user);
+			expect(within(dialog).queryByRole("radio", { name: "Recorrente" })).not.toBeInTheDocument();
+			expect(within(dialog).getByText(RECURRING_RESERVATION_HINT)).toBeInTheDocument();
+			expect(within(dialog).getByLabelText("Data da reserva (obrigatório)")).toBeInTheDocument();
+		});
+
+		it("visualizador só consulta: sem nova reserva e sem cancelar", async () => {
+			mockBackend();
+			renderApp("/reservation", { authenticated: true, role: "VIEWER" });
+			await screen.findByRole("cell", { name: "Sala 01" });
+
+			expect(screen.queryByRole("button", { name: "Nova reserva" })).not.toBeInTheDocument();
+			expect(screen.queryByRole("button", { name: /Cancelar reserva/ })).not.toBeInTheDocument();
+			expect(screen.queryByRole("columnheader", { name: "Ações" })).not.toBeInTheDocument();
+		});
+
+		it("visualizador vê o estado vazio sem o atalho de nova reserva", async () => {
+			mockBackend({ reservations: [] });
+			renderApp("/reservation", { authenticated: true, role: "VIEWER" });
+
+			expect(await screen.findByText("Nenhuma reserva no período")).toBeInTheDocument();
+			expect(screen.queryByRole("button", { name: "Nova reserva" })).not.toBeInTheDocument();
+		});
 	});
 });

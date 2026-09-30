@@ -2,7 +2,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Building2, Plus } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import { DataTable } from "@/components/data-table/DataTable";
-import { RowActions } from "@/components/data-table/RowActions";
+import { actionsColumn, RowActions } from "@/components/data-table/RowActions";
 import { EmptyState } from "@/components/feedback/EmptyState";
 import { ClearFiltersButton } from "@/components/filters/ClearFiltersButton";
 import { FilterBar } from "@/components/filters/FilterBar";
@@ -12,6 +12,7 @@ import { FormField } from "@/components/form/FormField";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { usePermission } from "@/features/session/hooks";
 import { useDebouncedSearch } from "@/hooks/use-debounced-value";
 import { DeleteSectionDialog } from "./DeleteSectionDialog";
 import {
@@ -29,6 +30,7 @@ const countLabel = (count: number) => (count === 1 ? "1 setor" : `${count} setor
 
 export function SectionsPage() {
 	const sections = useSections();
+	const canManage = usePermission("catalog.manage");
 
 	const [searchInput, setSearchInput] = useState(DEFAULT_SECTION_FILTERS.search);
 	const [sort, setSort] = useState<SectionSort>(DEFAULT_SECTION_FILTERS.sort);
@@ -69,21 +71,16 @@ export function SectionsPage() {
 					<span className="text-muted-foreground">{row.original.observacoes || "—"}</span>
 				),
 			},
-			{
-				id: "actions",
-				header: () => <span className="sr-only md:not-sr-only">Ações</span>,
-				meta: { className: "w-28 text-right" },
-				cell: ({ row }) => (
-					<RowActions
-						editLabel={`Editar setor ${row.original.nome}`}
-						deleteLabel={`Excluir setor ${row.original.nome}`}
-						onEdit={() => openForm(row.original)}
-						onDelete={() => askDelete(row.original)}
-					/>
-				),
-			},
+			...actionsColumn<Section>(canManage, (section) => (
+				<RowActions
+					editLabel={`Editar setor ${section.nome}`}
+					deleteLabel={`Excluir setor ${section.nome}`}
+					onEdit={() => openForm(section)}
+					onDelete={() => askDelete(section)}
+				/>
+			)),
 		],
-		[openForm, askDelete],
+		[canManage, openForm, askDelete],
 	);
 
 	const allCount = sections.data?.length ?? 0;
@@ -95,7 +92,7 @@ export function SectionsPage() {
 	const total = isFiltered ? `${data.length} de ${countLabel(allCount)}` : countLabel(allCount);
 	const canClear = searchInput.trim() !== "" || sort !== DEFAULT_SECTION_FILTERS.sort;
 
-	const newSectionButton = (
+	const newSectionButton = canManage && (
 		<Button onClick={() => openForm()}>
 			<Plus aria-hidden="true" />
 			Novo setor

@@ -4,6 +4,7 @@ import { renderApp } from "@test/render-app";
 import { screen, waitFor } from "@testing-library/react";
 import { HttpResponse, http } from "msw";
 import { NAVIGATION_ITEMS } from "@/components/layout/navigation";
+import { FORBIDDEN_TITLE } from "@/features/session/PermissionGate";
 
 const mockRoomsPage = () =>
 	server.use(
@@ -25,6 +26,8 @@ describe("rotas", () => {
 			import("@/features/reservations/ReservationsPage"),
 			import("@/features/audit/HistoryPage"),
 			import("@/features/calendar/CalendarPage"),
+			import("@/features/my-access/MyAccessPage"),
+			import("@/features/admin/AdminPage"),
 		]);
 	});
 
@@ -59,11 +62,21 @@ describe("rotas", () => {
 		await waitFor(() => expect(location()).toBe("/login"));
 	});
 
-	it.each(NAVIGATION_ITEMS.map((item) => [item.path]))("%s abre a tela própria", async (path) => {
-		// Só a presença da tela importa aqui; os dados podem voltar vazios.
-		server.use(http.get(`${API_URL}/*`, () => HttpResponse.json([])));
-		renderApp(path, { authenticated: true });
+	// Com o administrador, que tem todas as permissões, nenhuma rota cai em "Sem permissão".
+	it.each(NAVIGATION_ITEMS.map((item) => [item.path, item.label]))(
+		"%s abre a tela própria",
+		async (path, label) => {
+			// Só a presença da tela importa aqui; os dados podem voltar vazios.
+			server.use(http.get(`${API_URL}/*`, () => HttpResponse.json([])));
+			renderApp(path, { authenticated: true, role: "ADMIN" });
 
-		expect(await screen.findByRole("heading", { level: 1 })).toBeInTheDocument();
-	});
+			expect(await screen.findByRole("heading", { level: 1 })).not.toHaveTextContent(
+				FORBIDDEN_TITLE,
+			);
+			expect(screen.getByRole("link", { name: new RegExp(`^${label}`) })).toHaveAttribute(
+				"data-active",
+				"true",
+			);
+		},
+	);
 });

@@ -47,8 +47,28 @@ describe("formatAuditDetails", () => {
 		expect(formatAuditDetails({ cancelada: false, reativado: true })).toBe(
 			"Cancelada: não · Reativado: sim",
 		);
-		expect(formatAuditDetails({ role: "ADMIN" })).toBe("Perfil: Administrador");
+		expect(formatAuditDetails({ role: "ADMIN" })).toBe("Perfil: Administrador do sistema");
+		expect(formatAuditDetails({ role: "BASIC" })).toBe("Perfil: Básico (legado)");
 		expect(formatAuditDetails({ role: "OUTRO" })).toBe("Perfil: OUTRO");
+	});
+
+	it("descreve a troca de perfil e o pedido de acesso", () => {
+		expect(
+			formatAuditDetails({
+				usuario: "Ana Souza",
+				perfilAnterior: "VIEWER",
+				perfilNovo: "COORDINATOR",
+			}),
+		).toBe("Usuário: Ana Souza · Perfil anterior: Visualizador · Novo perfil: Coordenação");
+		expect(
+			formatAuditDetails({
+				perfilAtual: "BASIC",
+				perfilPedido: "ASSISTANT",
+				motivo: "Sem vínculo",
+			}),
+		).toBe(
+			"Perfil atual: Básico (legado) · Perfil pedido: Assistente administrativo · Motivo: Sem vínculo",
+		);
 	});
 
 	it("esconde chaves da importação e valores vazios", () => {
@@ -66,8 +86,8 @@ describe("formatAuditDetails", () => {
 	});
 
 	it("mostra chaves desconhecidas como vieram", () => {
-		expect(formatAuditDetails({ motivo: "Teste", constructor: "x" })).toBe(
-			"motivo: Teste · constructor: x",
+		expect(formatAuditDetails({ observacao: "Teste", constructor: "x" })).toBe(
+			"observacao: Teste · constructor: x",
 		);
 	});
 });

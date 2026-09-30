@@ -7,6 +7,7 @@ import { DataTable } from "@/components/data-table/DataTable";
 import { PaginationBar } from "@/components/data-table/PaginationBar";
 import { PaginationSummary } from "@/components/data-table/PaginationSummary";
 import { RowActionButton } from "@/components/data-table/RowActionButton";
+import { actionsColumn } from "@/components/data-table/RowActions";
 import { EmptyState } from "@/components/feedback/EmptyState";
 import { ClearFiltersButton } from "@/components/filters/ClearFiltersButton";
 import { FilterBar } from "@/components/filters/FilterBar";
@@ -40,6 +41,7 @@ import {
 	toReservationListFilters,
 } from "./filters";
 import { useReservations } from "./hooks";
+import { canCancelReservation, useReservationPermissions } from "./permissions";
 import { ReservationFormDialog } from "./ReservationFormDialog";
 import {
 	defaultReservationPeriod,
@@ -58,6 +60,7 @@ function initialDefaults() {
 }
 
 export function ReservationsPage() {
+	const { canManageSingle, canManageRecurring } = useReservationPermissions();
 	const [defaults] = useState(initialDefaults);
 	const [searchInput, setSearchInput] = useState(defaults.filters.search);
 	const [sectionId, setSectionId] = useState(defaults.filters.sectionId);
@@ -172,27 +175,27 @@ export function ReservationsPage() {
 						<StatusBadge tone="warning">Pontual</StatusBadge>
 					),
 			},
-			{
-				id: "actions",
-				header: () => <span className="sr-only md:not-sr-only">Ações</span>,
-				meta: { className: "w-20 text-right" },
-				cell: ({ row }) => (
-					<div className="flex justify-end">
-						<RowActionButton
-							icon={CalendarX2}
-							label={`Cancelar reserva de ${row.original.sala} em ${formatIsoDateTimeBr(row.original.horaInicio)}`}
-							tooltip="Cancelar"
-							destructive
-							onClick={() => askCancel(row.original)}
-						/>
-					</div>
-				),
-			},
+			...actionsColumn<Reservation>(
+				canManageSingle || canManageRecurring,
+				(reservation) =>
+					canCancelReservation(reservation, { canManageSingle, canManageRecurring }) && (
+						<div className="flex justify-end">
+							<RowActionButton
+								icon={CalendarX2}
+								label={`Cancelar reserva de ${reservation.sala} em ${formatIsoDateTimeBr(reservation.horaInicio)}`}
+								tooltip="Cancelar"
+								destructive
+								onClick={() => askCancel(reservation)}
+							/>
+						</div>
+					),
+				"w-20 text-right",
+			),
 		],
-		[askCancel],
+		[canManageSingle, canManageRecurring, askCancel],
 	);
 
-	const newReservationButton = (
+	const newReservationButton = canManageSingle && (
 		<Button onClick={() => setFormOpen(true)}>
 			<Plus aria-hidden="true" />
 			Nova reserva

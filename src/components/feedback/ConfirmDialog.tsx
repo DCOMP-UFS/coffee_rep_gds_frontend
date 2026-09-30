@@ -1,4 +1,4 @@
-import { Loader2, TriangleAlert } from "lucide-react";
+import { CircleHelp, Loader2, TriangleAlert } from "lucide-react";
 import type { ReactNode } from "react";
 import {
 	AlertDialog,
@@ -27,14 +27,16 @@ interface ConfirmDialogProps {
 	error?: string;
 	/** Impede a confirmação, ex.: enquanto uma pré-condição é verificada ou não é atendida. */
 	confirmDisabled?: boolean;
+	/** `default` para confirmações que não destroem nada, como aprovar um pedido. */
+	tone?: "destructive" | "default";
 	onConfirm: () => void;
 	/** Conteúdo extra entre o cabeçalho e os botões. */
 	children?: ReactNode;
 }
 
 /**
- * Confirmação de ação destrutiva. Quem abre decide quando fechar (normalmente no sucesso da
- * mutação), para o usuário ver o andamento e poder tentar de novo em caso de erro.
+ * Confirmação de ação, destrutiva por padrão. Quem abre decide quando fechar (normalmente no
+ * sucesso da mutação), para o usuário ver o andamento e poder tentar de novo em caso de erro.
  */
 export function ConfirmDialog({
 	open,
@@ -46,15 +48,23 @@ export function ConfirmDialog({
 	isPending = false,
 	error,
 	confirmDisabled = false,
+	tone = "destructive",
 	onConfirm,
 	children,
 }: ConfirmDialogProps) {
+	const destructive = tone === "destructive";
 	return (
 		<AlertDialog open={open} onOpenChange={(next) => !isPending && onOpenChange(next)}>
 			<AlertDialogContent>
 				<AlertDialogHeader>
-					<AlertDialogMedia className="bg-destructive/10 text-destructive">
-						<TriangleAlert />
+					<AlertDialogMedia
+						className={
+							destructive
+								? "bg-destructive/10 text-destructive"
+								: "bg-accent text-accent-foreground"
+						}
+					>
+						{destructive ? <TriangleAlert /> : <CircleHelp />}
 					</AlertDialogMedia>
 					<AlertDialogTitle>{title}</AlertDialogTitle>
 					<AlertDialogDescription>{description}</AlertDialogDescription>
@@ -63,7 +73,11 @@ export function ConfirmDialog({
 				{error && <FormErrorAlert message={error} />}
 				<AlertDialogFooter>
 					<AlertDialogCancel disabled={isPending}>{cancelLabel}</AlertDialogCancel>
-					<Button variant="destructive" disabled={isPending || confirmDisabled} onClick={onConfirm}>
+					<Button
+						variant={destructive ? "destructive" : "default"}
+						disabled={isPending || confirmDisabled}
+						onClick={onConfirm}
+					>
 						{isPending && <Loader2 className="animate-spin" aria-hidden="true" />}
 						{confirmLabel}
 					</Button>

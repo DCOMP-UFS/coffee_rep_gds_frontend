@@ -5,9 +5,12 @@ import {
 	CalendarX2,
 	DoorOpen,
 	History,
+	KeyRound,
 	type LucideIcon,
+	ShieldCheck,
 	UserRound,
 } from "lucide-react";
+import type { Permission } from "@/features/session/types";
 
 export type NavigationPath =
 	| "/calendar"
@@ -16,15 +19,19 @@ export type NavigationPath =
 	| "/requester"
 	| "/reservation"
 	| "/absences"
-	| "/historico";
+	| "/historico"
+	| "/meu-acesso"
+	| "/admin";
 
 export interface NavigationItem {
 	label: string;
 	path: NavigationPath;
 	icon: LucideIcon;
+	/** Sem ela o item some do menu e a rota mostra "Sem permissão". Ausente, todos acessam. */
+	permission?: Permission;
 }
 
-/** Mesmos itens e ordem do menu lateral do Angular; "Sair" fica à parte, no rodapé. */
+/** Itens do menu lateral do Angular, mais os de acesso; "Sair" fica à parte, no rodapé. */
 export const NAVIGATION_ITEMS: readonly NavigationItem[] = [
 	{ label: "Calendário", path: "/calendar", icon: CalendarDays },
 	{ label: "Setores", path: "/sections", icon: Building2 },
@@ -32,5 +39,7 @@ export const NAVIGATION_ITEMS: readonly NavigationItem[] = [
 	{ label: "Solicitante", path: "/requester", icon: UserRound },
 	{ label: "Reservas", path: "/reservation", icon: AlarmClock },
 	{ label: "Ausências", path: "/absences", icon: CalendarX2 },
-	{ label: "Histórico", path: "/historico", icon: History },
+	{ label: "Histórico", path: "/historico", icon: History, permission: "audit.read" },
+	{ label: "Meu acesso", path: "/meu-acesso", icon: KeyRound },
+	{ label: "Administração", path: "/admin", icon: ShieldCheck, permission: "users.manage" },
 ];

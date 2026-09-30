@@ -3,7 +3,8 @@
 Frontend do sistema de gerenciamento de salas do Ambulatório HU-UFS, reescrito em React +
 TypeScript no lugar da versão Angular que ficava neste mesmo repositório. Consome o backend
 NestJS (`coffee_rep_gds_backend`) sem nenhuma mudança de contrato: endpoints, parâmetros,
-corpos e formatos de data são os mesmos que o Angular enviava.
+corpos e formatos de data são os mesmos que o Angular enviava. As únicas rotas novas são as de
+perfis e pedidos de acesso (`auth/me`, `role-request`, `user/:id/role`).
 
 A migração foi feita por etapas, e todas as telas do Angular já têm versão aqui.
 
@@ -17,6 +18,8 @@ A migração foi feita por etapas, e todas as telas do Angular já têm versão 
 | Reservas | `/reservation` | Migrada |
 | Histórico | `/historico` | Migrada |
 | Calendário | `/calendar` | Migrada |
+| Meu acesso | `/meu-acesso` | Nova |
+| Administração | `/admin` | Nova (só administrador) |
 
 Mudanças de comportamento intencionais em relação ao Angular estão em
 [docs/DIVERGENCIAS.md](docs/DIVERGENCIAS.md). O roteiro para validar as telas à mão antes de
@@ -96,12 +99,37 @@ Identificadores em inglês; textos de interface e documentação em português.
 - **Carregamento**: barra no topo durante qualquer requisição e aviso de "servidor iniciando"
   quando uma requisição passa de 3 segundos (cold start da Vercel).
 
+### Perfis e permissões
+
+Os perfis são Visualizador, Assistente administrativo, Coordenação e o Administrador único; a
+tabela de permissões está no README do backend, que é quem de fato as aplica. No frontend, elas
+só decidem o que aparece:
+
+- **`useCurrentUser`** (`features/session/hooks.ts`) busca `GET auth/me`, que devolve o perfil e
+  a lista de permissões já calculada. O frontend não replica a matriz, só pergunta se uma
+  permissão está na lista.
+- **`ProtectedRoute`** espera essa resposta antes de montar qualquer tela, com esqueleto enquanto
+  carrega e tela de erro com "Tentar novamente" e "Sair" se falhar. O login descarta a sessão
+  anterior do cache, para um usuário nunca herdar as permissões de outro.
+- **`usePermission("catalog.manage")`** e **`<Can permission>`** escondem botões e colunas de ação;
+  o menu filtra os itens pelo campo `permission` de `components/layout/navigation.ts`.
+- **`PermissionGate`** protege a rota: quem abre uma tela sem permissão pela URL vê "Sem permissão".
+- **Meu acesso** mostra o perfil atual, a hierarquia, o formulário de pedido (ou o pedido em
+  análise, que pode ser cancelado) e o histórico de pedidos.
+- **Administração** tem as abas Pedidos, com a contagem de pendentes, e Usuários. A contagem também
+  aparece no menu e é atualizada a cada minuto.
+
 ## Testes
 
 Regras portadas do Angular (validadores, máscaras, formatadores, mensagens de erro) têm testes
 unitários com os mesmos casos das specs originais. As telas têm testes de integração que
 montam o app real e verificam, via MSW, a URL, os parâmetros e o corpo exatos de cada
 requisição. Requisições sem handler reprovam o teste.
+
+`renderApp(rota, { role })` monta o app já com o `auth/me` do perfil informado no cache (padrão
+`COORDINATOR`, que vê tudo o que o Angular via). Os testes "por perfil" de cada tela usam
+`role: "VIEWER"` ou `"ASSISTANT"`; `role: null` deixa o cache vazio para o teste declarar o
+próprio handler de `auth/me`.
 
 ## Deploy (Vercel)
 
@@ -113,6 +141,9 @@ Sem `VITE_API_URL`, o build de produção usa `https://api-gestao-salas.vercel.a
 API do Angular. Para apontar para outra, defina `VITE_API_URL` nas variáveis de ambiente do
 projeto e faça um novo deploy: o valor entra no código durante o build. O domínio do frontend
 precisa estar em `CORS_ORIGINS` do backend.
+
+Esta versão depende de `GET auth/me`, então o backend com os perfis precisa ser publicado (e a
+migração `db:migrate-roles` rodada) antes do frontend. A ordem completa está no README do backend.
 
 O workflow em `.github/workflows/ci.yml` roda lint, tipos, testes e build em cada push na `main`
 e em cada pull request.

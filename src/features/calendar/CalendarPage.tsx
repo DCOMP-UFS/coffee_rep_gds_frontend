@@ -11,6 +11,7 @@ import { useAbsences } from "@/features/absences/hooks";
 import { useCalendarReservations } from "@/features/reservations/hooks";
 import { ReservationFormDialog } from "@/features/reservations/ReservationFormDialog";
 import { useSections } from "@/features/sections/hooks";
+import { usePermission } from "@/features/session/hooks";
 import { cn } from "@/lib/utils";
 import { EVENT_KIND_STYLES } from "./constants";
 import { EventDetailsDialog } from "./EventDetailsDialog";
@@ -35,6 +36,7 @@ const ALL_SECTIONS = 0;
 const LEGEND: CalendarEventKind[] = ["pontual", "recorrente", "livre"];
 
 export function CalendarPage() {
+	const canReserve = usePermission("reservation.single.manage");
 	const [month, setMonth] = useState(() => startOfMonth(new Date()));
 	const [sectionId, setSectionId] = useState(ALL_SECTIONS);
 
@@ -88,12 +90,18 @@ export function CalendarPage() {
 			<PageHeader
 				icon={CalendarDays}
 				title="Calendário"
-				description="Reservas e ausências do mês. Clique no número de um dia para reservar nele."
+				description={
+					canReserve
+						? "Reservas e ausências do mês. Clique no número de um dia para reservar nele."
+						: "Reservas e ausências do mês."
+				}
 				actions={
-					<Button onClick={() => openNewReservation(new Date())}>
-						<Plus aria-hidden="true" />
-						Nova reserva
-					</Button>
+					canReserve && (
+						<Button onClick={() => openNewReservation(new Date())}>
+							<Plus aria-hidden="true" />
+							Nova reserva
+						</Button>
+					)
 				}
 			/>
 
@@ -191,7 +199,7 @@ export function CalendarPage() {
 					eventsByDay={eventsByDay}
 					isLoading={isLoading}
 					isUpdating={isUpdating}
-					onNewReservation={openNewReservation}
+					onNewReservation={canReserve ? openNewReservation : undefined}
 					onSelectEvent={openDetails}
 				/>
 			</Card>

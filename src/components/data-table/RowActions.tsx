@@ -1,4 +1,6 @@
+import type { ColumnDef } from "@tanstack/react-table";
 import { Pencil, Trash2 } from "lucide-react";
+import type { ReactNode } from "react";
 import { RowActionButton } from "./RowActionButton";
 
 interface RowActionsProps {
@@ -24,4 +26,24 @@ export function RowActions({ editLabel, deleteLabel, onEdit, onDelete }: RowActi
 			/>
 		</div>
 	);
+}
+
+/**
+ * Coluna "Ações" das tabelas de cadastro. Devolve uma lista para ser espalhada no fim das
+ * colunas: vazia quando o perfil não pode alterar os registros, o que some com a coluna inteira.
+ */
+export function actionsColumn<TData>(
+	enabled: boolean,
+	renderActions: (row: TData) => ReactNode,
+	className = "w-28 text-right",
+): ColumnDef<TData>[] {
+	if (!enabled) return [];
+	return [
+		{
+			id: "actions",
+			header: () => <span className="sr-only md:not-sr-only">Ações</span>,
+			meta: { className },
+			cell: ({ row }) => renderActions(row.original),
+		},
+	];
 }

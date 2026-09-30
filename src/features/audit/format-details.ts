@@ -1,3 +1,4 @@
+import { roleLabel } from "@/features/session/roles";
 import { formatIsoDateBr, formatIsoDateTimeBr } from "@/shared/format/br-format";
 
 const DETAIL_LABELS: Record<string, string> = {
@@ -19,7 +20,16 @@ const DETAIL_LABELS: Record<string, string> = {
 	email: "E-mail",
 	cancelada: "Cancelada",
 	role: "Perfil",
+	usuario: "Usuário",
+	perfilAnterior: "Perfil anterior",
+	perfilNovo: "Novo perfil",
+	perfilAtual: "Perfil atual",
+	perfilPedido: "Perfil pedido",
+	motivo: "Motivo",
 };
+
+/** Chaves cujo valor é um código de perfil. */
+const ROLE_KEYS = new Set(["role", "perfilAnterior", "perfilNovo", "perfilAtual", "perfilPedido"]);
 
 /** Chaves de controle da importação, sem significado para quem lê o histórico. */
 const HIDDEN_KEYS = new Set(["backfill", "backfillSource", "backfillSourceId", "actorInferred"]);
@@ -30,11 +40,6 @@ const ID_KEYS: Record<string, readonly string[]> = {
 	salaId: ["sala"],
 	solicitanteId: ["solicitante", "solicitanteNome"],
 	recorrenciaId: [],
-};
-
-const ROLE_LABELS: Record<string, string> = {
-	ADMIN: "Administrador",
-	BASIC: "Básico",
 };
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
@@ -50,7 +55,7 @@ function formatValue(key: string, value: unknown): string {
 	if (typeof value !== "string") {
 		return typeof value === "object" ? JSON.stringify(value) : String(value);
 	}
-	if (key === "role") return lookup(ROLE_LABELS, value) ?? value;
+	if (ROLE_KEYS.has(key)) return roleLabel(value);
 	if (ISO_DATE.test(value)) return formatIsoDateBr(value);
 	if (ISO_DATE_TIME.test(value)) return formatIsoDateTimeBr(value);
 	return value;
