@@ -3,6 +3,7 @@ import { apiUrl, server } from "@test/msw/server";
 import { renderApp } from "@test/render-app";
 import { screen, waitFor } from "@testing-library/react";
 import { delay, HttpResponse, http } from "msw";
+import { DEVELOPER_CONTACT_LABEL } from "@/components/layout/AppFooter";
 import { SESSION_LOAD_ERROR_TITLE } from "@/features/auth/ProtectedRoute";
 import { getToken } from "@/lib/auth/token";
 import { FORBIDDEN_TITLE } from "./PermissionGate";
@@ -13,8 +14,14 @@ const mockRoomsPage = () =>
 		http.get(apiUrl("section"), () => HttpResponse.json([])),
 	);
 
-const menuLinks = () =>
-	screen.getAllByRole("link").map((link) => link.textContent?.replace(/,.*$/, "").trim());
+/** Links do menu lateral, sem os contatos do rodapé, que aparecem em todas as telas. */
+const menuLinks = () => {
+	const footerNav = screen.getByRole("navigation", { name: DEVELOPER_CONTACT_LABEL });
+	return screen
+		.getAllByRole("link")
+		.filter((link) => !footerNav.contains(link))
+		.map((link) => link.textContent?.replace(/,.*$/, "").trim());
+};
 
 describe("sessão", () => {
 	beforeAll(async () => {
