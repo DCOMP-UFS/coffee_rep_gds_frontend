@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { Navigate, Outlet } from "react-router-dom";
 import { ErrorState } from "@/components/feedback/ErrorState";
 import { PageSkeleton } from "@/components/feedback/PageSkeleton";
+import { AppFooter } from "@/components/layout/AppFooter";
 import { ColdStartBanner } from "@/components/layout/ColdStartBanner";
 import { Button } from "@/components/ui/button";
 import { useCurrentUser } from "@/features/session/hooks";
@@ -16,6 +17,7 @@ function SessionFrame({ children }: { children: ReactNode }) {
 		<main className="mx-auto flex min-h-svh w-full max-w-6xl flex-col gap-6 p-4 md:p-8">
 			<ColdStartBanner />
 			{children}
+			<AppFooter className="mt-auto" />
 		</main>
 	);
 }

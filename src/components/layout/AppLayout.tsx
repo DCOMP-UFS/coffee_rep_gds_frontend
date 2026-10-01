@@ -5,6 +5,7 @@ import { RouteErrorBoundary } from "@/components/feedback/RouteErrorBoundary";
 import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AccessDialogProvider } from "@/features/session/access-dialog/AccessDialogProvider";
+import { AppFooter } from "./AppFooter";
 import { AppSidebar } from "./AppSidebar";
 import { ColdStartBanner } from "./ColdStartBanner";
 
@@ -32,6 +33,7 @@ export function AppLayout() {
 							</Suspense>
 						</RouteErrorBoundary>
 					</main>
+					<AppFooter className="sticky bottom-0 z-20 border-t bg-background/85 py-2 backdrop-blur sm:flex-row sm:gap-3" />
 				</SidebarInset>
 			</AccessDialogProvider>
 		</SidebarProvider>

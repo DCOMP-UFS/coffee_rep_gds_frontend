@@ -1,8 +1,10 @@
-import { paged } from "@test/msw/fixtures";
+import { currentUser, paged } from "@test/msw/fixtures";
 import { API_URL, apiUrl, server } from "@test/msw/server";
 import { renderApp } from "@test/render-app";
 import { screen, waitFor } from "@testing-library/react";
-import { HttpResponse, http } from "msw";
+import { delay, HttpResponse, http } from "msw";
+import { DEVELOPER_CONTACT_LABEL } from "@/components/layout/AppFooter";
+import { copyrightNotice } from "@/components/layout/developer";
 import { NAVIGATION_ITEMS } from "@/components/layout/navigation";
 import { FORBIDDEN_TITLE } from "@/features/session/PermissionGate";
 
@@ -79,4 +81,38 @@ describe("rotas", () => {
 			);
 		},
 	);
+
+	describe("rodapé", () => {
+		const footerNav = () => screen.getByRole("navigation", { name: DEVELOPER_CONTACT_LABEL });
+
+		it.each(["/login", "/cadastro", "/nao-existe"])("aparece em %s", (path) => {
+			renderApp(path);
+			expect(footerNav()).toBeInTheDocument();
+			expect(screen.getByText(copyrightNotice())).toBeInTheDocument();
+		});
+
+		it("aparece nas telas autenticadas, abaixo do conteúdo", async () => {
+			mockRoomsPage();
+			renderApp("/rooms", { authenticated: true });
+
+			expect(await screen.findByRole("heading", { level: 1, name: "Salas" })).toBeInTheDocument();
+			expect(footerNav()).toBeInTheDocument();
+		});
+
+		it("aparece enquanto a sessão carrega", async () => {
+			mockRoomsPage();
+			server.use(
+				http.get(apiUrl("auth/me"), async () => {
+					await delay(50);
+					return HttpResponse.json(currentUser("VIEWER"));
+				}),
+			);
+			renderApp("/rooms", { authenticated: true, role: null });
+
+			expect(screen.getByText("Carregando…")).toBeInTheDocument();
+			expect(footerNav()).toBeInTheDocument();
+			expect(await screen.findByRole("heading", { level: 1, name: "Salas" })).toBeInTheDocument();
+			expect(footerNav()).toBeInTheDocument();
+		});
+	});
 });

@@ -73,7 +73,8 @@ src/
   features/<tela>/     api.ts, hooks.ts, schemas.ts, types.ts, página, diálogos e testes
   components/
     ui/                shadcn/ui (gerado pela CLI; fora do lint)
-    layout/            AppLayout, AppSidebar, PageHeader, barra de progresso, aviso de cold start
+    layout/            AppLayout, AppSidebar, AppFooter, PageHeader, barra de progresso, aviso de cold start
+    icons/             ícones de marcas ausentes no lucide-react (GitHub, LinkedIn, WhatsApp)
     data-table/        DataTable e PaginationBar
     feedback/          ConfirmDialog, EmptyState, ErrorState, TableSkeleton
     form/              FormField, MaskedInput, PasswordInput, SearchableSelect
@@ -161,3 +162,9 @@ migração `db:migrate-roles` rodada) antes do frontend. A ordem completa está 
 
 O workflow em `.github/workflows/ci.yml` roda lint, tipos, testes e build em cada push na `main`
 e em cada pull request.
+
+## Licença
+
+Software proprietário, com todos os direitos reservados. Uso, cópia, modificação, distribuição
+ou exploração comercial dependem de autorização por escrito do titular. Os termos completos estão
+em [LICENSE](LICENSE).
