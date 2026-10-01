@@ -2,6 +2,7 @@ import { CalendarCheck2, DoorOpen, ShieldCheck } from "lucide-react";
 import { useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import { illustrations } from "@/assets/illustrations";
+import { AppFooter } from "@/components/layout/AppFooter";
 import { BrandLogo } from "@/components/layout/BrandLogo";
 import { ColdStartBanner } from "@/components/layout/ColdStartBanner";
 import { clearToken } from "@/lib/auth/token";
@@ -63,6 +64,7 @@ export function AuthLayout() {
 						Gerenciamento de salas – Ambulatório HU-UFS
 					</p>
 				</div>
+				<AppFooter className="py-0" />
 			</main>
 		</div>
 	);

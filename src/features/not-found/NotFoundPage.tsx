@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { illustrations } from "@/assets/illustrations";
+import { AppFooter } from "@/components/layout/AppFooter";
 import { BrandLogo } from "@/components/layout/BrandLogo";
 import { Button } from "@/components/ui/button";
 
@@ -16,6 +17,7 @@ export function NotFoundPage() {
 			<Button asChild>
 				<Link to="/rooms">Voltar para o início</Link>
 			</Button>
+			<AppFooter className="mt-4" />
 		</main>
 	);
 }
