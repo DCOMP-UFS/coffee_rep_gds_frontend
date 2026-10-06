@@ -1,3 +1,4 @@
+import { Globe } from "lucide-react";
 import type { ComponentType } from "react";
 import {
 	type BrandIconProps,
@@ -47,5 +48,11 @@ export const DEVELOPER_LINKS: readonly DeveloperLink[] = [
 		href: "https://github.com/athena272",
 		icon: GitHubIcon,
 		brandColorClass: "text-foreground",
+	},
+	{
+		label: "Portfólio",
+		href: "https://athena272portfolio.vercel.app",
+		icon: Globe,
+		brandColorClass: "text-[#7C3AED]",
 	},
 ];

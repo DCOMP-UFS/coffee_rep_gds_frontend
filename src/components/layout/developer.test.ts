@@ -31,6 +31,7 @@ describe("DEVELOPER_LINKS", () => {
 			["WhatsApp", "https://wa.me/5579999007075"],
 			["LinkedIn", "https://www.linkedin.com/in/guigorosario/"],
 			["GitHub", "https://github.com/athena272"],
+			["Portfólio", "https://athena272portfolio.vercel.app"],
 		]);
 	});
 });
