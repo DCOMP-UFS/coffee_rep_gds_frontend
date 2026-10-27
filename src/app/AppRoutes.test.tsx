@@ -7,6 +7,7 @@ import { DEVELOPER_CONTACT_LABEL } from "@/components/layout/AppFooter";
 import { copyrightNotice } from "@/components/layout/developer";
 import { NAVIGATION_ITEMS } from "@/components/layout/navigation";
 import { FORBIDDEN_TITLE } from "@/features/session/PermissionGate";
+import { AUTHENTICATED_PAGE_LOADERS } from "./authenticated-page-loaders";
 
 const mockRoomsPage = () =>
 	server.use(
@@ -20,17 +21,7 @@ describe("rotas", () => {
 	// Importar os módulos antes evita que a primeira visita pague a importação dentro do tempo de
 	// espera do `findBy`. A tela continua passando pelo "Carregando…" na primeira renderização.
 	beforeAll(async () => {
-		await Promise.all([
-			import("@/features/rooms/RoomsPage"),
-			import("@/features/sections/SectionsPage"),
-			import("@/features/requesters/RequestersPage"),
-			import("@/features/absences/AbsencesPage"),
-			import("@/features/reservations/ReservationsPage"),
-			import("@/features/audit/HistoryPage"),
-			import("@/features/calendar/CalendarPage"),
-			import("@/features/my-access/MyAccessPage"),
-			import("@/features/admin/AdminPage"),
-		]);
+		await Promise.all(Object.values(AUTHENTICATED_PAGE_LOADERS).map((load) => load()));
 	});
 
 	it("mostra a página 404 em endereço desconhecido", () => {

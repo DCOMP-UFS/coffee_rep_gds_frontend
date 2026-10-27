@@ -12,40 +12,18 @@ import { ProtectedRoute } from "@/features/auth/ProtectedRoute";
 import { SignUpPage } from "@/features/auth/SignUpPage";
 import { NotFoundPage } from "@/features/not-found/NotFoundPage";
 import { PermissionGate } from "@/features/session/PermissionGate";
+import { AUTHENTICATED_PAGE_LOADERS } from "./authenticated-page-loaders";
 
 /** Telas autenticadas saem em arquivos próprios, baixados só na primeira visita à rota. */
-const RoomsPage = lazy(() =>
-	import("@/features/rooms/RoomsPage").then((module) => ({ default: module.RoomsPage })),
-);
-const SectionsPage = lazy(() =>
-	import("@/features/sections/SectionsPage").then((module) => ({ default: module.SectionsPage })),
-);
-const RequestersPage = lazy(() =>
-	import("@/features/requesters/RequestersPage").then((module) => ({
-		default: module.RequestersPage,
-	})),
-);
-const AbsencesPage = lazy(() =>
-	import("@/features/absences/AbsencesPage").then((module) => ({ default: module.AbsencesPage })),
-);
-
-const ReservationsPage = lazy(() =>
-	import("@/features/reservations/ReservationsPage").then((module) => ({
-		default: module.ReservationsPage,
-	})),
-);
-const HistoryPage = lazy(() =>
-	import("@/features/audit/HistoryPage").then((module) => ({ default: module.HistoryPage })),
-);
-const CalendarPage = lazy(() =>
-	import("@/features/calendar/CalendarPage").then((module) => ({ default: module.CalendarPage })),
-);
-const MyAccessPage = lazy(() =>
-	import("@/features/my-access/MyAccessPage").then((module) => ({ default: module.MyAccessPage })),
-);
-const AdminPage = lazy(() =>
-	import("@/features/admin/AdminPage").then((module) => ({ default: module.AdminPage })),
-);
+const RoomsPage = lazy(AUTHENTICATED_PAGE_LOADERS["/rooms"]);
+const SectionsPage = lazy(AUTHENTICATED_PAGE_LOADERS["/sections"]);
+const RequestersPage = lazy(AUTHENTICATED_PAGE_LOADERS["/requester"]);
+const AbsencesPage = lazy(AUTHENTICATED_PAGE_LOADERS["/absences"]);
+const ReservationsPage = lazy(AUTHENTICATED_PAGE_LOADERS["/reservation"]);
+const HistoryPage = lazy(AUTHENTICATED_PAGE_LOADERS["/historico"]);
+const CalendarPage = lazy(AUTHENTICATED_PAGE_LOADERS["/calendar"]);
+const MyAccessPage = lazy(AUTHENTICATED_PAGE_LOADERS["/meu-acesso"]);
+const AdminPage = lazy(AUTHENTICATED_PAGE_LOADERS["/admin"]);
 
 /** Tela de cada item do menu; o tipo obriga que nenhum item fique sem tela. */
 const PAGES: Record<NavigationPath, ReactNode> = {
