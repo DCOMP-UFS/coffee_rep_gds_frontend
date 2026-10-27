@@ -1,5 +1,6 @@
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
+import { preloadAuthenticatedPage } from "@/app/authenticated-page-loaders";
 import { PageSkeleton } from "@/components/feedback/PageSkeleton";
 import { RouteErrorBoundary } from "@/components/feedback/RouteErrorBoundary";
 import { Separator } from "@/components/ui/separator";
@@ -14,6 +15,10 @@ export const APP_TITLE = "Gerenciamento de salas – Ambulatório HU-UFS";
 /** Casca das telas autenticadas: menu lateral, barra superior e área de conteúdo. */
 export function AppLayout() {
 	const { pathname } = useLocation();
+
+	useEffect(() => {
+		preloadAuthenticatedPage("/rooms");
+	}, []);
 
 	return (
 		<SidebarProvider>

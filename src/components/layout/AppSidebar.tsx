@@ -1,5 +1,6 @@
 import { Lock, LogOut } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
+import { preloadAuthenticatedPage } from "@/app/authenticated-page-loaders";
 import { inlineReason, lockedLabel } from "@/components/actions/action-lock";
 import {
 	Sidebar,
@@ -89,7 +90,12 @@ export function AppSidebar() {
 												lockReason && "text-sidebar-foreground/60",
 											)}
 										>
-											<NavLink to={path} onClick={closeOnMobile}>
+											<NavLink
+												to={path}
+												onClick={closeOnMobile}
+												onMouseEnter={lockReason ? undefined : () => preloadAuthenticatedPage(path)}
+												onFocus={lockReason ? undefined : () => preloadAuthenticatedPage(path)}
+											>
 												<Icon aria-hidden="true" />
 												<span>{label}</span>
 												{badge > 0 && <span className="sr-only">, {pendingLabel(badge)}</span>}
